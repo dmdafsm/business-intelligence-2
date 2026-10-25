@@ -24,7 +24,7 @@
     {
       "id": "S02",
       "title": "Registry",
-      "status": "in_progress",
+      "status": "completed",
       "path": "steps/s02-registry.md",
       "depends_on": [
         "S01"
@@ -51,7 +51,8 @@
         {
           "id": "S02.4",
           "title": "Import older snapshots as history",
-          "status": "planned"
+          "status": "completed",
+          "note": "tasks/s02-4-registry-history.md"
         }
       ]
     },

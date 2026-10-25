@@ -25,4 +25,4 @@ Every company in the ONRC open-data registry exists in the database with its ide
 - S02.1 Inspect registry, nomenclature and SIRUTA formats — [note](../tasks/s02-1-registry-inspection.md).
 - S02.2 Import nomenclatures, SIRUTA and the latest OD_FIRME snapshot — [note](../tasks/s02-2-registry-import.md).
 - S02.3 Import company statuses (`OD_STARE_FIRMA`) and authorized CAEN activities (`OD_CAEN_AUTORIZAT`) — [note](../tasks/s02-3-statuses-and-activities.md).
-- S02.4 Import older snapshots as history.
+- S02.4 Import older snapshots as history — [inspection](../tasks/s02-4-history-inspection.md), [note](../tasks/s02-4-registry-history.md).
