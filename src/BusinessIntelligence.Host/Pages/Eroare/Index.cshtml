@@ -1,0 +1,11 @@
+@page "/Eroare/{code:int}"
+@model BusinessIntelligence.Host.Pages.Eroare.IndexModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="md-empty-state">
+    <md-icon name="info" />
+    <h1 class="md-empty-state__title">@Model.Title</h1>
+    <p class="md-empty-state__text">@Model.Message</p>
+    <a class="md-button md-button--tonal" asp-page="/Index">Înapoi la căutare</a>
+</div>

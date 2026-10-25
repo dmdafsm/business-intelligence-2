@@ -1,0 +1,25 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Căutare";
+}
+<section class="search-hero" aria-labelledby="search-title">
+    <h1 id="search-title" class="md-typescale-headline-large">Caută o firmă</h1>
+    <p class="md-typescale-body-large md-on-surface-variant">După denumire, CUI sau număr de înregistrare la Registrul Comerțului.</p>
+    <form class="md-search" method="get" role="search">
+        <md-icon name="search" />
+        <label class="md-visually-hidden" for="q">Denumire, CUI sau număr de înregistrare</label>
+        <input class="md-search__input" id="q" name="q" type="search" value="@Model.Query" maxlength="200"
+               placeholder="Denumire, CUI sau nr. reg." autocomplete="off" />
+        <button class="md-icon-button" type="submit"><md-icon name="chevron-right" label="Caută" /></button>
+    </form>
+</section>
+
+@if (Model.Query is not null)
+{
+    <div class="md-empty-state" role="status">
+        <md-icon name="info" />
+        <h2 class="md-empty-state__title">Încă nu există date importate</h2>
+        <p class="md-empty-state__text">Căutarea devine disponibilă după importul registrului ONRC.</p>
+    </div>
+}

@@ -1,0 +1,13 @@
+.git
+.artifacts
+.env
+.env.*
+**/bin
+**/obj
+**/.DS_Store
+**/appsettings.*.local.json
+**/*.pfx
+**/*.p12
+.research/raw
+.research/downloads
+.research/private

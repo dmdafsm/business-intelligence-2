@@ -1,0 +1,78 @@
+{
+  "version": "mvp",
+  "updated": "2026-10-25",
+  "references": {
+    "plan": "mvp-plan.md",
+    "architecture": "architecture.md"
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "title": "Foundation",
+      "status": "completed",
+      "path": "steps/s01-foundation.md",
+      "depends_on": [],
+      "tasks": [
+        {
+          "id": "S01.1",
+          "title": "Stack, guardrails, agent setup and Material 3 base",
+          "status": "completed",
+          "note": "tasks/s01-1-foundation.md"
+        }
+      ]
+    },
+    {
+      "id": "S02",
+      "title": "Registry",
+      "status": "planned",
+      "path": "steps/s02-registry.md",
+      "depends_on": [
+        "S01"
+      ],
+      "tasks": []
+    },
+    {
+      "id": "S03",
+      "title": "Fiscal data and contacts",
+      "status": "planned",
+      "path": "steps/s03-fiscal.md",
+      "depends_on": [
+        "S02"
+      ],
+      "tasks": []
+    },
+    {
+      "id": "S04",
+      "title": "Financial history",
+      "status": "planned",
+      "path": "steps/s04-financials.md",
+      "depends_on": [
+        "S02"
+      ],
+      "tasks": []
+    },
+    {
+      "id": "S05",
+      "title": "Search and grouping",
+      "status": "planned",
+      "path": "steps/s05-search.md",
+      "depends_on": [
+        "S02"
+      ],
+      "tasks": []
+    },
+    {
+      "id": "S06",
+      "title": "Company profile",
+      "status": "planned",
+      "path": "steps/s06-profile.md",
+      "depends_on": [
+        "S02",
+        "S03",
+        "S04",
+        "S05"
+      ],
+      "tasks": []
+    }
+  ]
+}

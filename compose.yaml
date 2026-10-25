@@ -1,0 +1,85 @@
+name: business-intelligence-2
+
+x-application: &application
+  image: business-intelligence-2:local
+  build:
+    context: .
+    target: runtime
+  environment:
+    ASPNETCORE_ENVIRONMENT: Development
+    ConnectionStrings__Application: Host=postgres;Database=business_intelligence;Username=bi_local;Timeout=5;CommandTimeout=30;GSS Encryption Mode=Disable
+    Database__PasswordFile: /run/secrets/postgres_password
+  secrets:
+    - postgres_password
+  read_only: true
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  init: true
+
+services:
+  postgres:
+    image: postgres:18.6-alpine3.24@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873
+    environment:
+      POSTGRES_DB: business_intelligence
+      POSTGRES_USER: bi_local
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U bi_local -d business_intelligence"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1
+
+  migrate:
+    <<: *application
+    command: [database, migrate, --confirm-database, business_intelligence]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    restart: "no"
+    mem_limit: 256m
+
+  web:
+    <<: *application
+    ports:
+      - "127.0.0.1:${BI_HTTP_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1
+
+  verify:
+    profiles: [verify]
+    image: business-intelligence-2-verify:local
+    build:
+      context: .
+      target: verify
+    volumes:
+      - ./.artifacts/docker/verification:/source/.artifacts
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    mem_limit: 2g
+    cpus: 2
+
+secrets:
+  postgres_password:
+    file: ./.artifacts/docker/postgres-password
+
+volumes:
+  postgres-data:
