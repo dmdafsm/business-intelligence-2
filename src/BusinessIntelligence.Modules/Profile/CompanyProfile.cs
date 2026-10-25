@@ -21,6 +21,13 @@ public sealed record ActivityEntry(short Version, string Code, string? Name);
 /// </summary>
 public sealed record PersonEntry(string RegistrationNumber, string? Name, string? Role, string Kind, int? BirthYear, string? Place);
 
+/// <summary>Public procurement in one year, as winner or as contracting authority. Contract values are counted once per contract.</summary>
+public sealed record ProcurementYear(short Year, int Contracts, decimal ContractValue, int DirectPurchases, decimal DirectValue);
+
+public sealed record ProcurementSummary(
+    IReadOnlyList<ProcurementYear> Won, IReadOnlyList<Procurement.ProcurementAward> RecentWins, IReadOnlyList<ProcurementYear> Bought,
+    IReadOnlyList<SourceNote> Sources, string Coverage);
+
 /// <summary>One financial year in the company's range; <see cref="Statement"/> is null when nothing was filed.</summary>
 public sealed record FinancialYear(short Year, FinancialStatement? Statement, SourceFile? Source, string? CaenName);
 
@@ -32,6 +39,7 @@ public sealed record CompanyProfile
     public required IReadOnlyList<StatusEntry> Statuses { get; init; }
     public required IReadOnlyList<ActivityEntry> Activities { get; init; }
     public required IReadOnlyList<PersonEntry> People { get; init; }
+    public ProcurementSummary? Procurement { get; init; }
     public required IReadOnlyList<RegistrationPeriod> RegistryHistory { get; init; }
     public required IReadOnlyList<TaxpayerPeriod> FiscalHistory { get; init; }
     public required IReadOnlyList<FinancialYear> Financials { get; init; }
@@ -130,6 +138,7 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             HistorySource = snapshots.Count == 0 ? null : HistoryNote(snapshots),
             FiscalSource = releases.Count == 0 ? null : FiscalNote(releases),
             FiscalReleases = releases,
+            Procurement = company.Cui is { } procurementCui ? await ProcurementAsync(procurementCui, cancellationToken) : null,
         };
     }
 
@@ -181,6 +190,67 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             return new FinancialYear((short)year, statement, statement is null ? null : sources.GetValueOrDefault(statement.SourceFileId),
                 statement is { CaenCode: { } code, CaenVersion: 2 } ? caen.GetValueOrDefault(code) : null);
         })];
+    }
+
+    /// <summary>Recent awards shown on the page; the yearly totals cover everything imported.</summary>
+    public const int RecentAwards = 20;
+
+    private async Task<ProcurementSummary?> ProcurementAsync(long cui, CancellationToken cancellationToken)
+    {
+        var files = await database.SourceFiles.AsNoTracking()
+            .Where(file => file.Kind == Procurement.ImportSeap.ContractsKind || file.Kind == Procurement.ImportSeap.DirectKind)
+            .Join(database.PublishedDatasets, file => file.Id, published => published.SourceFileId, (file, _) => file)
+            .OrderBy(file => file.ReferenceDate)
+            .ToListAsync(cancellationToken);
+        if (files.Count == 0)
+        {
+            return null;
+        }
+
+        var won = await YearlyAsync("winner_cui = @cui", cui, cancellationToken);
+        var bought = await YearlyAsync("authority_cui = @cui", cui, cancellationToken);
+        var recent = await database.ProcurementAwards
+            .FromSql($"""
+                SELECT DISTINCT ON (kind, authority_cui, authority_name, reference, lot, contract_number) *
+                FROM procurement.awards WHERE winner_cui = {cui}
+                ORDER BY kind, authority_cui, authority_name, reference, lot, contract_number, year DESC, quarter DESC
+                """)
+            .AsNoTracking()
+            .OrderByDescending(item => item.ContractDate ?? item.PublishedOn).ThenByDescending(item => item.ValueRon)
+            .Take(RecentAwards).ToListAsync(cancellationToken);
+        var coverage = string.Join(", ", files.GroupBy(file => file.ReferenceDate.Year).OrderBy(group => group.Key)
+            .Select(group => $"{group.Key} ({string.Join(", ", group.Select(file => "T" + ((file.ReferenceDate.Month + 2) / 3)).Distinct().Order(StringComparer.Ordinal))})"));
+        return new ProcurementSummary(won, recent, bought,
+            [.. files.GroupBy(file => (file.Publisher, file.License)).Select(group => new SourceNote(group.Key.Publisher, "Achiziții publice (SEAP)",
+                $"{group.Min(file => file.ReferenceDate).ToString("dd.MM.yyyy", Culture)} – {group.Max(file => file.ReferenceDate).ToString("dd.MM.yyyy", Culture)}", group.Key.License))],
+            coverage);
+
+    }
+
+    /// <summary>
+    /// Yearly counts and values. A contract can be listed in several quarterly files and once per winner: it is counted once,
+    /// by authority, notice, lot and contract number, in the first year it appears, with the largest value published for it.
+    /// </summary>
+    private async Task<List<ProcurementYear>> YearlyAsync(string condition, long cui, CancellationToken cancellationToken)
+    {
+        await database.Database.OpenConnectionAsync(cancellationToken);
+        await using var command = new Npgsql.NpgsqlCommand($"""
+            SELECT year, count(*) FILTER (WHERE kind = 'contract'), coalesce(sum(value) FILTER (WHERE kind = 'contract'), 0),
+                   count(*) FILTER (WHERE kind = 'direct'), coalesce(sum(value) FILTER (WHERE kind = 'direct'), 0)
+            FROM (SELECT kind, min(year) AS year, max(value_ron) AS value
+                  FROM procurement.awards WHERE {condition}
+                  GROUP BY kind, authority_cui, authority_name, reference, lot, contract_number) contracts
+            GROUP BY year ORDER BY year DESC
+            """, (Npgsql.NpgsqlConnection)database.Database.GetDbConnection());
+        command.Parameters.AddWithValue("cui", cui);
+        var years = new List<ProcurementYear>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            years.Add(new ProcurementYear(reader.GetInt16(0), (int)reader.GetInt64(1), reader.GetDecimal(2), (int)reader.GetInt64(3), reader.GetDecimal(4)));
+        }
+
+        return years;
     }
 
     private async Task<Dictionary<int, string>> PlacesAsync(IEnumerable<int?> codes, CancellationToken cancellationToken)

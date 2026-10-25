@@ -22,6 +22,7 @@ STEPS = [
     ["registry", "history", RAW],
     ["financials", "import-all", RAW],
     ["fiscal", "import-all", RAW],
+    ["procurement", "import-all", RAW],
     ["search", "build"],
 ]
 

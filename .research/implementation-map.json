@@ -156,6 +156,23 @@
           "note": "tasks/s07-1-representatives.md"
         }
       ]
+    },
+    {
+      "id": "S08",
+      "title": "More public data on the profile",
+      "status": "in_progress",
+      "path": "steps/s08-more-data.md",
+      "depends_on": [
+        "S06"
+      ],
+      "tasks": [
+        {
+          "id": "S08.1",
+          "title": "Public procurement (SEAP) 2025",
+          "status": "completed",
+          "note": "tasks/s08-1-procurement.md"
+        }
+      ]
     }
   ]
 }

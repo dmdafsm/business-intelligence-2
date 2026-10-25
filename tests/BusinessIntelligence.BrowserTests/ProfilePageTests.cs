@@ -35,6 +35,10 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
             await Assertions.Expect(people).Not.ToContainTextAsync("05.03.1980");
             await Assertions.Expect(people).Not.ToContainTextAsync("Turda");
             await Assertions.Expect(people.GetByRole(AriaRole.Row, new() { Name = "EXEMPLU INSOLV IPURL" })).ToContainTextAsync("Cluj-Napoca, Cluj, România");
+            var procurement = page.GetByRole(AriaRole.Region, new() { Name = "Achiziții publice" });
+            await Assertions.Expect(procurement).ToContainTextAsync("2025 (T1)");
+            await Assertions.Expect(procurement.GetByRole(AriaRole.Row, new() { Name = "SCOALA GIMNAZIALA TEST" })).ToContainTextAsync("4.999,50");
+            await Assertions.Expect(procurement.Locator(".md-source")).ToContainTextAsync("Autoritatea pentru Digitalizarea României");
             var history = page.GetByRole(AriaRole.Region, new() { Name = "Istoric" });
             await Assertions.Expect(history).ToContainTextAsync("VECHI NUME S.R.L.");
             await Assertions.Expect(history).ToContainTextAsync("J12/99/2000");
