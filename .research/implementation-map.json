@@ -24,12 +24,35 @@
     {
       "id": "S02",
       "title": "Registry",
-      "status": "planned",
+      "status": "in_progress",
       "path": "steps/s02-registry.md",
       "depends_on": [
         "S01"
       ],
-      "tasks": []
+      "tasks": [
+        {
+          "id": "S02.1",
+          "title": "Inspect registry, nomenclature and SIRUTA formats",
+          "status": "completed",
+          "note": "tasks/s02-1-registry-inspection.md"
+        },
+        {
+          "id": "S02.2",
+          "title": "Import nomenclatures, SIRUTA and the latest OD_FIRME snapshot",
+          "status": "completed",
+          "note": "tasks/s02-2-registry-import.md"
+        },
+        {
+          "id": "S02.3",
+          "title": "Import company statuses and authorized CAEN activities",
+          "status": "planned"
+        },
+        {
+          "id": "S02.4",
+          "title": "Import older snapshots as history",
+          "status": "planned"
+        }
+      ]
     },
     {
       "id": "S03",

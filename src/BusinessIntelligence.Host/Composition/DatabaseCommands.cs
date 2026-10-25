@@ -1,5 +1,4 @@
 using System.Data.Common;
-using BusinessIntelligence.Modules.Platform.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -20,12 +19,9 @@ internal static class DatabaseCommands
 
         try
         {
-            var connection = await ApplicationDatabaseConnection.ResolveAsync(
-                Environment.GetEnvironmentVariable("ConnectionStrings__Application"),
-                Environment.GetEnvironmentVariable("Database__PasswordFile"), cancellationToken);
-            if (string.IsNullOrWhiteSpace(connection))
+            var connection = await OperatorDatabase.ResolveConnectionAsync(cancellationToken);
+            if (connection is null)
             {
-                Console.Error.WriteLine("Set ConnectionStrings__Application explicitly; no default database is used.");
                 return 2;
             }
 
@@ -36,7 +32,7 @@ internal static class DatabaseCommands
                 return 2;
             }
 
-            await using var database = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(connection).Options);
+            await using var database = OperatorDatabase.Create(connection);
             await database.Database.OpenConnectionAsync(cancellationToken);
             await database.Database.ExecuteSqlAsync($"SELECT pg_advisory_lock({MigrationLock})", cancellationToken);
             try

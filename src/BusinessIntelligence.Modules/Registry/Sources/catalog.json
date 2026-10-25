@@ -1,0 +1,52 @@
+{
+  "files": [
+    {
+      "id": "onrc-firme-2026-10-19",
+      "kind": "onrc-firme",
+      "dataset": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
+      "fileName": "OD_FIRME.CSV",
+      "url": "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/361e52e3-4590-40af-ae0f-8a15089fc927/download/od_firme.csv",
+      "publisher": "Oficiul Național al Registrului Comerțului (ONRC)",
+      "license": "CC BY 4.0",
+      "referenceDate": "2026-10-19",
+      "bytes": 695782068,
+      "sha256": "e7f48934242c7bb1c3cfb77aa85d778a1857c4b065664fa593f64ade1733ec85"
+    },
+    {
+      "id": "onrc-n-caen-2026-10-19",
+      "kind": "onrc-caen",
+      "dataset": "Nomenclatoare ONRC 19.10.2026",
+      "fileName": "N_CAEN.CSV",
+      "url": "https://data.gov.ro/dataset/7729250c-f03a-45d5-b2de-df015340b619/resource/6e29cd8d-7de0-4b9f-97a6-fad8ee50d0fa/download/n_caen.csv",
+      "publisher": "Oficiul Național al Registrului Comerțului (ONRC)",
+      "license": "CC BY 4.0",
+      "referenceDate": "2026-10-19",
+      "bytes": 276396,
+      "sha256": "45f207eb6634eea667c8450e20ac8197743ba7ec2371d19a269b20e24f07b34f"
+    },
+    {
+      "id": "onrc-n-stare-firma-2026-10-19",
+      "kind": "onrc-status",
+      "dataset": "Nomenclatoare ONRC 19.10.2026",
+      "fileName": "N_STARE_FIRMA.CSV",
+      "url": "https://data.gov.ro/dataset/7729250c-f03a-45d5-b2de-df015340b619/resource/eb45f5fd-b2c5-4ed2-876d-2d6f92ed6922/download/n_stare_firma.csv",
+      "publisher": "Oficiul Național al Registrului Comerțului (ONRC)",
+      "license": "CC BY 4.0",
+      "referenceDate": "2026-10-19",
+      "bytes": 12740,
+      "sha256": "c3b4af92691fe6bb47e924e13070b80c605672225c399e1f48ef5b578beadf9b"
+    },
+    {
+      "id": "ins-siruta-s1-2024",
+      "kind": "siruta",
+      "dataset": "SIRUTA S1 2024",
+      "fileName": "siruta_s1_2024.csv",
+      "url": "https://data.gov.ro/dataset/0b91d96d-1727-4037-af67-6bfc3db52139/resource/a43597c1-6af9-4ca9-adb7-0b5c7873d8fa/download/siruta_s1_2024.csv",
+      "publisher": "Institutul Național de Statistică (INS)",
+      "license": "CC BY 4.0",
+      "referenceDate": "2024-01-01",
+      "bytes": 1095632,
+      "sha256": "50ae2c83b73c921bec3d25a937702b39c7bb51581a81ec13fbe227f1ac5a876e"
+    }
+  ]
+}

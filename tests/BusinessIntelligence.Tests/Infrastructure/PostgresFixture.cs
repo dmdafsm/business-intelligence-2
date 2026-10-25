@@ -56,6 +56,24 @@ public sealed class PostgresFixture : IAsyncLifetime
     public AppDbContext CreateContext() =>
         new(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(ConnectionString).Options);
 
+    /// <summary>Creates and migrates a separate database in this cluster, so a test starts from an empty schema.</summary>
+    public async Task<AppDbContext> CreateIsolatedContextAsync()
+    {
+        var name = "test_" + Guid.NewGuid().ToString("N");
+        await using (var owner = CreateContext())
+        {
+            // The name is a generated GUID; CREATE DATABASE cannot take a parameter.
+#pragma warning disable EF1003
+            await owner.Database.ExecuteSqlRawAsync("CREATE DATABASE " + name);
+#pragma warning restore EF1003
+        }
+
+        var connection = new NpgsqlConnectionStringBuilder(ConnectionString) { Database = name, CommandTimeout = 60 }.ConnectionString;
+        var database = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseNpgsql(connection).Options);
+        await database.Database.MigrateAsync();
+        return database;
+    }
+
     public async Task DisposeAsync()
     {
         if (File.Exists(Path.Combine(_directory, "data", "postmaster.pid")))
