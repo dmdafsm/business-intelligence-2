@@ -339,6 +339,32 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("status_codes", "registry");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.HistorySnapshot", b =>
+                {
+                    b.Property<DateOnly>("SnapshotDate")
+                        .HasColumnType("date")
+                        .HasColumnName("snapshot_date");
+
+                    b.Property<DateTimeOffset>("ImportedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("imported_at");
+
+                    b.Property<string>("ParserVersion")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("parser_version");
+
+                    b.Property<string>("Report")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("report");
+
+                    b.HasKey("SnapshotDate")
+                        .HasName("pk_history_snapshots");
+
+                    b.ToTable("history_snapshots", "registry");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.PublishedDataset", b =>
                 {
                     b.Property<string>("Kind")
@@ -498,6 +524,80 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasDatabaseName("ix_registrations_snapshot_id_cui");
 
                     b.ToTable("registrations", "registry");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.RegistrationPeriod", b =>
+                {
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("registration_number");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text")
+                        .HasColumnName("address");
+
+                    b.Property<string>("County")
+                        .HasColumnType("text")
+                        .HasColumnName("county");
+
+                    b.Property<short?>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<long?>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<string>("CuiState")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cui_state");
+
+                    b.Property<string>("Lifecycle")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("lifecycle");
+
+                    b.Property<string>("Locality")
+                        .HasColumnType("text")
+                        .HasColumnName("locality");
+
+                    b.Property<int?>("LocalityCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("locality_code");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NameKey")
+                        .HasColumnType("text")
+                        .HasColumnName("name_key");
+
+                    b.PrimitiveCollection<int[]>("StatusCodes")
+                        .IsRequired()
+                        .HasColumnType("integer[]")
+                        .HasColumnName("status_codes");
+
+                    b.Property<int?>("UatCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("uat_code");
+
+                    b.Property<DateOnly>("ValidTo")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_to");
+
+                    b.HasKey("RegistrationNumber", "ValidFrom")
+                        .HasName("pk_registration_periods");
+
+                    b.HasIndex("Cui")
+                        .HasDatabaseName("ix_registration_periods_cui");
+
+                    b.ToTable("registration_periods", "registry");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.RegistrationStatus", b =>

@@ -15,6 +15,8 @@ public static class SourceCatalog
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly Lazy<IReadOnlyDictionary<string, CatalogFile>> Files = new(Load);
 
+    public static IEnumerable<CatalogFile> All => Files.Value.Values;
+
     public static IEnumerable<CatalogFile> OfKind(string kind) => Files.Value.Values.Where(file => file.Kind == kind);
 
     public static CatalogFile Get(string id) =>

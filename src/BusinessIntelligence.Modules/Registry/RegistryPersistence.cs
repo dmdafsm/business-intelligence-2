@@ -142,6 +142,43 @@ public sealed class Company
     public short? CaenVersion { get; set; }
 }
 
+/// <summary>
+/// A stretch of consecutive yearly snapshots in which a registration looked the same (name, CUI, place, lifecycle).
+/// A new period starts when one of them changes. Missing from a snapshot is not a change: the period just stops being
+/// extended, and absence is never read as being struck off.
+/// </summary>
+public sealed class RegistrationPeriod
+{
+    public required string RegistrationNumber { get; set; }
+    public DateOnly ValidFrom { get; set; }
+
+    /// <summary>The last snapshot in which the registration still looked like this.</summary>
+    public DateOnly ValidTo { get; set; }
+    public string? Name { get; set; }
+
+    /// <summary>The name as compared between snapshots (folded, legal-form spellings unified).</summary>
+    public string? NameKey { get; set; }
+    public long? Cui { get; set; }
+    public required string CuiState { get; set; }
+    public string? County { get; set; }
+    public string? Locality { get; set; }
+    public string? Address { get; set; }
+    public short? CountyNumber { get; set; }
+    public int? UatCode { get; set; }
+    public int? LocalityCode { get; set; }
+    public required string Lifecycle { get; set; }
+    public required int[] StatusCodes { get; set; }
+}
+
+/// <summary>A registry snapshot applied to the history, in date order.</summary>
+public sealed class HistorySnapshot
+{
+    public DateOnly SnapshotDate { get; set; }
+    public DateTimeOffset ImportedAt { get; set; }
+    public required string ParserVersion { get; set; }
+    public required string Report { get; set; }
+}
+
 public static class RegistryPersistence
 {
     public const string Schema = "registry";
@@ -196,6 +233,18 @@ public static class RegistryPersistence
             entity.ToTable("company_activities", Schema);
             entity.HasKey(item => new { item.SnapshotId, item.CompanyKey, item.CaenVersion, item.CaenCode });
             entity.HasIndex(item => new { item.SnapshotId, item.CaenVersion, item.CaenCode });
+        });
+        builder.Entity<RegistrationPeriod>(entity =>
+        {
+            entity.ToTable("registration_periods", Schema);
+            entity.HasKey(item => new { item.RegistrationNumber, item.ValidFrom });
+            entity.HasIndex(item => item.Cui);
+        });
+        builder.Entity<HistorySnapshot>(entity =>
+        {
+            entity.ToTable("history_snapshots", Schema);
+            entity.HasKey(item => item.SnapshotDate);
+            entity.Property(item => item.Report).HasColumnType("jsonb");
         });
         builder.Entity<Company>(entity =>
         {

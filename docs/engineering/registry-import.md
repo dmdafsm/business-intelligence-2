@@ -52,6 +52,18 @@ Each import ends with `VACUUM (ANALYZE)` on the registry tables, after the commi
 
 On the 19.10.2026 files: statuses 189 s, activities 135 s, each about 300 MB peak memory. Vacuum takes about 16 s.
 
+## History from older snapshots
+
+```bash
+dotnet run --project src/BusinessIntelligence.Host -- registry history .research/raw [--rebuild]
+```
+
+Applies the pinned yearly snapshots (2013–2025, then the current 19.10.2026 files) to `registry.registration_periods`, oldest first, one transaction per snapshot. Snapshots already applied are skipped; a snapshot older than the latest applied one is refused, so a missing year means `--rebuild` (truncate and replay all, about 12 minutes). Formats per year are in the [inspection note](../../.research/tasks/s02-4-history-inspection.md).
+
+A period is a stretch of consecutive snapshots in which a registration had the same name (folded, legal-form spellings unified), lifecycle, CUI and place. A change starts a new period; spelling-only address changes and a CUI or UAT that appears where it was missing extend the current one. Missing from a snapshot is not a change and is never read as struck off: the period just stops at the last snapshot that had it. Lifecycle comes from the inline status codes (2013–2024) or `OD_STARE_FIRMA` (2025–2026); a row in a struck-off file without codes counts as StruckOff.
+
+The legacy files have no legal form or registration date; periods keep only what all years share. Free-text addresses (2017–2024) are split into county and locality for SIRUTA matching. Sole traders keep no street address. The table is vacuumed after each snapshot.
+
 ## Not covered yet
 
-Older snapshots (history) are a later task. In Docker, the raw files must be mounted into the container for these commands; that setup is not done yet.
+In Docker, the raw files must be mounted into the container for these commands; that setup is not done yet.

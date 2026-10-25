@@ -13,6 +13,7 @@ internal static class RegistryCommands
     private const string Usage = """
         Commands:
           registry import <catalog-id> <file>   import a pinned source file (nomenclatures, SIRUTA, OD_FIRME and its annexes)
+          registry history <raw-root> [--rebuild]  apply the pinned yearly snapshots to the registration history, oldest first
           registry status                       show published datasets and row counts
           registry show <cui|registry-number>   print one company from the published snapshot
         """;
@@ -25,7 +26,8 @@ internal static class RegistryCommands
 
     public static async Task<int> ExecuteAsync(string[] arguments, CancellationToken cancellationToken)
     {
-        if (arguments is not (["registry", "import", _, _] or ["registry", "status"] or ["registry", "show", _]))
+        if (arguments is not (["registry", "import", _, _] or ["registry", "status"] or ["registry", "show", _]
+            or ["registry", "history", _] or ["registry", "history", _, "--rebuild"]))
         {
             await Console.Error.WriteLineAsync(Usage);
             return 2;
@@ -44,6 +46,8 @@ internal static class RegistryCommands
             {
                 case ["registry", "import", var id, var path]:
                     return await ImportAsync(database, SourceCatalog.Get(id), path, cancellationToken);
+                case ["registry", "history", var root, ..]:
+                    return await HistoryAsync(connection, root, arguments.Length == 4, cancellationToken);
                 case ["registry", "status"]:
                     await WriteAsync(await StatusAsync(database, cancellationToken), cancellationToken);
                     return 0;
@@ -86,6 +90,38 @@ internal static class RegistryCommands
             seconds = Math.Round(watch.Elapsed.TotalSeconds, 1),
             report = result.Report,
         }, cancellationToken);
+        return 0;
+    }
+
+    private static async Task<int> HistoryAsync(string connection, string root, bool rebuild, CancellationToken cancellationToken)
+    {
+        if (rebuild)
+        {
+            await using var database = OperatorDatabase.Create(connection);
+            await new Modules.Registry.History.ImportRegistryHistory(database, TimeProvider.System).ClearAsync(cancellationToken);
+        }
+
+        foreach (var snapshot in Modules.Registry.History.ImportRegistryHistory.AvailableSnapshots())
+        {
+            // A fresh context per snapshot keeps each transaction and change tracker separate.
+            await using var database = OperatorDatabase.Create(connection);
+            var watch = Stopwatch.StartNew();
+            var result = await new Modules.Registry.History.ImportRegistryHistory(database, TimeProvider.System).ExecuteAsync(snapshot, root, cancellationToken);
+            await WriteAsync(new
+            {
+                snapshot,
+                outcome = result.Outcome.ToString(),
+                seconds = Math.Round(watch.Elapsed.TotalSeconds, 1),
+                report = result.Report,
+            }, cancellationToken);
+
+            // Each snapshot rewrites most periods; vacuuming between snapshots lets the next one reuse that space.
+            if (result.Outcome == ImportOutcome.Published)
+            {
+                await RegistryImports.VacuumAsync(database, "registry.registration_periods", cancellationToken);
+            }
+        }
+
         return 0;
     }
 

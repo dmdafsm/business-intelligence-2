@@ -135,7 +135,7 @@ public sealed partial class SirutaSeatMatcher
 
     private static string Strip(string folded) => TypePrefix().Replace(folded, "");
 
-    internal static string Fold(string value, bool orthographic = false)
+    public static string Fold(string value, bool orthographic = false)
     {
         if (orthographic) { value = value.Replace('î', 'â').Replace('Î', 'Â'); }
         var decomposed = value.Normalize(NormalizationForm.FormKD);
