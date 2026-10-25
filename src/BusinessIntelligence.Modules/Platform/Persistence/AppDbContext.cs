@@ -17,6 +17,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<RegistrationPeriod> RegistrationPeriods => Set<RegistrationPeriod>();
     public DbSet<HistorySnapshot> HistorySnapshots => Set<HistorySnapshot>();
     public DbSet<Financials.FinancialStatement> FinancialStatements => Set<Financials.FinancialStatement>();
+    public DbSet<Fiscal.TaxpayerPeriod> TaxpayerPeriods => Set<Fiscal.TaxpayerPeriod>();
+    public DbSet<Fiscal.FiscalRelease> FiscalReleases => Set<Fiscal.FiscalRelease>();
+    public DbSet<Fiscal.TaxpayerKind> TaxpayerKinds => Set<Fiscal.TaxpayerKind>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,6 +27,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         // Each module adds its own configuration here as it gains tables.
         RegistryPersistence.Configure(modelBuilder);
         Financials.FinancialsPersistence.Configure(modelBuilder);
+        Fiscal.FiscalPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }

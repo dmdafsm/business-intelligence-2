@@ -1,0 +1,993 @@
+{
+ "date": "2026-10-25",
+ "tool": ".research/tools/inspect_mf_identification.py",
+ "method": "Streams every file; value shapes (letters->a, digits->9) and categorical values seen at least 5 times only; no taxpayer values.",
+ "releases": [
+  {
+   "release": 2018,
+   "files": 43,
+   "rows": 3976764,
+   "layouts": [
+    {
+     "delimiter": ",",
+     "header": false,
+     "columns": 39,
+     "files": 42
+    },
+    {
+     "delimiter": ",",
+     "header": false,
+     "columns": 40,
+     "files": 1
+    }
+   ],
+   "header": null,
+   "field_counts": {
+    "39": 3872310,
+    "40": 104454
+   },
+   "line_encodings": {
+    "utf-8": 3976768
+   },
+   "cui_states": {
+    "valid": 3976764
+   },
+   "cui_repeat_histogram": {
+    "1": 3976702,
+    "2": 31
+   },
+   "categorical": {}
+  },
+  {
+   "release": 2019,
+   "files": 42,
+   "rows": 4041479,
+   "layouts": [
+    {
+     "delimiter": ",",
+     "header": false,
+     "columns": 40,
+     "files": 41
+    },
+    {
+     "delimiter": ",",
+     "header": true,
+     "columns": 44,
+     "files": 1
+    }
+   ],
+   "header": [
+    "cod_fiscal",
+    "nume",
+    "loc",
+    "str",
+    "nr",
+    "di",
+    "dp",
+    "fax",
+    "sect",
+    "tel",
+    "jud_com",
+    "nr_com",
+    "an_com",
+    "act_aut",
+    "tva",
+    "sfarsit",
+    "cp",
+    "data_stare",
+    "stare",
+    "judet",
+    "imp_100",
+    "imp_120",
+    "imp_200",
+    "imp_410",
+    "imp_416",
+    "imp_420",
+    "imp_423",
+    "imp_430",
+    "imp_439",
+    "imp_500",
+    "imp_602",
+    "imp_701",
+    "imp_710",
+    "imp_755",
+    "imp_756",
+    "bilanturi",
+    "imp_412",
+    "imp_480",
+    "imp_432",
+    "detalii_adresa",
+    "bloc",
+    "scara",
+    "etaj",
+    "ap"
+   ],
+   "field_counts": {
+    "40": 3934354,
+    "44": 107125
+   },
+   "line_encodings": {
+    "utf-8": 4041484
+   },
+   "cui_states": {
+    "valid": 4041479
+   },
+   "cui_repeat_histogram": {
+    "1": 4041439,
+    "2": 20
+   },
+   "categorical": {
+    "TVA": {
+     "NU": 96510,
+     "01-01-2020": 34,
+     "01-07-2003": 28,
+     "01-11-2018": 18,
+     "01-02-2009": 14,
+     "01-10-2000": 12,
+     "24-05-2017": 10,
+     "22-02-2018": 9,
+     "20-06-2019": 7,
+     "23-10-2017": 6,
+     "04-12-2019": 6,
+     "01-11-2012": 6
+    },
+    "STARE": {
+     "RADIERE": 53582,
+     "INREGISTRAT": 47271,
+     "SUSPENDARE ACTIVITATE": 3405,
+     "RELUARE ACTIVITATE": 1749,
+     "MODIFICARE PUBLICI": 446,
+     "TRANSFER(SOSIRE)": 390,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 281
+    }
+   }
+  },
+  {
+   "release": 2020,
+   "files": 43,
+   "rows": 4249671,
+   "layouts": [
+    {
+     "delimiter": ",",
+     "header": true,
+     "columns": 44,
+     "files": 43
+    }
+   ],
+   "header": [
+    "cod_fiscal",
+    "nume",
+    "loc",
+    "str",
+    "nr",
+    "di",
+    "dp",
+    "fax",
+    "sect",
+    "tel",
+    "jud_com",
+    "nr_com",
+    "an_com",
+    "act_aut",
+    "tva",
+    "sfarsit",
+    "cp",
+    "data_stare",
+    "stare",
+    "judet",
+    "imp_100",
+    "imp_120",
+    "imp_200",
+    "imp_410",
+    "imp_416",
+    "imp_420",
+    "imp_423",
+    "imp_430",
+    "imp_439",
+    "imp_500",
+    "imp_602",
+    "imp_701",
+    "imp_710",
+    "imp_755",
+    "imp_756",
+    "bilanturi",
+    "imp_412",
+    "imp_480",
+    "imp_432",
+    "detalii_adresa",
+    "bloc",
+    "scara",
+    "etaj",
+    "ap"
+   ],
+   "field_counts": {
+    "44": 4249671
+   },
+   "line_encodings": {
+    "utf-8": 4249676
+   },
+   "cui_states": {
+    "valid": 4249671
+   },
+   "cui_repeat_histogram": {
+    "1": 4249663,
+    "2": 4
+   },
+   "categorical": {
+    "TVA": {
+     "NU": 3820612,
+     "01-07-1993": 5228,
+     "01-11-2019": 543,
+     "01-01-2019": 318,
+     "01-02-2019": 276,
+     "01-01-2017": 208,
+     "01-11-2017": 200,
+     "01-03-2001": 185,
+     "01-07-2017": 184,
+     "01-07-2001": 156,
+     "01-12-2001": 147,
+     "01-02-2009": 136,
+     "01-09-2017": 136,
+     "01-01-2016": 126,
+     "01-11-2018": 119
+    },
+    "STARE": {
+     "RADIERE": 2002740,
+     "INREGISTRAT": 1940155,
+     "SUSPENDARE ACTIVITATE": 149094,
+     "TRANSFER(SOSIRE)": 68023,
+     "RELUARE ACTIVITATE": 59383,
+     "MODIFICARE PUBLICI": 15669,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 13831,
+     "DIZOLVARE CU LICHIDARE(INCEPUT LICHIDARE)": 584,
+     "LICHIDAT": 117,
+     "TRANSFER(PLECARE)": 44,
+     "DIZOLVARE FARA LICHIDARE(DIVIZARE)": 30
+    }
+   }
+  },
+  {
+   "release": 2021,
+   "files": 1,
+   "rows": 1033472,
+   "layouts": [
+    {
+     "delimiter": ",",
+     "header": true,
+     "columns": 44,
+     "files": 1
+    }
+   ],
+   "header": [
+    "cod_fiscal",
+    "nume",
+    "loc",
+    "str",
+    "nr",
+    "di",
+    "dp",
+    "fax",
+    "sect",
+    "tel",
+    "jud_com",
+    "nr_com",
+    "an_com",
+    "act_aut",
+    "tva",
+    "sfarsit",
+    "cp",
+    "data_stare",
+    "stare",
+    "judet",
+    "imp_100",
+    "imp_120",
+    "imp_200",
+    "imp_410",
+    "imp_416",
+    "imp_420",
+    "imp_423",
+    "imp_430",
+    "imp_439",
+    "imp_500",
+    "imp_602",
+    "imp_701",
+    "imp_710",
+    "imp_755",
+    "imp_756",
+    "bilanturi",
+    "imp_412",
+    "imp_480",
+    "imp_432",
+    "detalii_adresa",
+    "bloc",
+    "scara",
+    "etaj",
+    "ap"
+   ],
+   "field_counts": {
+    "44": 1033466,
+    "27": 2,
+    "7": 1,
+    "26": 1,
+    "62": 1,
+    "8": 1
+   },
+   "line_encodings": {
+    "utf-8": 1033472
+   },
+   "cui_states": {
+    "valid": 1033467
+   },
+   "cui_repeat_histogram": {
+    "1": 1033467
+   },
+   "categorical": {
+    "TVA": {
+     "NU": 884022,
+     "01-07-1993": 2058,
+     "01-12-2020": 811,
+     "01-05-2021": 656,
+     "01-02-2020": 473,
+     "01-11-2019": 455,
+     "01-12-2017": 348,
+     "01-02-2012": 265,
+     "01-10-2018": 222,
+     "01-02-2009": 176,
+     "01-12-2011": 167,
+     "01-11-2008": 161
+    },
+    "STARE": {
+     "INREGISTRAT": 901012,
+     "SUSPENDARE ACTIVITATE": 68345,
+     "RELUARE ACTIVITATE": 25040,
+     "TRANSFER(SOSIRE)": 20095,
+     "MODIFICARE PUBLICI": 15457,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 3331,
+     "DIZOLVARE CU LICHIDARE(INCEPUT LICHIDARE)": 137,
+     "LICHIDAT": 32,
+     "TRANSFER(PLECARE)": 12,
+     "DIZOLVARE FARA LICHIDARE(DIVIZARE)": 5
+    }
+   }
+  },
+  {
+   "release": 2022,
+   "files": 2,
+   "rows": 2358009,
+   "layouts": [
+    {
+     "delimiter": "^",
+     "header": true,
+     "columns": 61,
+     "files": 2
+    }
+   ],
+   "header": [
+    "COD_FISCAL",
+    "DENUMIRE",
+    "COD_FISCAL_PARINTE",
+    "TIP_UNITATE",
+    "TIP_CONTRIB",
+    "LOCALITATE",
+    "STRADA",
+    "NR",
+    "DATA_INREGISTRARE",
+    "DATA_PRELUCRARE",
+    "FAX",
+    "SECTOR",
+    "TELEFON",
+    "JUDET_COMERT",
+    "NR_COMERT",
+    "AN_COMERT",
+    "ACT_AUTORIZARE",
+    "TVA",
+    "DATA_RADIERE",
+    "COD_POSTAL",
+    "DATA_STARE",
+    "STARE",
+    "JUDET",
+    "IMP100",
+    "IMP120",
+    "IMP130",
+    "IMP160",
+    "ACCIZE200",
+    "CONT410",
+    "CONT412",
+    "CONT416",
+    "CONT420",
+    "CONT423",
+    "CONT430",
+    "CONT432",
+    "IMP439",
+    "IMP451",
+    "IMP461",
+    "IMP473",
+    "IMP474",
+    "CONT480",
+    "IMP500",
+    "IMP602",
+    "IMP611",
+    "IMP625",
+    "IMP632",
+    "IMP633",
+    "IMP634",
+    "IMP701",
+    "IMP710",
+    "IMP711",
+    "IMP712",
+    "IMP713",
+    "IMP755",
+    "IMP756",
+    "IMP940",
+    "DETALII_ADRESA",
+    "BLOC",
+    "SCARA",
+    "ETAJ",
+    "AP"
+   ],
+   "field_counts": {
+    "62": 2358004,
+    "2": 1,
+    "61": 1,
+    "7": 1,
+    "56": 1,
+    "63": 1
+   },
+   "line_encodings": {
+    "cp1250": 1977628,
+    "utf-8": 380380,
+    "invalid": 1
+   },
+   "cui_states": {
+    "valid": 2358005,
+    "missing": 1
+   },
+   "cui_repeat_histogram": {
+    "1": 2358005
+   },
+   "categorical": {
+    "TIP_UNITATE": {
+     "Sediu central": 2351181,
+     "Reprezentat fiscal": 2181,
+     "Filiala": 1957,
+     "Sucursala": 1643,
+     "Sediu permanent": 751,
+     "Reprezentanta": 169,
+     "Sediu fix": 89,
+     "Pct. lucru (sed.sec)": 15,
+     "Alte subunitati": 10,
+     "Strain rezident,SS afara,DF in Romania(D016)": 8
+    },
+    "TIP_CONTRIB": {
+     "PJ": 1605156,
+     "PF": 752832,
+     "ERR_Fjur2": 16
+    },
+    "TVA": {
+     "NU": 1920578,
+     "DA": 437426
+    },
+    "STARE": {
+     "INREGISTRAT": 2034290,
+     "SUSPENDARE ACTIVITATE": 146958,
+     "TRANSFER(SOSIRE)": 85054,
+     "RELUARE ACTIVITATE": 63380,
+     "MODIFICARE PUBLICI": 14381,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 13146,
+     "DIZOLVARE CU LICHIDARE(INCEPUT LICHIDARE)": 643,
+     "LICHIDAT": 111,
+     "DIZOLVARE FARA LICHIDARE(DIVIZARE)": 33,
+     "RADIERE": 8
+    }
+   }
+  },
+  {
+   "release": 2023,
+   "files": 1,
+   "rows": 2460565,
+   "layouts": [
+    {
+     "delimiter": "|",
+     "header": true,
+     "columns": 61,
+     "files": 1
+    }
+   ],
+   "header": [
+    "COD_FISCAL",
+    "DENUMIRE",
+    "COD_FISCAL_PARINTE",
+    "TIP_UNITATE",
+    "TIP_CONTRIB",
+    "LOCALITATE",
+    "STRADA",
+    "NR",
+    "DATA_INREGISTRARE",
+    "DATA_PRELUCRARE",
+    "FAX",
+    "SECTOR",
+    "TELEFON",
+    "JUDET_COMERT",
+    "NR_COMERT",
+    "AN_COMERT",
+    "ACT_AUTORIZARE",
+    "TVA",
+    "DATA_RADIERE",
+    "COD_POSTAL",
+    "DATA_STARE",
+    "STARE",
+    "JUDET",
+    "IMP100",
+    "IMP120",
+    "IMP130",
+    "IMP160",
+    "ACCIZE200",
+    "CONT410",
+    "CONT412",
+    "CONT416",
+    "CONT420",
+    "CONT423",
+    "CONT430",
+    "CONT432",
+    "IMP439",
+    "IMP451",
+    "IMP461",
+    "IMP473",
+    "IMP474",
+    "CONT480",
+    "IMP500",
+    "IMP602",
+    "IMP611",
+    "IMP625",
+    "IMP632",
+    "IMP633",
+    "IMP634",
+    "IMP701",
+    "IMP710",
+    "IMP711",
+    "IMP712",
+    "IMP713",
+    "IMP755",
+    "IMP756",
+    "IMP940",
+    "DETALII_ADRESA",
+    "BLOC",
+    "SCARA",
+    "ETAJ",
+    "AP"
+   ],
+   "field_counts": {
+    "62": 2460263,
+    "63": 300,
+    "7": 1,
+    "56": 1
+   },
+   "line_encodings": {
+    "utf-8": 2460565
+   },
+   "cui_states": {
+    "valid": 2460563
+   },
+   "cui_repeat_histogram": {
+    "1": 2460557,
+    "2": 3
+   },
+   "categorical": {
+    "TIP_UNITATE": {
+     "Sediu central": 2453574,
+     "Reprezentat fiscal": 2221,
+     "Filiala": 1966,
+     "Sucursala": 1685,
+     "Sediu permanent": 819,
+     "Reprezentanta": 171,
+     "Sediu fix": 95,
+     "Pct. lucru (sed.sec)": 15,
+     "Alte subunitati": 10,
+     "Strain rezident,SS afara,DF in Romania(D016)": 7
+    },
+    "TIP_CONTRIB": {
+     "PJ": 1677711,
+     "PF": 782832,
+     "ERR_Fjur2": 20
+    },
+    "TVA": {
+     "NU": 1994077,
+     "DA": 466186
+    },
+    "STARE": {
+     "INREGISTRAT": 2124377,
+     "SUSPENDARE ACTIVITATE": 150258,
+     "TRANSFER(SOSIRE)": 92874,
+     "RELUARE ACTIVITATE": 63897,
+     "MODIFICARE PUBLICI": 14566,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 13502,
+     "DIZOLVARE CU LICHIDARE(INCEPUT LICHIDARE)": 647,
+     "LICHIDAT": 107,
+     "DIZOLVARE FARA LICHIDARE(DIVIZARE)": 32
+    }
+   }
+  },
+  {
+   "release": 2024,
+   "files": 1,
+   "rows": 2509355,
+   "layouts": [
+    {
+     "delimiter": "|",
+     "header": true,
+     "columns": 61,
+     "files": 1
+    }
+   ],
+   "header": [
+    "COD_FISCAL",
+    "DENUMIRE",
+    "COD_FISCAL_PARINTE",
+    "TIP_UNITATE",
+    "TIP_CONTRIB",
+    "LOCALITATE",
+    "STRADA",
+    "NR",
+    "DATA_INREGISTRARE",
+    "DATA_PRELUCRARE",
+    "FAX",
+    "SECTOR",
+    "TELEFON",
+    "JUDET_COMERT",
+    "NR_COMERT",
+    "AN_COMERT",
+    "ACT_AUTORIZARE",
+    "TVA",
+    "DATA_RADIERE",
+    "COD_POSTAL",
+    "DATA_STARE",
+    "STARE",
+    "JUDET",
+    "IMP100",
+    "IMP120",
+    "IMP130",
+    "IMP160",
+    "ACCIZE200",
+    "CONT410",
+    "CONT412",
+    "CONT416",
+    "CONT420",
+    "CONT423",
+    "CONT430",
+    "CONT432",
+    "IMP439",
+    "IMP451",
+    "IMP461",
+    "IMP473",
+    "IMP474",
+    "CONT480",
+    "IMP500",
+    "IMP602",
+    "IMP611",
+    "IMP625",
+    "IMP632",
+    "IMP633",
+    "IMP634",
+    "IMP701",
+    "IMP710",
+    "IMP711",
+    "IMP712",
+    "IMP713",
+    "IMP755",
+    "IMP756",
+    "IMP940",
+    "DETALII_ADRESA",
+    "BLOC",
+    "SCARA",
+    "ETAJ",
+    "AP"
+   ],
+   "field_counts": {
+    "62": 2509039,
+    "63": 314,
+    "7": 1,
+    "56": 1
+   },
+   "line_encodings": {
+    "utf-8": 2509355
+   },
+   "cui_states": {
+    "valid": 2509353
+   },
+   "cui_repeat_histogram": {
+    "1": 2509353
+   },
+   "categorical": {
+    "TIP_UNITATE": {
+     "Sediu central": 2502232,
+     "Reprezentat fiscal": 2218,
+     "Filiala": 1977,
+     "Sucursala": 1722,
+     "Sediu permanent": 863,
+     "Reprezentanta": 174,
+     "Sediu fix": 103,
+     "Punct de lucru fara CUI": 22,
+     "Pct. lucru (sed.sec)": 14,
+     "Alte subunitati": 10,
+     "Strain rezident,SS afara,DF in Romania(D016)": 7
+    },
+    "TIP_CONTRIB": {
+     "PJ": 1733219,
+     "PF": 776097,
+     "ERR_Fjur2": 21,
+     "Sediu central": 11,
+     "ERRCUI": 5
+    },
+    "TVA": {
+     "NU": 2019420,
+     "DA": 489619
+    },
+    "STARE": {
+     "INREGISTRAT": 2160484,
+     "SUSPENDARE ACTIVITATE": 155641,
+     "TRANSFER(SOSIRE)": 99631,
+     "RELUARE ACTIVITATE": 63918,
+     "MODIFICARE PUBLICI": 14620,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 13907,
+     "DIZOLVARE CU LICHIDARE(INCEPUT LICHIDARE)": 701,
+     "LICHIDAT": 105,
+     "DIZOLVARE FARA LICHIDARE(DIVIZARE)": 32
+    }
+   }
+  },
+  {
+   "release": 2025,
+   "files": 1,
+   "rows": 2559909,
+   "layouts": [
+    {
+     "delimiter": "^",
+     "header": true,
+     "columns": 61,
+     "files": 1
+    }
+   ],
+   "header": [
+    "COD_FISCAL",
+    "DENUMIRE",
+    "COD_FISCAL_PARINTE",
+    "TIP_UNITATE",
+    "TIP_CONTRIB",
+    "LOCALITATE",
+    "STRADA",
+    "NR",
+    "DATA_INREGISTRARE",
+    "DATA_PRELUCRARE",
+    "FAX",
+    "SECTOR",
+    "TELEFON",
+    "JUDET_COMERT",
+    "NR_COMERT",
+    "AN_COMERT",
+    "ACT_AUTORIZARE",
+    "TVA",
+    "DATA_RADIERE",
+    "COD_POSTAL",
+    "DATA_STARE",
+    "STARE",
+    "JUDET",
+    "IMP100",
+    "IMP120",
+    "IMP130",
+    "IMP160",
+    "ACCIZE200",
+    "CONT410",
+    "CONT412",
+    "CONT416",
+    "CONT420",
+    "CONT423",
+    "CONT430",
+    "CONT432",
+    "IMP439",
+    "IMP451",
+    "IMP461",
+    "IMP473",
+    "IMP474",
+    "CONT480",
+    "IMP500",
+    "IMP602",
+    "IMP611",
+    "IMP625",
+    "IMP632",
+    "IMP633",
+    "IMP634",
+    "IMP701",
+    "IMP710",
+    "IMP711",
+    "IMP712",
+    "IMP713",
+    "IMP755",
+    "IMP756",
+    "IMP940",
+    "DETALII_ADRESA",
+    "BLOC",
+    "SCARA",
+    "ETAJ",
+    "AP"
+   ],
+   "field_counts": {
+    "62": 2559907,
+    "7": 1,
+    "56": 1
+   },
+   "line_encodings": {
+    "cp1250": 2170636,
+    "utf-8": 389272,
+    "invalid": 1
+   },
+   "cui_states": {
+    "valid": 2559907
+   },
+   "cui_repeat_histogram": {
+    "1": 2559907
+   },
+   "categorical": {
+    "TIP_UNITATE": {
+     "Sediu central": 2552760,
+     "Reprezentat fiscal": 2146,
+     "Filiala": 1983,
+     "Sucursala": 1758,
+     "Sediu permanent": 916,
+     "Reprezentanta": 177,
+     "Sediu fix": 113,
+     "Punct de lucru fara CUI": 23,
+     "Pct. lucru (sed.sec)": 14,
+     "Alte subunitati": 10,
+     "Strain rezident,SS afara,DF in Romania(D016)": 7
+    },
+    "TIP_CONTRIB": {
+     "PJ": 1779691,
+     "PF": 780194,
+     "ERR_Fjur2": 22
+    },
+    "TVA": {
+     "NU": 2052835,
+     "DA": 507072
+    },
+    "STARE": {
+     "INREGISTRAT": 2198216,
+     "SUSPENDARE ACTIVITATE": 159335,
+     "TRANSFER(SOSIRE)": 107308,
+     "RELUARE ACTIVITATE": 65148,
+     "MODIFICARE PUBLICI": 14680,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 14345,
+     "DIZOLVARE CU LICHIDARE(INCEPUT LICHIDARE)": 731,
+     "LICHIDAT": 105,
+     "DIZOLVARE FARA LICHIDARE(DIVIZARE)": 32,
+     "RADIERE": 7
+    }
+   }
+  },
+  {
+   "release": 2026,
+   "files": 2,
+   "rows": 2647766,
+   "layouts": [
+    {
+     "delimiter": "^",
+     "header": true,
+     "columns": 61,
+     "files": 2
+    }
+   ],
+   "header": [
+    "COD_FISCAL",
+    "DENUMIRE",
+    "COD_FISCAL_PARINTE",
+    "TIP_UNITATE",
+    "TIP_CONTRIB",
+    "LOCALITATE",
+    "STRADA",
+    "NR",
+    "DATA_INREGISTRARE",
+    "DATA_PRELUCRARE",
+    "FAX",
+    "SECTOR",
+    "TELEFON",
+    "JUDET_COMERT",
+    "NR_COMERT",
+    "AN_COMERT",
+    "ACT_AUTORIZARE",
+    "TVA",
+    "DATA_RADIERE",
+    "COD_POSTAL",
+    "DATA_STARE",
+    "STARE",
+    "JUDET",
+    "IMP100",
+    "IMP120",
+    "IMP130",
+    "IMP160",
+    "ACCIZE200",
+    "CONT410",
+    "CONT412",
+    "CONT416",
+    "CONT420",
+    "CONT423",
+    "CONT430",
+    "CONT432",
+    "IMP439",
+    "IMP451",
+    "IMP461",
+    "IMP473",
+    "IMP474",
+    "CONT480",
+    "IMP500",
+    "IMP602",
+    "IMP611",
+    "IMP625",
+    "IMP632",
+    "IMP633",
+    "IMP634",
+    "IMP701",
+    "IMP710",
+    "IMP711",
+    "IMP712",
+    "IMP713",
+    "IMP755",
+    "IMP756",
+    "IMP940",
+    "DETALII_ADRESA",
+    "BLOC",
+    "SCARA",
+    "ETAJ",
+    "AP"
+   ],
+   "field_counts": {
+    "62": 2647764,
+    "7": 1,
+    "56": 1
+   },
+   "line_encodings": {
+    "utf-8": 2647766
+   },
+   "cui_states": {
+    "valid": 2647764
+   },
+   "cui_repeat_histogram": {
+    "1": 2647764
+   },
+   "categorical": {
+    "TIP_UNITATE": {
+     "Sediu central": 2640577,
+     "Reprezentat fiscal": 2086,
+     "Filiala": 1996,
+     "Sucursala": 1805,
+     "Sediu permanent": 945,
+     "Reprezentanta": 181,
+     "Sediu fix": 118,
+     "Punct de lucru fara CUI": 25,
+     "Pct. lucru (sed.sec)": 14,
+     "Alte subunitati": 11,
+     "Strain rezident,SS afara,DF in Romania(D016)": 6
+    },
+    "TIP_CONTRIB": {
+     "PJ": 1829045,
+     "PF": 818693,
+     "ERR_Fjur2": 26
+    },
+    "TVA": {
+     "NU": 2136777,
+     "DA": 510987
+    },
+    "STARE": {
+     "INREGISTRAT": 2270607,
+     "SUSPENDARE ACTIVITATE": 163358,
+     "TRANSFER(SOSIRE)": 116654,
+     "RELUARE ACTIVITATE": 66774,
+     "DIZOLVARE FARA LICHIDARE(FUZIUNE)": 14988,
+     "MODIFICARE PUBLICI": 14427,
+     "DIZOLVARE CU LICHIDARE(INCEPUT LICHIDARE)": 740,
+     "LICHIDAT": 104,
+     "RADIERE": 80,
+     "DIZOLVARE FARA LICHIDARE(DIVIZARE)": 32
+    }
+   }
+  }
+ ]
+}
