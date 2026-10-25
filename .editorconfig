@@ -26,3 +26,7 @@ dotnet_diagnostic.IDE0005.severity = suggestion
 
 [*.{g.cs,generated.cs}]
 generated_code = true
+
+# EF Core generates migrations; their index column arrays run once per migration.
+[**/Migrations/*.cs]
+dotnet_diagnostic.CA1861.severity = none
