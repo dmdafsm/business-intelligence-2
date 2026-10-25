@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BusinessIntelligence.Modules.Platform.Persistence;
 
 /// <summary>Maps columns, keys and indexes to snake_case so hand-written SQL needs no quoted identifiers.</summary>
-internal static class SnakeCaseNames
+public static class SnakeCaseNames
 {
     public static void Apply(ModelBuilder builder)
     {
@@ -32,7 +32,7 @@ internal static class SnakeCaseNames
         }
     }
 
-    internal static string Convert(string name)
+    public static string Convert(string name)
     {
         var builder = new StringBuilder(name.Length + 8);
         for (var index = 0; index < name.Length; index++)

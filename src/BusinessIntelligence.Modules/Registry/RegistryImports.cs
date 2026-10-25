@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessIntelligence.Modules.Registry;
 
-internal static class RegistryImports
+public static class RegistryImports
 {
     public static SourceFile NewSourceFile(CatalogFile file, string parserVersion, TimeProvider time, string report) => new()
     {
