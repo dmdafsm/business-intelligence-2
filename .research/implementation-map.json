@@ -68,12 +68,25 @@
     {
       "id": "S04",
       "title": "Financial history",
-      "status": "planned",
+      "status": "completed",
       "path": "steps/s04-financials.md",
       "depends_on": [
         "S02"
       ],
-      "tasks": []
+      "tasks": [
+        {
+          "id": "S04.1",
+          "title": "Inspect all MF financial statement years and dictionaries",
+          "status": "completed",
+          "note": "tasks/s04-1-financials-inspection.md"
+        },
+        {
+          "id": "S04.2",
+          "title": "Import MF financial statements 2008–2025 with shared indicators",
+          "status": "completed",
+          "note": "tasks/s04-2-financials-import.md"
+        }
+      ]
     },
     {
       "id": "S05",

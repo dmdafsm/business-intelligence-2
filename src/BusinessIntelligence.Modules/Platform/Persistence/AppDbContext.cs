@@ -14,12 +14,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<RegistrationStatus> RegistrationStatuses => Set<RegistrationStatus>();
     public DbSet<CompanyActivity> CompanyActivities => Set<CompanyActivity>();
+    public DbSet<Financials.FinancialStatement> FinancialStatements => Set<Financials.FinancialStatement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         // Each module adds its own configuration here as it gains tables.
         RegistryPersistence.Configure(modelBuilder);
+        Financials.FinancialsPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }

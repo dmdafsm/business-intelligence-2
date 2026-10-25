@@ -22,6 +22,153 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Financials.FinancialStatement", b =>
+                {
+                    b.Property<long>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<short>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.Property<string>("CaenCode")
+                        .HasColumnType("text")
+                        .HasColumnName("caen_code");
+
+                    b.Property<short?>("CaenVersion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("caen_version");
+
+                    b.Property<decimal?>("Cash")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("cash");
+
+                    b.Property<decimal?>("CurrentAssets")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("current_assets");
+
+                    b.Property<decimal?>("DeferredIncome")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("deferred_income");
+
+                    b.Property<int?>("Employees")
+                        .HasColumnType("integer")
+                        .HasColumnName("employees");
+
+                    b.Property<decimal?>("Equity")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("equity");
+
+                    b.Property<string>("Family")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("family");
+
+                    b.Property<decimal?>("FixedAssets")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("fixed_assets");
+
+                    b.Property<decimal?>("GrossLoss")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("gross_loss");
+
+                    b.Property<decimal?>("GrossProfit")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("gross_profit");
+
+                    b.Property<decimal?>("Inventories")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("inventories");
+
+                    b.Property<decimal?>("Liabilities")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("liabilities");
+
+                    b.Property<decimal?>("NetLoss")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("net_loss");
+
+                    b.Property<decimal?>("NetProfit")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("net_profit");
+
+                    b.Property<decimal?>("PrepaidExpenses")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("prepaid_expenses");
+
+                    b.Property<decimal?>("Provisions")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("provisions");
+
+                    b.Property<decimal?>("PublicPatrimony")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("public_patrimony");
+
+                    b.PrimitiveCollection<string[]>("QualityFlags")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text[]")
+                        .HasColumnName("quality_flags")
+                        .HasDefaultValueSql("'{}'::text[]");
+
+                    b.Property<decimal?>("Receivables")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("receivables");
+
+                    b.Property<decimal?>("RegiePatrimony")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("regie_patrimony");
+
+                    b.Property<decimal?>("ShareCapital")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("share_capital");
+
+                    b.Property<int>("SourceFileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_file_id");
+
+                    b.Property<decimal?>("TotalExpenses")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("total_expenses");
+
+                    b.Property<decimal?>("TotalIncome")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("total_income");
+
+                    b.Property<decimal?>("Turnover")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("turnover");
+
+                    b.HasKey("Cui", "Year")
+                        .HasName("pk_statements");
+
+                    b.HasIndex("Year", "Family")
+                        .HasDatabaseName("ix_statements_year_family");
+
+                    b.ToTable("statements", "financials");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CaenEntry", b =>
                 {
                     b.Property<short>("Version")

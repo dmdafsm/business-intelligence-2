@@ -1,6 +1,6 @@
 # S04 Financial history
 
-Status: planned. Depends on S02. Part of the [MVP plan](../mvp-plan.md).
+Status: completed. Depends on S02. Part of the [MVP plan](../mvp-plan.md).
 
 ## Outcome
 
@@ -19,4 +19,5 @@ MF "Situații financiare" on data.gov.ro, one dataset per year 2008–2025, plus
 
 ## Tasks
 
-To be split during readiness: inspection of all years, indicator mapping, import per form family, revisions.
+- S04.1 Inspect all years and dictionaries — [note](../tasks/s04-1-financials-inspection.md).
+- S04.2 Import 2008–2025 with shared indicators — [note](../tasks/s04-2-financials-import.md). Earlier publications of a year are not kept as separate revisions; the latest publication is used.
