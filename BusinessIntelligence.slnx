@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BusinessIntelligence.Host/BusinessIntelligence.Host.csproj" />
+    <Project Path="src/BusinessIntelligence.Modules/BusinessIntelligence.Modules.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BusinessIntelligence.BrowserTests/BusinessIntelligence.BrowserTests.csproj" />
+    <Project Path="tests/BusinessIntelligence.Tests/BusinessIntelligence.Tests.csproj" />
+  </Folder>
+</Solution>

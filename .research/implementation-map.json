@@ -1,0 +1,143 @@
+{
+  "version": "mvp",
+  "updated": "2026-10-25",
+  "references": {
+    "plan": "mvp-plan.md",
+    "architecture": "architecture.md"
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "title": "Foundation",
+      "status": "completed",
+      "path": "steps/s01-foundation.md",
+      "depends_on": [],
+      "tasks": [
+        {
+          "id": "S01.1",
+          "title": "Stack, guardrails, agent setup and Material 3 base",
+          "status": "completed",
+          "note": "tasks/s01-1-foundation.md"
+        }
+      ]
+    },
+    {
+      "id": "S02",
+      "title": "Registry",
+      "status": "completed",
+      "path": "steps/s02-registry.md",
+      "depends_on": [
+        "S01"
+      ],
+      "tasks": [
+        {
+          "id": "S02.1",
+          "title": "Inspect registry, nomenclature and SIRUTA formats",
+          "status": "completed",
+          "note": "tasks/s02-1-registry-inspection.md"
+        },
+        {
+          "id": "S02.2",
+          "title": "Import nomenclatures, SIRUTA and the latest OD_FIRME snapshot",
+          "status": "completed",
+          "note": "tasks/s02-2-registry-import.md"
+        },
+        {
+          "id": "S02.3",
+          "title": "Import company statuses and authorized CAEN activities",
+          "status": "completed",
+          "note": "tasks/s02-3-statuses-and-activities.md"
+        },
+        {
+          "id": "S02.4",
+          "title": "Import older snapshots as history",
+          "status": "completed",
+          "note": "tasks/s02-4-registry-history.md"
+        }
+      ]
+    },
+    {
+      "id": "S03",
+      "title": "Fiscal data and contacts",
+      "status": "completed",
+      "path": "steps/s03-fiscal.md",
+      "depends_on": [
+        "S02"
+      ],
+      "tasks": [
+        {
+          "id": "S03.1",
+          "title": "Inspect every yearly MF identification release",
+          "status": "completed",
+          "note": "tasks/s03-1-fiscal-inspection.md"
+        },
+        {
+          "id": "S03.2",
+          "title": "Import all releases as taxpayer periods",
+          "status": "completed",
+          "note": "tasks/s03-2-fiscal-import.md"
+        }
+      ]
+    },
+    {
+      "id": "S04",
+      "title": "Financial history",
+      "status": "completed",
+      "path": "steps/s04-financials.md",
+      "depends_on": [
+        "S02"
+      ],
+      "tasks": [
+        {
+          "id": "S04.1",
+          "title": "Inspect all MF financial statement years and dictionaries",
+          "status": "completed",
+          "note": "tasks/s04-1-financials-inspection.md"
+        },
+        {
+          "id": "S04.2",
+          "title": "Import MF financial statements 2008–2025 with shared indicators",
+          "status": "completed",
+          "note": "tasks/s04-2-financials-import.md"
+        }
+      ]
+    },
+    {
+      "id": "S05",
+      "title": "Search and grouping",
+      "status": "completed",
+      "path": "steps/s05-search.md",
+      "depends_on": [
+        "S02"
+      ],
+      "tasks": [
+        {
+          "id": "S05.1",
+          "title": "Search by name, CUI and registry number; grouping by CAEN, county and city",
+          "status": "completed",
+          "note": "tasks/s05-1-search.md"
+        }
+      ]
+    },
+    {
+      "id": "S06",
+      "title": "Company profile",
+      "status": "completed",
+      "path": "steps/s06-profile.md",
+      "depends_on": [
+        "S02",
+        "S03",
+        "S04",
+        "S05"
+      ],
+      "tasks": [
+        {
+          "id": "S06.1",
+          "title": "Company profile with history, financials and sources",
+          "status": "completed",
+          "note": "tasks/s06-1-profile.md"
+        }
+      ]
+    }
+  ]
+}

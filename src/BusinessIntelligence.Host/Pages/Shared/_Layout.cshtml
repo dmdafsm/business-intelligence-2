@@ -1,0 +1,58 @@
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Environment
+@{
+    var currentPage = ViewContext.RouteData.Values["page"] as string;
+    var destinations = Navigation.Destinations.Where(item => !item.DevelopmentOnly || Environment.IsDevelopment()).ToList();
+}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>@(ViewData["Title"] is string title ? $"{title} · Business Intelligence" : "Business Intelligence")</title>
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+</head>
+<body class="md-app">
+    <partial name="Components/_IconSprite" />
+    <a class="md-skip-link" href="#main">Sari la conținut</a>
+
+    <nav class="md-nav-rail" aria-label="Navigare principală">
+        @foreach (var item in destinations)
+        {
+            <a class="md-nav-rail__item" asp-page="@item.Page" aria-current="@(item.Page == currentPage ? "page" : null)">
+                <span class="md-nav__indicator"><md-icon name="@item.Icon" /></span>
+                <span>@item.Label</span>
+            </a>
+        }
+    </nav>
+
+    <div class="md-app__body">
+        <header class="md-top-app-bar">
+            <a class="md-top-app-bar__brand" asp-page="/Index">
+                <md-icon name="business" />
+                <span>Business Intelligence</span>
+            </a>
+        </header>
+
+        <main id="main" class="md-app__content" tabindex="-1">
+            @RenderBody()
+        </main>
+
+        <footer class="md-app__footer">
+            Date publice din registre și situații financiare oficiale. Sursa și perioada sunt afișate lângă fiecare valoare.
+        </footer>
+    </div>
+
+    <nav class="md-nav-bar" aria-label="Navigare principală">
+        @foreach (var item in destinations)
+        {
+            <a class="md-nav-bar__item" asp-page="@item.Page" aria-current="@(item.Page == currentPage ? "page" : null)">
+                <span class="md-nav__indicator"><md-icon name="@item.Icon" /></span>
+                <span>@item.Label</span>
+            </a>
+        }
+    </nav>
+</body>
+</html>
