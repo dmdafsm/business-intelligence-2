@@ -46,7 +46,7 @@ On the 19.10.2026 snapshot (Apple M-series laptop, local PostgreSQL 18): 65 s, a
 
 `OD_STARE_FIRMA` lists each registration's current status codes, without dates. They are stored in `registry.registration_statuses`, and each registration and company gets one `lifecycle` value: the most severe present code wins (StruckOff, Insolvency, Dissolution, Suspended, Active; Other for mentions only; Unknown without rows). The code lists are in [Lifecycle.cs](../../src/BusinessIntelligence.Modules/Registry/Onrc/Lifecycle.cs). A company's lifecycle is that of its current registration.
 
-`OD_CAEN_AUTORIZAT` lists authorized activities; it marks no main activity. `registry.company_activities` keeps the activities of each company's current registration in that registration's newest CAEN version (`companies.caen_version`). Registrations are moving from Rev.2 to Rev.3 gradually, so grouping by CAEN has to bridge the two versions (S05).
+`OD_CAEN_AUTORIZAT` lists authorized activities; it marks no main activity. `registry.company_activities` keeps the activities of each company's current registration in that registration's newest CAEN version (`companies.caen_version`). Registrations are moving from Rev.2 to Rev.3 gradually, so grouping by CAEN has to bridge the two versions; until a correspondence is imported, the [search pages](search.md) group each version separately. After any registry import, rebuild the search tables with `search build`.
 
 Each import ends with `VACUUM (ANALYZE)` on the registry tables, after the commit.
 

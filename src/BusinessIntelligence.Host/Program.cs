@@ -8,7 +8,7 @@ if (args is ["healthcheck"])
     return await ReadinessProbe.CheckAsync(client, CancellationToken.None) ? 0 : 1;
 }
 
-if (args is ["database" or "registry" or "financials" or "fiscal", ..])
+if (args is ["database" or "registry" or "financials" or "fiscal" or "search", ..])
 {
     using var cancellation = new CancellationTokenSource();
     Console.CancelKeyPress += (_, eventArgs) =>
@@ -21,6 +21,7 @@ if (args is ["database" or "registry" or "financials" or "fiscal", ..])
         "registry" => await RegistryCommands.ExecuteAsync(args, cancellation.Token),
         "financials" => await FinancialCommands.ExecuteAsync(args, cancellation.Token),
         "fiscal" => await FiscalCommands.ExecuteAsync(args, cancellation.Token),
+        "search" => await SearchCommands.ExecuteAsync(args, cancellation.Token),
         _ => await DatabaseCommands.ExecuteAsync(args, cancellation.Token),
     };
 }

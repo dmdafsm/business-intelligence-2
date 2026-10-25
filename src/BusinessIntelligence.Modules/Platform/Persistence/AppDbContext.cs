@@ -20,6 +20,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Fiscal.TaxpayerPeriod> TaxpayerPeriods => Set<Fiscal.TaxpayerPeriod>();
     public DbSet<Fiscal.FiscalRelease> FiscalReleases => Set<Fiscal.FiscalRelease>();
     public DbSet<Fiscal.TaxpayerKind> TaxpayerKinds => Set<Fiscal.TaxpayerKind>();
+    public DbSet<Search.SearchCompany> SearchCompanies => Set<Search.SearchCompany>();
+    public DbSet<Search.SearchName> SearchNames => Set<Search.SearchName>();
+    public DbSet<Search.SearchRegistration> SearchRegistrations => Set<Search.SearchRegistration>();
+    public DbSet<Search.SearchCount> SearchCounts => Set<Search.SearchCount>();
+    public DbSet<Search.SearchBuild> SearchBuilds => Set<Search.SearchBuild>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,6 +33,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         RegistryPersistence.Configure(modelBuilder);
         Financials.FinancialsPersistence.Configure(modelBuilder);
         Fiscal.FiscalPersistence.Configure(modelBuilder);
+        Search.SearchPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }

@@ -17,6 +17,7 @@ public static class PortalApplication
             builder.Configuration.GetConnectionString("Application"), builder.Configuration["Database:PasswordFile"], CancellationToken.None)
             ?? throw new InvalidOperationException("Set ConnectionStrings__Application explicitly.");
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
+        builder.Services.AddScoped<BusinessIntelligence.Modules.Search.CompanySearch>();
         builder.Services.AddRazorPages();
 
         var app = builder.Build();
