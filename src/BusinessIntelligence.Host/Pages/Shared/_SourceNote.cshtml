@@ -1,0 +1,2 @@
+@model BusinessIntelligence.Modules.Profile.SourceNote
+<p class="md-source">Sursa: @Model.Publisher, @if (Model.Url is { } url) {<a href="@url" rel="noopener">„@Model.Dataset”</a>} else {<text>„@Model.Dataset”</text>}, @Model.Period. Licență @Model.License.</p>

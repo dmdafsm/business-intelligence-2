@@ -1,0 +1,108 @@
+using System.Text.RegularExpressions;
+using BusinessIntelligence.Modules.Platform.Persistence;
+using BusinessIntelligence.Tests.Search;
+using Microsoft.Playwright;
+using Xunit;
+
+namespace BusinessIntelligence.BrowserTests;
+
+/// <summary>A portal over the synthetic search snapshot.</summary>
+public sealed class SearchPortalFixture : PortalFixture
+{
+    protected override Task SeedAsync(AppDbContext database) => SearchFixtures.SeedAsync(database);
+}
+
+public sealed partial class SearchPageTests(SearchPortalFixture portal) : IClassFixture<SearchPortalFixture>
+{
+    private static readonly BrowserNewContextOptions NoScript = new() { JavaScriptEnabled = false, ViewportSize = new() { Width = 1280, Height = 900 } };
+    private static readonly string[] PhonePaths = ["/", "/?q=exemplu", "/?judet=12&caen=62", "/Design"];
+    private static readonly BrowserNewContextOptions Phone = new() { ViewportSize = new() { Width = 360, Height = 740 }, IsMobile = true, HasTouch = true };
+
+    [Fact]
+    public Task NameSearchRanksResultsAndFiltersNarrowThemWithoutJavaScript() =>
+        portal.WithPageAsync(nameof(NameSearchRanksResultsAndFiltersNarrowThemWithoutJavaScript), async page =>
+        {
+            await page.GotoAsync(portal.Address + "/");
+            await page.GetByRole(AriaRole.Searchbox).FillAsync("exemplu");
+            await page.GetByRole(AriaRole.Button, new() { Name = "Caută" }).ClickAsync();
+
+            var results = page.Locator(".result__name");
+            await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync("4 firme");
+            await Assertions.Expect(results).ToHaveTextAsync(["EXEMPLU", "EXEMPLU SOFT SRL", "EXEMPLUL NOU SRL", "S.C. ALFA EXEMPLU S.R.L."]);
+
+            var filters = page.GetByRole(AriaRole.Complementary, new() { Name = "Filtre" });
+            await filters.GetByRole(AriaRole.Link, new() { Name = "Cluj" }).ClickAsync();
+            await Assertions.Expect(page).ToHaveURLAsync(JudetCluj());
+            await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync("3 firme");
+            await Assertions.Expect(filters.GetByRole(AriaRole.Heading, new() { Name = "Localitate" })).ToBeVisibleAsync();
+
+            await filters.GetByRole(AriaRole.Link, new() { Name = "Radiată" }).ClickAsync();
+            await Assertions.Expect(results).ToHaveTextAsync(["EXEMPLU", "EXEMPLUL NOU SRL"]);
+            await Assertions.Expect(filters.GetByRole(AriaRole.Link, new() { Name = "Radiată" })).ToHaveAttributeAsync("aria-current", "true");
+
+            // Removing the name keeps the other filters, which are now counted from the stored totals.
+            await page.GetByRole(AriaRole.Link, new() { Name = "Elimină filtrul „exemplu”" }).ClickAsync();
+            await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync("2 firme");
+            await Assertions.Expect(page.GetByRole(AriaRole.Searchbox)).ToHaveValueAsync("");
+        }, NoScript);
+
+    [Fact]
+    public Task CaenGroupsDrillDownAndUnknownCodesAreNamed() =>
+        portal.WithPageAsync(nameof(CaenGroupsDrillDownAndUnknownCodesAreNamed), async page =>
+        {
+            await page.GotoAsync(portal.Address + "/");
+            await page.GetByRole(AriaRole.Link, new() { Name = "Telecomunicații și tehnologia informației" }).ClickAsync();
+            var filters = page.GetByRole(AriaRole.Complementary, new() { Name = "Filtre" });
+            await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync("2 firme");
+            await filters.GetByRole(AriaRole.Link, new() { Name = "Activități de programare" }).ClickAsync();
+            await filters.GetByRole(AriaRole.Link, new() { Name = "Consultanță" }).ClickAsync();
+            await Assertions.Expect(page.Locator(".result__name")).ToHaveTextAsync(["EXEMPLU SOFT SRL"]);
+            await Assertions.Expect(filters.GetByRole(AriaRole.List, new() { Name = "Nivel CAEN selectat" })).ToContainTextAsync("622");
+
+            await filters.GetByRole(AriaRole.Link, new() { Name = "Rev.2 (2008)" }).ClickAsync();
+            await Assertions.Expect(page).Not.ToHaveURLAsync(new Regex("caen="));
+            await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync($"{SearchFixtures.Filler + 6} firme");
+
+            await page.GotoAsync(portal.Address + "/?caen=6201");
+            await Assertions.Expect(page.GetByRole(AriaRole.Note)).ToContainTextAsync("Codul CAEN 6201 nu există în Rev.3");
+        }, NoScript);
+
+    [Fact]
+    public Task IdentifiersAndPaginationWork() =>
+        portal.WithPageAsync(nameof(IdentifiersAndPaginationWork), async page =>
+        {
+            await page.GotoAsync(portal.Address + "/?q=" + Uri.EscapeDataString("RO " + SearchFixtures.ExempluSoft));
+            await Assertions.Expect(page.Locator(".result__name")).ToHaveTextAsync(["EXEMPLU SOFT SRL"]);
+            await page.GotoAsync(portal.Address + "/?q=" + Uri.EscapeDataString("vechi nume"));
+            await Assertions.Expect(page.Locator(".result")).ToContainTextAsync("Denumire anterioară: VECHI NUME S.R.L.");
+
+            await page.GotoAsync(portal.Address + "/?judet=40");
+            var pages = page.GetByRole(AriaRole.Navigation, new() { Name = "Pagini" });
+            await Assertions.Expect(pages).ToContainTextAsync("Pagina 1 din 2");
+            await pages.GetByRole(AriaRole.Link, new() { Name = "Următoarea" }).ClickAsync();
+            await Assertions.Expect(pages).ToContainTextAsync("Pagina 2 din 2");
+            await Assertions.Expect(page.Locator(".result")).ToHaveCountAsync(SearchFixtures.Filler + 1 - 20);
+        }, NoScript);
+
+    [Fact]
+    public Task PhoneShowsResultsFirstWithoutHorizontalScroll() =>
+        portal.WithPageAsync(nameof(PhoneShowsResultsFirstWithoutHorizontalScroll), async page =>
+        {
+            foreach (var path in PhonePaths)
+            {
+                await page.GotoAsync(portal.Address + path);
+                Assert.False(await page.EvaluateAsync<bool>("document.documentElement.scrollWidth > window.innerWidth"), $"{path} scrolls horizontally at 360px");
+            }
+
+            await page.GotoAsync(portal.Address + "/?q=exemplu");
+            var list = await page.Locator(".result-list").BoundingBoxAsync();
+            var filters = await page.Locator("#filtre").BoundingBoxAsync();
+            Assert.True(list!.Y < filters!.Y);
+            await page.GetByRole(AriaRole.Link, new() { Name = "Filtre" }).ClickAsync();
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex("#filtre$"));
+            await Assertions.Expect(page.Locator("#filtre")).ToBeInViewportAsync();
+        }, Phone);
+
+    [GeneratedRegex("judet=12")]
+    private static partial Regex JudetCluj();
+}

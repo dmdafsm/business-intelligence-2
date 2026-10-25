@@ -1,0 +1,24 @@
+name: Feature or data step
+description: A bounded implementation task linked to the MVP plan.
+body:
+  - type: input
+    id: plans
+    attributes:
+      label: Task ID
+      description: Sxx.n or REPO.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Intended behavior
+      description: User outcome, relevant dependencies and boundaries of this change.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance and evidence
+      description: Observable criteria and how they will be verified; include source and missing-data implications where relevant.
+    validations:
+      required: true

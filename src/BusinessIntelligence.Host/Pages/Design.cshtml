@@ -1,0 +1,165 @@
+@page
+@model DesignModel
+@{
+    ViewData["Title"] = "Design system";
+}
+<header class="page-header">
+    <h1 class="md-typescale-headline-medium">Design system</h1>
+    <p class="md-typescale-body-medium md-on-surface-variant">Componentele Material 3 ale portalului, construite din tokenii din <code>wwwroot/css/tokens.css</code>.</p>
+</header>
+
+<nav class="md-tabs" aria-label="Secțiuni">
+    <a class="md-tab" asp-route-tab="componente" aria-current="@(Model.Tab == "componente" ? "page" : null)">Componente</a>
+    <a class="md-tab" asp-route-tab="culori" aria-current="@(Model.Tab == "culori" ? "page" : null)">Culori</a>
+    <a class="md-tab" asp-route-tab="tipografie" aria-current="@(Model.Tab == "tipografie" ? "page" : null)">Tipografie</a>
+</nav>
+
+<div class="page-section page-section--after-tabs">
+@switch (Model.Tab)
+{
+    case "culori":
+        <h2 class="md-typescale-title-large">Roluri de culoare</h2>
+        <div class="swatch-grid">
+            @foreach (var role in DesignModel.ColorRoles)
+            {
+                <div class="swatch swatch--@role">@role</div>
+            }
+        </div>
+        break;
+    case "tipografie":
+        <h2 class="md-typescale-title-large">Scală tipografică</h2>
+        @foreach (var style in DesignModel.TypeScale)
+        {
+            <p class="md-typescale-@style">@style — Societatea Exemplu SRL</p>
+        }
+        break;
+    default:
+        <h2 class="md-typescale-title-large">Butoane</h2>
+        <div class="cluster">
+            <button class="md-button md-button--filled" type="button">Filled</button>
+            <button class="md-button md-button--tonal" type="button">Tonal</button>
+            <button class="md-button md-button--elevated" type="button">Elevated</button>
+            <button class="md-button md-button--outlined" type="button">Outlined</button>
+            <button class="md-button md-button--text" type="button">Text</button>
+            <button class="md-button md-button--filled" type="button" disabled>Dezactivat</button>
+            <button class="md-icon-button" type="button"><md-icon name="search" label="Caută" /></button>
+        </div>
+
+        <h2 class="md-typescale-title-large">Căutare și câmpuri</h2>
+        <form class="md-search" role="search" action="/" method="get">
+            <md-icon name="search" />
+            <label class="md-visually-hidden" for="design-q">Caută</label>
+            <input class="md-search__input" id="design-q" name="q" type="search" placeholder="Denumire, CUI sau nr. de înregistrare" />
+        </form>
+        <div class="cluster">
+            <div class="md-text-field">
+                <label class="md-text-field__label" for="design-county">Județ</label>
+                <select class="md-text-field__input" id="design-county">
+                    <option>Toate județele</option>
+                    <option>Cluj</option>
+                    <option>Iași</option>
+                </select>
+                <span class="md-text-field__chevron"><md-icon name="arrow-drop-down" /></span>
+            </div>
+            <div class="md-text-field">
+                <label class="md-text-field__label" for="design-caen">Cod CAEN</label>
+                <input class="md-text-field__input" id="design-caen" inputmode="numeric" value="6201" />
+                <span class="md-text-field__supporting">Clasă, diviziune sau secțiune</span>
+            </div>
+        </div>
+
+        <h2 class="md-typescale-title-large">Filtre (chips)</h2>
+        <ul class="md-chip-set">
+            <li><a class="md-chip" href="#" aria-current="true"><md-icon name="check" small="true" />Active</a></li>
+            <li><a class="md-chip" href="#">Radiate</a></li>
+            <li><a class="md-chip" href="#"><md-icon name="place" small="true" />Cluj <span class="md-chip__count">204.081</span></a></li>
+            <li><a class="md-chip md-chip--input" href="#" aria-label="Elimină filtrul CAEN 62">CAEN 62<md-icon name="close" small="true" /></a></li>
+        </ul>
+
+        <h2 class="md-typescale-title-large">Stare firmă</h2>
+        <div class="cluster">
+            <span class="md-status md-status--active">Activă</span>
+            <span class="md-status md-status--suspended">Suspendată</span>
+            <span class="md-status md-status--insolvency">În insolvență</span>
+            <span class="md-status md-status--struckoff">Radiată</span>
+        </div>
+
+        <h2 class="md-typescale-title-large">Date (facts) și sursă</h2>
+        <dl class="md-facts">
+            <div><dt>CUI</dt><dd>12345678</dd></div>
+            <div><dt>Formă juridică</dt><dd>SRL</dd></div>
+            <div><dt>Telefon</dt><dd><span class="md-missing">nedeclarat</span></dd></div>
+        </dl>
+        <p class="md-source">Sursa: Oficiul Național al Registrului Comerțului, „Firme înregistrate”, 19.10.2026. Licență CC BY 4.0.</p>
+
+        <h2 class="md-typescale-title-large">Grafic</h2>
+        <div class="chart-grid">
+            <partial name="_BarChart" model="@(new BarChart("design-chart", "Profit sau pierdere netă (lei)", "Exemplu: profit, un an nedepus, pierdere, zero.", [
+                new ChartPoint(2021, 120_000, "2021: 120.000"), new ChartPoint(2022, null, "2022: nedepus"),
+                new ChartPoint(2023, -45_000, "2023: -45.000"), new ChartPoint(2024, 0, "2024: 0"), new ChartPoint(2025, 80_000, "2025: 80.000")]))" />
+        </div>
+
+        <h2 class="md-typescale-title-large">Paginare</h2>
+        <nav class="md-pagination" aria-label="Exemplu de paginare">
+            <a class="md-button md-button--outlined" href="#"><md-icon name="chevron-left" />Anterioara</a>
+            <span class="md-pagination__label">Pagina 2 din 14</span>
+            <a class="md-button md-button--outlined" href="#">Următoarea<md-icon name="chevron-right" /></a>
+        </nav>
+
+        <h2 class="md-typescale-title-large">Carduri</h2>
+        <div class="card-grid">
+            <a class="md-card md-card--elevated" href="#">
+                <h3 class="md-card__title">Elevated</h3>
+                <p class="md-card__subtitle">Rezultat de căutare, navigabil</p>
+            </a>
+            <div class="md-card md-card--filled">
+                <h3 class="md-card__title">Filled</h3>
+                <p class="md-card__subtitle">Indicator cheie pe profil</p>
+            </div>
+            <div class="md-card md-card--outlined">
+                <h3 class="md-card__title">Outlined</h3>
+                <p class="md-card__subtitle">Secțiune de detalii</p>
+            </div>
+        </div>
+
+        <h2 class="md-typescale-title-large">Listă</h2>
+        <div class="md-card md-card--outlined md-card--flush">
+            <ul class="md-list">
+                <li><a class="md-list__item" href="#">
+                    <span class="md-list__leading"><md-icon name="business" /></span>
+                    <span class="md-list__text"><span class="md-list__headline">EXEMPLU SOFTWARE SRL</span><span class="md-list__supporting">CUI 12345678 · Cluj-Napoca, Cluj</span></span>
+                    <span class="md-list__trailing">6201</span>
+                </a></li>
+                <li><hr class="md-divider" /></li>
+                <li><a class="md-list__item" href="#">
+                    <span class="md-list__leading"><md-icon name="business" /></span>
+                    <span class="md-list__text"><span class="md-list__headline">ALT EXEMPLU SA</span><span class="md-list__supporting">CUI 87654321 · Iași, Iași</span></span>
+                    <span class="md-list__trailing">4711</span>
+                </a></li>
+            </ul>
+        </div>
+
+        <h2 class="md-typescale-title-large">Tabel de date</h2>
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <caption>Indicatori financiari (date fictive)</caption>
+                <thead><tr><th scope="col">An</th><th scope="col" data-numeric>Cifră de afaceri (lei)</th><th scope="col" data-numeric>Profit net (lei)</th><th scope="col" data-numeric>Angajați</th></tr></thead>
+                <tbody>
+                    <tr><th scope="row">2025</th><td data-numeric>1.250.000</td><td data-numeric>184.000</td><td data-numeric>12</td></tr>
+                    <tr><th scope="row">2024</th><td data-numeric>1.020.000</td><td data-numeric>0</td><td data-numeric>11</td></tr>
+                    <tr><th scope="row">2023</th><td data-numeric class="md-missing">nedepus</td><td data-numeric class="md-missing">nedepus</td><td data-numeric class="md-missing">nedepus</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="md-typescale-title-large">Stare goală</h2>
+        <div class="md-card md-card--outlined">
+            <div class="md-empty-state">
+                <md-icon name="info" />
+                <h3 class="md-empty-state__title">Niciun rezultat</h3>
+                <p class="md-empty-state__text">Încearcă alt nume sau verifică CUI-ul.</p>
+            </div>
+        </div>
+        break;
+}
+</div>

@@ -1,0 +1,21 @@
+name: Bug report
+description: Reproduction and expected behavior. Report security issues privately.
+body:
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps and observed behavior
+      description: Include application/data version and sanitized inputs. Do not attach secrets or private records.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior and impact
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Diagnostic context
+      description: Related task ID, environment and reproducibility.

@@ -1,0 +1,9 @@
+@model FacetLink
+<li><a class="md-list__item md-list__item--dense" asp-page="/Index" asp-all-route-data="Model.RouteValues" aria-current="@(Model.Selected ? "true" : null)">
+    @if (Model.Code is not null)
+    {
+        <span class="md-list__leading md-caen-code">@Model.Code</span>
+    }
+    <span class="md-list__text"><span class="md-list__headline">@Model.Label</span></span>
+    <span class="md-list__trailing md-numeric">@Model.Count.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("ro-RO"))</span>
+</a></li>

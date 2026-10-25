@@ -1,0 +1,239 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = Model.Query ?? (Model.Searching ? "Firme" : "Căutare");
+    var result = Model.Result;
+    var ro = System.Globalization.CultureInfo.GetCultureInfo("ro-RO");
+    const int Visible = 12;
+}
+<section class="@(Model.Searching ? "search-bar-section" : "search-hero")" aria-labelledby="search-title">
+    @if (Model.Searching)
+    {
+        <h1 id="search-title" class="md-visually-hidden">Rezultate</h1>
+    }
+    else
+    {
+        <h1 id="search-title" class="md-typescale-headline-large">Caută o firmă</h1>
+        <p class="md-typescale-body-large md-on-surface-variant">După denumire, CUI sau număr de înregistrare la Registrul Comerțului.</p>
+    }
+    <form class="md-search" method="get" role="search">
+        <md-icon name="search" />
+        <label class="md-visually-hidden" for="q">Denumire, CUI sau număr de înregistrare</label>
+        <input class="md-search__input" id="q" name="q" type="search" value="@Model.Query" maxlength="200"
+               placeholder="Denumire, CUI sau nr. reg." autocomplete="off" />
+        @foreach (var (key, value) in Model.With(query: null))
+        {
+            <input type="hidden" name="@key" value="@value" />
+        }
+        <button class="md-icon-button" type="submit"><md-icon name="chevron-right" label="Caută" /></button>
+    </form>
+</section>
+
+@if (!result.Ready)
+{
+    @if (Model.Searching)
+    {
+        <div class="md-empty-state" role="status">
+            <md-icon name="info" />
+            <h2 class="md-empty-state__title">Încă nu există date importate</h2>
+            <p class="md-empty-state__text">Căutarea devine disponibilă după importul registrului ONRC și construirea indexului de căutare.</p>
+        </div>
+    }
+    return;
+}
+
+@if (!Model.Searching)
+{
+    <div class="browse-grid">
+        <section class="md-card md-card--outlined" aria-labelledby="browse-counties">
+            <h2 id="browse-counties" class="md-card__title">Firme după județ</h2>
+            <ul class="md-chip-set">
+                @foreach (var county in result.Places)
+                {
+                    <li><a class="md-chip" asp-page="/Index" asp-all-route-data="Model.With(county: short.Parse(county.Value, System.Globalization.CultureInfo.InvariantCulture))">
+                        @county.Label <span class="md-chip__count">@county.Count.ToString("N0", ro)</span></a></li>
+                }
+            </ul>
+        </section>
+        <section class="md-card md-card--outlined md-card--flush" aria-labelledby="browse-caen">
+            <h2 id="browse-caen" class="md-card__title browse-grid__title">Firme după activitate (CAEN Rev.3)</h2>
+            <ul class="md-list">
+                @foreach (var top in result.Activities)
+                {
+                    <li><a class="md-list__item md-list__item--dense" asp-page="/Index" asp-all-route-data="Model.With(caen: top.Value.Split(':')[1])">
+                        <span class="md-list__leading md-caen-code">@top.Value.Split(':')[1]</span>
+                        <span class="md-list__text"><span class="md-list__headline">@top.Label</span></span>
+                        <span class="md-list__trailing md-numeric">@top.Count.ToString("N0", ro)</span>
+                    </a></li>
+                }
+            </ul>
+        </section>
+    </div>
+    <p class="md-typescale-body-small md-on-surface-variant source-note">
+        Registrul ONRC, index construit la @result.BuiltAt?.ToLocalTime().ToString("dd.MM.yyyy", ro). Activitățile sunt cele autorizate; o firmă apare la fiecare activitate a ei.
+    </p>
+    return;
+}
+
+<div class="results-layout">
+    <div class="results-layout__main">
+        <div class="results-header">
+            <p class="md-typescale-title-medium" role="status">
+                @if (result.Total == 0)
+                {
+                    <text>Nicio firmă găsită</text>
+                }
+                else
+                {
+                    @(result.Total == 1 ? "1 firmă" : $"{result.Total.ToString("N0", ro)} firme")
+                }
+            </p>
+            <a class="md-button md-button--text results-header__filters" href="#filtre"><md-icon name="filter-list" />Filtre</a>
+        </div>
+
+        @if (result.QueryTooShort)
+        {
+            <p class="md-typescale-body-medium notice" role="note">Introdu cel puțin două litere sau cifre din denumire, un CUI sau un număr de înregistrare.</p>
+        }
+
+        @if (Model.UnknownCaen is not null)
+        {
+            <p class="md-typescale-body-medium notice" role="note">Codul CAEN @Model.UnknownCaen nu există în Rev.@Model.Version; filtrul nu a fost aplicat.</p>
+        }
+
+        @{
+            var active = new List<(string Label, Dictionary<string, string> Without)>();
+            if (Model.Query is not null) { active.Add(($"„{Model.Query}”", Model.With(query: null))); }
+            if (result.CountyName is not null) { active.Add((result.CountyName, Model.With(county: null, uat: null))); }
+            if (result.UatName is not null) { active.Add((result.UatName, Model.With(uat: null))); }
+            if (result.CaenPath.Count > 0) { active.Add(($"CAEN {result.CaenPath[^1].Code}", Model.With(caen: null))); }
+            if (Model.Lifecycle is not null) { active.Add((IndexModel.LifecycleLabelFromSlug(Model.Lifecycle), Model.With(lifecycle: null))); }
+        }
+        @if (active.Count > 0)
+        {
+            <ul class="md-chip-set" aria-label="Filtre aplicate">
+                @foreach (var (label, without) in active)
+                {
+                    <li><a class="md-chip md-chip--input" asp-page="/Index" asp-all-route-data="without" aria-label="Elimină filtrul @label">@label<md-icon name="close" small="true" /></a></li>
+                }
+            </ul>
+        }
+
+        @if (result.Hits.Count == 0)
+        {
+            <div class="md-empty-state">
+                <md-icon name="search" />
+                <h2 class="md-empty-state__title">Nicio firmă nu corespunde</h2>
+                <p class="md-empty-state__text">Verifică denumirea sau elimină unul dintre filtre.</p>
+            </div>
+        }
+        else
+        {
+            <ol class="md-list md-card md-card--outlined md-card--flush result-list" start="@((result.Page - 1) * BusinessIntelligence.Modules.Search.CompanySearch.PageSize + 1)">
+                @foreach (var hit in result.Hits)
+                {
+                    <li class="result">
+                        <a class="md-list__item result__link" href="@(hit.Cui is { } cui ? Url.Page("/Firma", new { cui }) : Url.Page("/Firma", new { nr = hit.RegistrationNumber }))">
+                        <span class="md-list__text">
+                            <span class="md-list__headline result__name">@(hit.Name ?? "Fără denumire")</span>
+                            @if (hit.EarlierName is not null)
+                            {
+                                <span class="md-list__supporting">Denumire anterioară: @hit.EarlierName</span>
+                            }
+                            <span class="md-list__supporting">
+                                @if (hit.Cui is not null) { <span>CUI <span class="md-numeric">@hit.Cui</span></span><span aria-hidden="true"> · </span> }
+                                <span>@hit.RegistrationNumber</span>
+                                @if (hit.Place is not null || hit.County is not null)
+                                {
+                                    <span aria-hidden="true"> · </span><span>@string.Join(", ", new[] { hit.Place, hit.County }.Where(item => item is not null).Distinct())</span>
+                                }
+                            </span>
+                        </span>
+                        <span class="md-status md-status--@hit.Lifecycle.ToLowerInvariant()">@Model.LifecycleLabel(hit.Lifecycle)</span>
+                        </a>
+                    </li>
+                }
+            </ol>
+            @if (result.Pages > 1)
+            {
+                <nav class="md-pagination" aria-label="Pagini">
+                    @if (result.Page > 1)
+                    {
+                        <a class="md-button md-button--outlined" asp-page="/Index" asp-all-route-data="Model.With(page: result.Page - 1)" rel="prev"><md-icon name="chevron-left" />Anterioara</a>
+                    }
+                    <span class="md-pagination__label">Pagina @result.Page din @result.Pages.ToString("N0", ro)</span>
+                    @if (result.Page < result.Pages)
+                    {
+                        <a class="md-button md-button--outlined" asp-page="/Index" asp-all-route-data="Model.With(page: result.Page + 1)" rel="next">Următoarea<md-icon name="chevron-right" /></a>
+                    }
+                </nav>
+                @if (result.Page == BusinessIntelligence.Modules.Search.CompanySearch.MaxPage)
+                {
+                    <p class="md-typescale-body-small md-on-surface-variant">Sunt afișate primele @((BusinessIntelligence.Modules.Search.CompanySearch.MaxPage * BusinessIntelligence.Modules.Search.CompanySearch.PageSize).ToString("N0", ro)) rezultate. Restrânge căutarea pentru a le vedea pe celelalte.</p>
+                }
+            }
+        }
+    </div>
+
+    <aside id="filtre" class="results-layout__filters" aria-label="Filtre" tabindex="-1">
+        <section class="facet" aria-labelledby="facet-status">
+            <h2 id="facet-status" class="facet__title">Stare</h2>
+            <ul class="md-chip-set">
+                @foreach (var item in result.Lifecycles)
+                {
+                    var slug = Model.LifecycleSlug(item.Value);
+                    var selected = slug == Model.Lifecycle;
+                    <li><a class="md-chip" asp-page="/Index" asp-all-route-data="Model.With(lifecycle: selected ? null : slug)" aria-current="@(selected ? "true" : null)">
+                        @if (selected) { <md-icon name="check" small="true" /> }
+                        @item.Label <span class="md-chip__count">@item.Count.ToString("N0", ro)</span></a></li>
+                }
+            </ul>
+        </section>
+
+        <section class="facet" aria-labelledby="facet-place">
+            <h2 id="facet-place" class="facet__title">@(Model.County is null ? "Județ" : "Localitate")</h2>
+            @if (Model.County is not null)
+            {
+                <a class="facet__up" asp-page="/Index" asp-all-route-data="Model.With(county: null, uat: null)"><md-icon name="chevron-left" small="true" />Toate județele</a>
+            }
+            <partial name="_FacetList" model="@(new FacetListModel(result.Places.Select(item => new FacetLink(item.Label, null, item.Count,
+                Model.County is null
+                    ? Model.With(county: short.Parse(item.Value, System.Globalization.CultureInfo.InvariantCulture))
+                    : Model.With(uat: Model.Uat?.ToString(System.Globalization.CultureInfo.InvariantCulture) == item.Value ? null : int.Parse(item.Value, System.Globalization.CultureInfo.InvariantCulture)),
+                Model.Uat?.ToString(System.Globalization.CultureInfo.InvariantCulture) == item.Value)).ToList(), Visible, "localități"))" />
+        </section>
+
+        <section class="facet" aria-labelledby="facet-caen">
+            <h2 id="facet-caen" class="facet__title">Activitate (CAEN)</h2>
+            <nav class="md-tabs facet__tabs" aria-label="Versiunea CAEN">
+                @foreach (var version in BusinessIntelligence.Modules.Search.CompanySearch.CaenVersions)
+                {
+                    <a class="md-tab" asp-page="/Index" asp-all-route-data="Model.With(version: version, caen: null)" aria-current="@(version == Model.Version ? "page" : null)">Rev.@version (@(version == 3 ? "2025" : "2008"))</a>
+                }
+            </nav>
+            @if (result.CaenPath.Count > 0)
+            {
+                <ol class="facet__path" aria-label="Nivel CAEN selectat">
+                    <li><a asp-page="/Index" asp-all-route-data="Model.With(caen: null)">Toate</a></li>
+                    @foreach (var node in result.CaenPath)
+                    {
+                        <li>@if (node == result.CaenPath[^1])
+                            {
+                                <span aria-current="true"><span class="md-caen-code">@node.Code</span> @node.Name</span>
+                            }
+                            else
+                            {
+                                <a asp-page="/Index" asp-all-route-data="Model.With(caen: node.Code)"><span class="md-caen-code">@node.Code</span> @node.Name</a>
+                            }
+                        </li>
+                    }
+                </ol>
+            }
+            <partial name="_FacetList" model="@(new FacetListModel(result.Activities.Select(item => new FacetLink(item.Label, item.Value.Split(':')[1], item.Count,
+                Model.With(caen: item.Value.Split(':')[1]), false)).ToList(), Visible, "activități"))" />
+            <p class="md-typescale-body-small md-on-surface-variant">
+                Activități autorizate la ONRC, în versiunea CAEN a fiecărei firme. Firmele încă neactualizate la Rev.3 apar doar la Rev.2.
+            </p>
+        </section>
+    </aside>
+</div>

@@ -1,0 +1,762 @@
+[
+ {
+  "snapshot": "2013-10-21",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-21-octombrie-2013",
+  "name": "open-data-21-10-2013-radiate.csv",
+  "url": "http://data.gov.ro/storage/f/2013-11-01T12%3A52%3A01.543Z/open-data-21-10-2013-radiate.csv",
+  "path": "2013-10-21/open-data-21-10-2013-radiate.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2013-10-21",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-21-octombrie-2013",
+  "name": "open-data-21-10-2013-radiate-fara-sediu.csv",
+  "url": "http://data.gov.ro/storage/f/2013-11-01T12%3A53%3A58.153Z/open-data-21-10-2013-radiate-fara-sediu.csv",
+  "path": "2013-10-21/open-data-21-10-2013-radiate-fara-sediu.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2013-10-21",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-21-octombrie-2013",
+  "name": "open-data-21-10-2013-neradiate-fara-sediu.csv",
+  "url": "http://data.gov.ro/storage/f/2013-11-01T12%3A55%3A56.247Z/open-data-21-10-2013-neradiate-fara-sediu.csv",
+  "path": "2013-10-21/open-data-21-10-2013-neradiate-fara-sediu.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2013-10-21",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-21-octombrie-2013",
+  "name": "nomenclator-stari-firma.csv",
+  "url": "http://data.gov.ro/storage/f/2013-11-01T12%3A56%3A29.479Z/nomenclator-stari-firma.csv",
+  "path": "2013-10-21/nomenclator-stari-firma.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2013-10-21",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-21-octombrie-2013",
+  "name": "open-data-21-10-2013-neradiate1.csv",
+  "url": "http://data.gov.ro/storage/f/2013-11-01T12%3A57%3A23.385Z/open-data-21-10-2013-neradiate1.csv",
+  "path": "2013-10-21/open-data-21-10-2013-neradiate1.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2013-10-21",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-21-octombrie-2013",
+  "name": "open-data-21-10-2013-neradiate2.csv",
+  "url": "http://data.gov.ro/storage/f/2013-11-01T12%3A58%3A49.214Z/open-data-21-10-2013-neradiate2.csv",
+  "path": "2013-10-21/open-data-21-10-2013-neradiate2.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2014-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2014",
+  "name": "neradiate_cu_sediu - 31.10.2014-1.csv",
+  "url": "http://data.gov.ro/storage/f/2014-11-05T11%3A48%3A54.070Z/neradiate-cu-sediu-31-10-2014-1.csv",
+  "path": "2014-10-31/neradiate-cu-sediu-31-10-2014-1.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2014-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2014",
+  "name": "neradiate_cu_sediu - 31.10.2014-2.csv",
+  "url": "http://data.gov.ro/storage/f/2014-11-05T11%3A50%3A07.166Z/neradiate-cu-sediu-31-10-2014-2.csv",
+  "path": "2014-10-31/neradiate-cu-sediu-31-10-2014-2.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2014-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2014",
+  "name": "neradiate_fara_sediu - 31.10.2014.csv",
+  "url": "http://data.gov.ro/storage/f/2014-11-05T11%3A50%3A39.287Z/neradiate-fara-sediu-31-10-2014.csv",
+  "path": "2014-10-31/neradiate-fara-sediu-31-10-2014.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2014-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2014",
+  "name": "nomenclator_stari_firma.csv",
+  "url": "http://data.gov.ro/storage/f/2014-11-05T11%3A51%3A18.940Z/nomenclator-stari-firma.csv",
+  "path": "2014-10-31/nomenclator-stari-firma.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2014-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2014",
+  "name": "radiate_cu_sediu - 31.10.2014-1.csv",
+  "url": "http://data.gov.ro/storage/f/2014-11-05T11%3A51%3A46.541Z/radiate-cu-sediu-31-10-2014-1.csv",
+  "path": "2014-10-31/radiate-cu-sediu-31-10-2014-1.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2014-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2014",
+  "name": "radiate_cu_sediu - 31.10.2014-2.csv",
+  "url": "http://data.gov.ro/storage/f/2014-11-05T11%3A52%3A19.047Z/radiate-cu-sediu-31-10-2014-2.csv",
+  "path": "2014-10-31/radiate-cu-sediu-31-10-2014-2.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2014-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2014",
+  "name": "radiate_fara_sediu - 31.10.2014.csv",
+  "url": "http://data.gov.ro/storage/f/2014-11-05T11%3A52%3A40.028Z/radiate-fara-sediu-31-10-2014.csv",
+  "path": "2014-10-31/radiate-fara-sediu-31-10-2014.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2015-11-16",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-16-noiembrie-2015",
+  "name": "neradiate fara sediu",
+  "url": "https://data.gov.ro/dataset/ccf222ea-d506-45ed-8aec-7f450dc1ad5a/resource/a94656c1-05f2-4665-878b-41e0536f998b/download/1neradiatefarasediu-16.11.2015.csv",
+  "path": "2015-11-16/1neradiatefarasediu-16.11.2015.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2015-11-16",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-16-noiembrie-2015",
+  "name": "radiate fara sediu",
+  "url": "https://data.gov.ro/dataset/ccf222ea-d506-45ed-8aec-7f450dc1ad5a/resource/47b031fb-1d16-4521-b84f-c46dace44542/download/2radiatefarasediu-16.11.2015.csv",
+  "path": "2015-11-16/2radiatefarasediu-16.11.2015.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2015-11-16",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-16-noiembrie-2015",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/ccf222ea-d506-45ed-8aec-7f450dc1ad5a/resource/7748bc42-bb8d-4db3-850e-27e79812b126/download/3neradiatecusediu-16.11.2015.001.csv",
+  "path": "2015-11-16/3neradiatecusediu-16.11.2015.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2015-11-16",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-16-noiembrie-2015",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/ccf222ea-d506-45ed-8aec-7f450dc1ad5a/resource/353e8f38-5da7-427c-8cae-43a94f5bcd76/download/3neradiatecusediu-16.11.2015.002.csv",
+  "path": "2015-11-16/3neradiatecusediu-16.11.2015.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2015-11-16",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-16-noiembrie-2015",
+  "name": "radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/ccf222ea-d506-45ed-8aec-7f450dc1ad5a/resource/81f49ae2-d66e-4d39-b127-fdaa1868a758/download/4radiatecusediu-16.11.2015.001.csv",
+  "path": "2015-11-16/4radiatecusediu-16.11.2015.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2015-11-16",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-16-noiembrie-2015",
+  "name": "radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/ccf222ea-d506-45ed-8aec-7f450dc1ad5a/resource/76f80bad-c284-4090-a475-6c7afd3add48/download/4radiatecusediu-16.11.2015.002.csv",
+  "path": "2015-11-16/4radiatecusediu-16.11.2015.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2015-11-16",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-16-noiembrie-2015",
+  "name": "nomenclator stari firma",
+  "url": "https://data.gov.ro/dataset/ccf222ea-d506-45ed-8aec-7f450dc1ad5a/resource/7eb9bf00-7f90-40f9-93dc-8821931b8328/download/5nomenclatorstarifirma.csv",
+  "path": "2015-11-16/5nomenclatorstarifirma.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2016-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2016",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/8802f2e6-4f31-4c9f-95c6-642a6a28d681/resource/c40d3299-aa0f-468f-8583-0a7a0a3fe0f0/download/3neradiatecusediu-31.10.2016.001.csv",
+  "path": "2016-10-31/3neradiatecusediu-31.10.2016.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2016-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2016",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/8802f2e6-4f31-4c9f-95c6-642a6a28d681/resource/4f7071a5-df17-4d09-bf76-88c3ef663521/download/3neradiatecusediu-31.10.2016.002.csv",
+  "path": "2016-10-31/3neradiatecusediu-31.10.2016.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2016-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2016",
+  "name": "radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/8802f2e6-4f31-4c9f-95c6-642a6a28d681/resource/1d975245-d39d-4698-8a92-b37e96404751/download/4radiatecusediu-31.10.2016.001.csv",
+  "path": "2016-10-31/4radiatecusediu-31.10.2016.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2016-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2016",
+  "name": "radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/8802f2e6-4f31-4c9f-95c6-642a6a28d681/resource/f1600f92-2847-4832-a4f0-bcc9c3ba9387/download/4radiatecusediu-31.10.2016.002.csv",
+  "path": "2016-10-31/4radiatecusediu-31.10.2016.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2016-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2016",
+  "name": "nomenclator stari firma",
+  "url": "https://data.gov.ro/dataset/8802f2e6-4f31-4c9f-95c6-642a6a28d681/resource/f9e0e9c0-07d3-4e6e-bfd5-b176d00654c5/download/5nomenclatorstarifirma.csv",
+  "path": "2016-10-31/5nomenclatorstarifirma.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2016-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2016",
+  "name": "neradiate fara sediu",
+  "url": "https://data.gov.ro/dataset/8802f2e6-4f31-4c9f-95c6-642a6a28d681/resource/7cac3647-368a-42e1-ad6d-8cdeb5aafe8c/download/1neradiatefarasediu-31.10.2016.csv",
+  "path": "2016-10-31/1neradiatefarasediu-31.10.2016.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2016-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2016",
+  "name": "radiate fara sediu",
+  "url": "https://data.gov.ro/dataset/8802f2e6-4f31-4c9f-95c6-642a6a28d681/resource/6fa6bd43-a5d8-45b0-b7b1-b25231274852/download/2radiatefarasediu-31.10.2016.csv",
+  "path": "2016-10-31/2radiatefarasediu-31.10.2016.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "neradiate fara sediu",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/e788eb33-8718-42fe-b1ca-3b930e15718e/download/1opendata-neradiatefarasediu-31.10.2017.csv",
+  "path": "2017-10-31/1opendata-neradiatefarasediu-31.10.2017.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "radiate fara sediu",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/31cf4f68-52c9-4331-98bc-e33704030993/download/2opendata-radiatefarasediu-31.10.2017.csv",
+  "path": "2017-10-31/2opendata-radiatefarasediu-31.10.2017.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/e78ca097-ecaf-4450-9998-31c80fc39f48/download/3opendata-neradiatecusediu-31.10.2017.001.csv",
+  "path": "2017-10-31/3opendata-neradiatecusediu-31.10.2017.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "neradiate cu sediu - 2",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/cc1d59ae-01f0-41f3-8775-5a12417f8b83/download/3opendata-neradiatecusediu-31.10.2017.002.csv",
+  "path": "2017-10-31/3opendata-neradiatecusediu-31.10.2017.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "neradiate cu sediu - 3",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/cf93f262-6078-47f4-8261-fde551fd9eb6/download/3opendata-neradiatecusediu-31.10.2017.003.csv",
+  "path": "2017-10-31/3opendata-neradiatecusediu-31.10.2017.003.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "neradiate cu sediu - 4",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/46c94362-290f-405f-8870-2c4e55e79c16/download/3opendata-neradiatecusediu-31.10.2017.004.csv",
+  "path": "2017-10-31/3opendata-neradiatecusediu-31.10.2017.004.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "radiate cu sediu - 1",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/7286b0a3-fb79-4032-8dba-b8b67d67bc67/download/4opendata-radiatecusediu-31.10.2017.001.csv",
+  "path": "2017-10-31/4opendata-radiatecusediu-31.10.2017.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "radiate cu sediu - 2",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/2bff384d-cdca-47b3-afa8-371497a66c7e/download/4opendata-radiatecusediu-31.10.2017.002.csv",
+  "path": "2017-10-31/4opendata-radiatecusediu-31.10.2017.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "radiate cu sediu - 3",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/f58ec942-2649-497a-bcb3-0a4fa7366752/download/4opendata-radiatecusediu-31.10.2017.003.csv",
+  "path": "2017-10-31/4opendata-radiatecusediu-31.10.2017.003.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "radiate cu sediu - 4",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/989acd5f-1569-4a5f-a8e7-5fc7901b83cd/download/4opendata-radiatecusediu-31.10.2017.004.csv",
+  "path": "2017-10-31/4opendata-radiatecusediu-31.10.2017.004.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2017-10-31",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-31-octombrie-2017",
+  "name": "nomenclator stari firma",
+  "url": "https://data.gov.ro/dataset/11484ea7-0801-44cf-92bc-c48fb1183b0b/resource/64b57980-b0de-454a-8548-b664a5b612e0/download/5nomenclatorstarifirma.csv",
+  "path": "2017-10-31/5nomenclatorstarifirma.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "neradiate fara sediu",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/d16c02b7-40f6-43c7-9fa3-184c5b5e14b7/download/1opendata-neradiatefarasediu-01.11.2018.csv",
+  "path": "2018-11-01/1opendata-neradiatefarasediu-01.11.2018.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "radiate fara sediu",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/1ba6b148-54b4-4b81-921c-54d7a3618a19/download/2opendata-radiatefarasediu-01.11.2018.csv",
+  "path": "2018-11-01/2opendata-radiatefarasediu-01.11.2018.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "neradiate cu sediu 1",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/1df2f0a3-64c7-4024-ae57-9fbafed67b60/download/3opendata-neradiatecusediu-01.11.2018.001.csv",
+  "path": "2018-11-01/3opendata-neradiatecusediu-01.11.2018.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "neradiate cu sediu 2",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/16a4af7f-f0aa-4031-ad11-b07628b95014/download/3opendata-neradiatecusediu-01.11.2018.002.csv",
+  "path": "2018-11-01/3opendata-neradiatecusediu-01.11.2018.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "neradiate cu sediu 3",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/ed7c2405-d77a-483a-96a8-f388a07525ed/download/3opendata-neradiatecusediu-01.11.2018.003.csv",
+  "path": "2018-11-01/3opendata-neradiatecusediu-01.11.2018.003.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "neradiate cu sediu 4",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/93f853c2-9ad4-4fc1-bc32-d040b048b730/download/3opendata-neradiatecusediu-01.11.2018.004.csv",
+  "path": "2018-11-01/3opendata-neradiatecusediu-01.11.2018.004.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "radiate cu sediu 1",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/ae55b3b7-3685-4ad9-bbf9-f754fef013ad/download/4opendata-radiatecusediu-01.11.2018.001.csv",
+  "path": "2018-11-01/4opendata-radiatecusediu-01.11.2018.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "radiate cu sediu 2",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/057b01dc-41a8-44cb-a232-ffc5ebe8954c/download/4opendata-radiatecusediu-01.11.2018.002.csv",
+  "path": "2018-11-01/4opendata-radiatecusediu-01.11.2018.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "radiate cu sediu 3",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/ec37b722-efe4-4edd-a0aa-ae038374fddb/download/4opendata-radiatecusediu-01.11.2018.003.csv",
+  "path": "2018-11-01/4opendata-radiatecusediu-01.11.2018.003.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "radiate cu sediu 4",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/f8fe1305-fc92-4929-b0df-83c607727379/download/4opendata-radiatecusediu-01.11.2018.004.csv",
+  "path": "2018-11-01/4opendata-radiatecusediu-01.11.2018.004.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2018-11-01",
+  "dataset": "noiembrie2018",
+  "name": "nomenclator stari firma",
+  "url": "https://data.gov.ro/dataset/2160e05c-49d3-450f-98ef-b18a810550fe/resource/f07cab6e-79da-4596-81b3-b72a499aa278/download/5nomenclatorstarifirma.csv",
+  "path": "2018-11-01/5nomenclatorstarifirma.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "neradiate fara sediu",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/4f2ab18f-2a90-4c9c-bc26-a4f35ae0c9be/download/1opendata-neradiatefarasediu-20.11.2019.csv",
+  "path": "2019-11-20/1opendata-neradiatefarasediu-20.11.2019.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "radiate fara sediu",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/58589a24-9892-4210-8237-f9d17e0ab6db/download/2opendata-radiatefarasediu-20.11.2019.csv",
+  "path": "2019-11-20/2opendata-radiatefarasediu-20.11.2019.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "neradiate cu sediu1",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/25225811-916a-48fd-afdc-bbe7c7bd94f8/download/3opendata-neradiatecusediu-20.11.2019.001.csv",
+  "path": "2019-11-20/3opendata-neradiatecusediu-20.11.2019.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "neradiate cu sediu2",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/376edac3-9119-4f22-a6e1-1a60f7aece14/download/3opendata-neradiatecusediu-20.11.2019.002.csv",
+  "path": "2019-11-20/3opendata-neradiatecusediu-20.11.2019.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "neradiate cu sediu3",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/f34c5fcd-216a-4877-8ca1-392cc053cb5e/download/3opendata-neradiatecusediu-20.11.2019.003.csv",
+  "path": "2019-11-20/3opendata-neradiatecusediu-20.11.2019.003.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "neradiate cu sediu4",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/f5363bfc-568e-459b-8f30-b5cfa9354787/download/3opendata-neradiatecusediu-20.11.2019.004.csv",
+  "path": "2019-11-20/3opendata-neradiatecusediu-20.11.2019.004.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "radiate cu sediu1",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/070cddc7-d43d-460c-a19b-a853e42eafbd/download/4opendata-radiatecusediu-20.11.2019.001.csv",
+  "path": "2019-11-20/4opendata-radiatecusediu-20.11.2019.001.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "radiate cu sediu2",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/39e2c420-6e24-4083-bfb7-90bee1af1704/download/4opendata-radiatecusediu-20.11.2019.002.csv",
+  "path": "2019-11-20/4opendata-radiatecusediu-20.11.2019.002.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "radiate cu sediu3",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/91ce3671-d464-43f9-8f6f-49e22c929459/download/4opendata-radiatecusediu-20.11.2019.003.csv",
+  "path": "2019-11-20/4opendata-radiatecusediu-20.11.2019.003.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "radiate cu sediu4",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/e13cb409-e531-4003-b10d-3176fb5dffbc/download/4opendata-radiatecusediu-20.11.2019.004.csv",
+  "path": "2019-11-20/4opendata-radiatecusediu-20.11.2019.004.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2019-11-20",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-20-noiembrie-2019",
+  "name": "nomenclator stari firma",
+  "url": "https://data.gov.ro/dataset/2e66225c-6bf4-4d9e-baf5-32f3b9b39a56/resource/450b3132-04a5-4bfc-8e2e-870b53f6179e/download/5nomenclatorstarifirma.csv",
+  "path": "2019-11-20/5nomenclatorstarifirma.csv",
+  "license": "uk-ogl"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "neradiate fara sediu",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/291ebcc7-1c87-4fcf-9b15-37d27cdb0f0e/download/1open_data-neradiate_fara_sediu-08.12.2020.csv",
+  "path": "2020-12-08/1open_data-neradiate_fara_sediu-08.12.2020.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "radiate fara sediu",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/226d22f4-f522-4a02-a4ca-d08b35c89012/download/2open_data-radiate_fara_sediu-08.12.2020.csv",
+  "path": "2020-12-08/2open_data-radiate_fara_sediu-08.12.2020.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "neradiate cu sediu 1",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/21c518e7-61d5-4841-8ec7-c9539ccbc821/download/3open_data-neradiate_cu_sediu-08.12.2020.001.csv",
+  "path": "2020-12-08/3open_data-neradiate_cu_sediu-08.12.2020.001.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "neradiate cu sediu 2",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/d5bb85ee-9fea-482f-8ada-c158da8c0d46/download/3open_data-neradiate_cu_sediu-08.12.2020.002.csv",
+  "path": "2020-12-08/3open_data-neradiate_cu_sediu-08.12.2020.002.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "neradiate cu sediu 3",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/9a51f3a3-98a3-4ca0-a6dd-cb33080ca67b/download/3open_data-neradiate_cu_sediu-08.12.2020.003.csv",
+  "path": "2020-12-08/3open_data-neradiate_cu_sediu-08.12.2020.003.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "neradiate cu sediu 4",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/cf09a4a2-38a4-4d59-84a6-561061182882/download/3open_data-neradiate_cu_sediu-08.12.2020.004.csv",
+  "path": "2020-12-08/3open_data-neradiate_cu_sediu-08.12.2020.004.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "neradiate cu sediu 5",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/9336d37b-54c5-4e7c-8b1a-c957c3e47e11/download/3open_data-neradiate_cu_sediu-08.12.2020.005.csv",
+  "path": "2020-12-08/3open_data-neradiate_cu_sediu-08.12.2020.005.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "radiate cu sediu 1",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/540965ac-1937-4c67-bb3d-2f69eb588fb4/download/4open_data-radiate_cu_sediu-08.12.2020.001.csv",
+  "path": "2020-12-08/4open_data-radiate_cu_sediu-08.12.2020.001.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "radiate cu sediu 2",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/b6043a75-1ba5-4745-87df-1004237ac058/download/4open_data-radiate_cu_sediu-08.12.2020.002.csv",
+  "path": "2020-12-08/4open_data-radiate_cu_sediu-08.12.2020.002.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "radiate cu sediu 3",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/11c28368-341e-46b2-9975-041533f46907/download/4open_data-radiate_cu_sediu-08.12.2020.003.csv",
+  "path": "2020-12-08/4open_data-radiate_cu_sediu-08.12.2020.003.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "radiate cu sediu 4",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/c449ecd7-2795-4cba-816a-a2049dccf681/download/4open_data-radiate_cu_sediu-08.12.2020.004.csv",
+  "path": "2020-12-08/4open_data-radiate_cu_sediu-08.12.2020.004.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "radiate cu sediu 5",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/b35bf26d-187b-4b3b-9bff-c3827c3e62e6/download/4open_data-radiate_cu_sediu-08.12.2020.005.csv",
+  "path": "2020-12-08/4open_data-radiate_cu_sediu-08.12.2020.005.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2020-12-08",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-08-decembrie-2020",
+  "name": "nomenclator stari firma",
+  "url": "https://data.gov.ro/dataset/84d0824d-bc19-4b62-aac0-c26934694ea2/resource/285bc07c-0ffb-4123-badd-74d50400dfc6/download/5nomenclator_stari_firma.csv",
+  "path": "2020-12-08/5nomenclator_stari_firma.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2021-12-09",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-09-decembrie-2021",
+  "name": "Neradiate fără sediu",
+  "url": "https://data.gov.ro/dataset/9c34a8d8-ed67-4c0a-8b44-ae444a0b0b56/resource/b41ac60e-26c6-460f-becc-fc4caadee9ea/download/1open_data-neradiate_fara_sediu-09.12.2021.csv",
+  "path": "2021-12-09/1open_data-neradiate_fara_sediu-09.12.2021.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2021-12-09",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-09-decembrie-2021",
+  "name": "Radiate fără sediu",
+  "url": "https://data.gov.ro/dataset/9c34a8d8-ed67-4c0a-8b44-ae444a0b0b56/resource/2d2bbe98-07e7-4293-9d3b-f947c27e6a22/download/2open_data-radiate_fara_sediu-09.12.2021.csv",
+  "path": "2021-12-09/2open_data-radiate_fara_sediu-09.12.2021.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2021-12-09",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-09-decembrie-2021",
+  "name": "Neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/9c34a8d8-ed67-4c0a-8b44-ae444a0b0b56/resource/b77f931f-6548-4f14-b8ac-b71fe46eb5c6/download/3open_data-neradiate_cu_sediu-09.12.2021.csv",
+  "path": "2021-12-09/3open_data-neradiate_cu_sediu-09.12.2021.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2021-12-09",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-09-decembrie-2021",
+  "name": "Radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/9c34a8d8-ed67-4c0a-8b44-ae444a0b0b56/resource/52e9227f-bead-4bf0-9b06-7a03d284f858/download/4open_data-radiate_cu_sediu-09.12.2021.csv",
+  "path": "2021-12-09/4open_data-radiate_cu_sediu-09.12.2021.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2021-12-09",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-09-decembrie-2021",
+  "name": "Nomenclator stări firmă",
+  "url": "https://data.gov.ro/dataset/9c34a8d8-ed67-4c0a-8b44-ae444a0b0b56/resource/17a197ed-5010-44aa-9e45-2ff34d91beb9/download/5nomenclator_stari_firma.csv",
+  "path": "2021-12-09/5nomenclator_stari_firma.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2022-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2022",
+  "name": "neradiate fără sediu",
+  "url": "https://data.gov.ro/dataset/bc50557a-265d-4a83-924b-bda16a684a01/resource/ccd475f9-b05f-498b-9a3b-766de80ee9ea/download/1firme_neradiate_fara_sediu_2022-10-07.csv",
+  "path": "2022-10-07/1firme_neradiate_fara_sediu_2022-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2022-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2022",
+  "name": "radiate fără sediu",
+  "url": "https://data.gov.ro/dataset/bc50557a-265d-4a83-924b-bda16a684a01/resource/7e4bd23b-ae2b-465b-b75f-5b0b7a8aa2a9/download/2firme_radiate_fara_sediu_2022-10-07.csv",
+  "path": "2022-10-07/2firme_radiate_fara_sediu_2022-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2022-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2022",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/bc50557a-265d-4a83-924b-bda16a684a01/resource/ed6c972b-f04e-4e95-a964-8b87c75ae2d8/download/3firme_neradiate_cu_sediu_2022-10-07.csv",
+  "path": "2022-10-07/3firme_neradiate_cu_sediu_2022-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2022-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2022",
+  "name": "radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/bc50557a-265d-4a83-924b-bda16a684a01/resource/4464e7e5-22c7-43fe-9b5f-dda67f79144a/download/4firme_radiate_cu_sediu_2022-10-07.csv",
+  "path": "2022-10-07/4firme_radiate_cu_sediu_2022-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2022-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2022",
+  "name": "nomenclator stări firmă",
+  "url": "https://data.gov.ro/dataset/bc50557a-265d-4a83-924b-bda16a684a01/resource/47b77a11-0257-47a0-9c8b-0a8ced0893dd/download/5nomenclator_stari_firma.csv",
+  "path": "2022-10-07/5nomenclator_stari_firma.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2023-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2023",
+  "name": "neradiate fără sediu",
+  "url": "https://data.gov.ro/dataset/cd10c55c-d53e-421c-8602-36481ff37c9a/resource/cb55bb25-6502-4ddf-9f87-3bf1f7556366/download/firme_neradiate_fara_sediu_2023-10-07.csv",
+  "path": "2023-10-07/firme_neradiate_fara_sediu_2023-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2023-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2023",
+  "name": "radiate fără sediu",
+  "url": "https://data.gov.ro/dataset/cd10c55c-d53e-421c-8602-36481ff37c9a/resource/0aaed5f9-f2ce-4f57-800b-e9ac4310799f/download/firme_radiate_fara_sediu_2023-10-07.csv",
+  "path": "2023-10-07/firme_radiate_fara_sediu_2023-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2023-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2023",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/cd10c55c-d53e-421c-8602-36481ff37c9a/resource/1d25d587-f409-4031-a52c-789d75aa20a3/download/firme_neradiate_cu_sediu_2023-10-07.csv",
+  "path": "2023-10-07/firme_neradiate_cu_sediu_2023-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2023-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2023",
+  "name": "radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/cd10c55c-d53e-421c-8602-36481ff37c9a/resource/73598f25-75f6-49c7-9ef1-e969807309f4/download/firme_radiate_cu_sediu_2023-10-07.csv",
+  "path": "2023-10-07/firme_radiate_cu_sediu_2023-10-07.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2023-10-07",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-07-octombrie-2023",
+  "name": "nomenclator stări firmă",
+  "url": "https://data.gov.ro/dataset/cd10c55c-d53e-421c-8602-36481ff37c9a/resource/9e3cb301-1844-4696-8d94-9d83c623a895/download/5nomenclator_stari_firma.csv",
+  "path": "2023-10-07/5nomenclator_stari_firma.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2024-12-18",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-18-decembrie-2024",
+  "name": "neradiate fără sediu",
+  "url": "https://data.gov.ro/dataset/243787b1-a720-4adc-97e6-e1fad373816e/resource/a301429d-4683-4033-a345-bd1f1f15b7df/download/1firme_neradiate_fara_sediu_18-12-2024.csv",
+  "path": "2024-12-18/1firme_neradiate_fara_sediu_18-12-2024.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2024-12-18",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-18-decembrie-2024",
+  "name": "radiate fără sediu",
+  "url": "https://data.gov.ro/dataset/243787b1-a720-4adc-97e6-e1fad373816e/resource/22c88e78-757a-48f1-b082-f74b90abf215/download/2firme_radiate_fara_sediu_18-12-2024.csv",
+  "path": "2024-12-18/2firme_radiate_fara_sediu_18-12-2024.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2024-12-18",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-18-decembrie-2024",
+  "name": "neradiate cu sediu",
+  "url": "https://data.gov.ro/dataset/243787b1-a720-4adc-97e6-e1fad373816e/resource/3043787a-832a-4ccc-9712-f10da0092e14/download/3firme_neradiate_cu_sediu_18-12-2024.csv",
+  "path": "2024-12-18/3firme_neradiate_cu_sediu_18-12-2024.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2024-12-18",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-18-decembrie-2024",
+  "name": "radiate cu sediu",
+  "url": "https://data.gov.ro/dataset/243787b1-a720-4adc-97e6-e1fad373816e/resource/88a7eaae-32c3-4d0c-9024-2bb846cb0bc4/download/4firme_radiate_cu_sediu_18-12-2024.csv",
+  "path": "2024-12-18/4firme_radiate_cu_sediu_18-12-2024.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2024-12-18",
+  "dataset": "firme-inregistrate-la-registrul-comertului-pana-la-data-de-18-decembrie-2024",
+  "name": "nomenclator stări firmă",
+  "url": "https://data.gov.ro/dataset/243787b1-a720-4adc-97e6-e1fad373816e/resource/1f02419c-d922-4274-ae9c-d14599423c30/download/5nomenclator_stari_firma.csv",
+  "path": "2024-12-18/5nomenclator_stari_firma.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2025-12-08",
+  "dataset": "firme-08-12-2025",
+  "name": "OD_STARE_FIRMA.CSV",
+  "url": "https://data.gov.ro/dataset/f7374920-a656-4e34-85dd-a61c6e6e5603/resource/9ab6d186-6cf9-4330-b2ee-430469501f9d/download/od_stare_firma.csv",
+  "path": "2025-12-08/od_stare_firma.csv",
+  "license": "CC-BY-4.0"
+ },
+ {
+  "snapshot": "2025-12-08",
+  "dataset": "firme-08-12-2025",
+  "name": "OD_FIRME.CSV",
+  "url": "https://data.gov.ro/dataset/f7374920-a656-4e34-85dd-a61c6e6e5603/resource/488a8d00-90df-4f37-b5f4-6c9111e6f1e7/download/od_firme.csv",
+  "path": "2025-12-08/od_firme.csv",
+  "license": "CC-BY-4.0"
+ }
+]
