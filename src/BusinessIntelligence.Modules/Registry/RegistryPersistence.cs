@@ -94,6 +94,26 @@ public sealed class Registration
     public required string GeographyState { get; set; }
     public short SourceRows { get; set; }
     public required string[] ConflictingFields { get; set; }
+
+    /// <summary>Summary of the current ONRC status codes (see <see cref="Onrc.Lifecycle"/>); Unknown until statuses are imported.</summary>
+    public string Lifecycle { get; set; } = Onrc.Lifecycle.Unknown;
+}
+
+/// <summary>One current ONRC status code of a registration. The source has no dates: this is a set, not a history.</summary>
+public sealed class RegistrationStatus
+{
+    public int SnapshotId { get; set; }
+    public required string RegistrationNumber { get; set; }
+    public int StatusCode { get; set; }
+}
+
+/// <summary>An authorized CAEN activity of a company's current registration, in that registration's newest CAEN version.</summary>
+public sealed class CompanyActivity
+{
+    public int SnapshotId { get; set; }
+    public required string CompanyKey { get; set; }
+    public short CaenVersion { get; set; }
+    public required string CaenCode { get; set; }
 }
 
 /// <summary>A company in a snapshot: all registrations with the same valid CUI, or a single registration without one.</summary>
@@ -116,6 +136,10 @@ public sealed class Company
     public int? LocalityCode { get; set; }
     public required string GeographyState { get; set; }
     public string? Website { get; set; }
+    public string Lifecycle { get; set; } = Onrc.Lifecycle.Unknown;
+
+    /// <summary>CAEN version of the activities in company_activities; null when the source lists none.</summary>
+    public short? CaenVersion { get; set; }
 }
 
 public static class RegistryPersistence
@@ -160,6 +184,18 @@ public static class RegistryPersistence
             entity.ToTable("registrations", Schema);
             entity.HasKey(item => new { item.SnapshotId, item.RegistrationNumber });
             entity.HasIndex(item => new { item.SnapshotId, item.Cui });
+            entity.Property(item => item.Lifecycle).HasDefaultValue(Onrc.Lifecycle.Unknown);
+        });
+        builder.Entity<RegistrationStatus>(entity =>
+        {
+            entity.ToTable("registration_statuses", Schema);
+            entity.HasKey(item => new { item.SnapshotId, item.RegistrationNumber, item.StatusCode });
+        });
+        builder.Entity<CompanyActivity>(entity =>
+        {
+            entity.ToTable("company_activities", Schema);
+            entity.HasKey(item => new { item.SnapshotId, item.CompanyKey, item.CaenVersion, item.CaenCode });
+            entity.HasIndex(item => new { item.SnapshotId, item.CaenVersion, item.CaenCode });
         });
         builder.Entity<Company>(entity =>
         {
@@ -167,6 +203,7 @@ public static class RegistryPersistence
             entity.HasKey(item => new { item.SnapshotId, item.CompanyKey });
             entity.HasIndex(item => new { item.SnapshotId, item.Cui });
             entity.HasIndex(item => new { item.SnapshotId, item.RegistrationNumber });
+            entity.Property(item => item.Lifecycle).HasDefaultValue(Onrc.Lifecycle.Unknown);
         });
     }
 }

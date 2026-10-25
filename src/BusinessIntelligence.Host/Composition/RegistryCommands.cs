@@ -12,7 +12,7 @@ internal static class RegistryCommands
 {
     private const string Usage = """
         Commands:
-          registry import <catalog-id> <file>   import a pinned source file (CAEN, statuses, SIRUTA or OD_FIRME)
+          registry import <catalog-id> <file>   import a pinned source file (nomenclatures, SIRUTA, OD_FIRME and its annexes)
           registry status                       show published datasets and row counts
           registry show <cui|registry-number>   print one company from the published snapshot
         """;
@@ -74,6 +74,8 @@ internal static class RegistryCommands
             "onrc-status" => await reference.StatusCodesAsync(path, file, cancellationToken),
             "siruta" => await reference.SirutaAsync(path, file, cancellationToken),
             ImportOnrcFirme.Kind => await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
+            ImportOnrcAnnexes.StatusKind => await new ImportOnrcAnnexes(database, TimeProvider.System).StatusesAsync(path, file, cancellationToken),
+            ImportOnrcAnnexes.ActivitiesKind => await new ImportOnrcAnnexes(database, TimeProvider.System).ActivitiesAsync(path, file, cancellationToken),
             _ => throw new ArgumentException($"No importer for {file.Kind}."),
         };
         await WriteAsync(new
@@ -103,6 +105,8 @@ internal static class RegistryCommands
             siruta = await database.Siruta.CountAsync(cancellationToken),
             registrations = await database.Registrations.CountAsync(item => item.SnapshotId == snapshot, cancellationToken),
             companies = await database.Companies.CountAsync(item => item.SnapshotId == snapshot, cancellationToken),
+            statuses = await database.RegistrationStatuses.CountAsync(item => item.SnapshotId == snapshot, cancellationToken),
+            companyActivities = await database.CompanyActivities.CountAsync(item => item.SnapshotId == snapshot, cancellationToken),
         };
     }
 
@@ -125,7 +129,21 @@ internal static class RegistryCommands
             .Where(item => item.SnapshotId == snapshot && (company.Cui != null ? item.Cui == company.Cui : item.RegistrationNumber == company.RegistrationNumber))
             .OrderByDescending(item => item.RegistrationDate)
             .ToListAsync(cancellationToken);
-        await WriteAsync(new { company, registrations }, cancellationToken);
+        var statuses = await database.RegistrationStatuses.AsNoTracking()
+            .Where(item => item.SnapshotId == snapshot && registrations.Select(registration => registration.RegistrationNumber).Contains(item.RegistrationNumber))
+            .Join(database.StatusCodes, item => item.StatusCode, code => code.Code, (item, code) => new { item.RegistrationNumber, item.StatusCode, code.Name })
+            .ToListAsync(cancellationToken);
+        var activities = await database.CompanyActivities.AsNoTracking()
+            .Where(item => item.SnapshotId == snapshot && item.CompanyKey == company.CompanyKey)
+            .OrderBy(item => item.CaenCode)
+            .Select(item => new
+            {
+                item.CaenVersion,
+                item.CaenCode,
+                Name = database.Caen.Where(caen => caen.Version == item.CaenVersion && caen.Code == item.CaenCode).Select(caen => caen.Name).FirstOrDefault(),
+            })
+            .ToListAsync(cancellationToken);
+        await WriteAsync(new { company, registrations, statuses, activities }, cancellationToken);
         return 0;
     }
 

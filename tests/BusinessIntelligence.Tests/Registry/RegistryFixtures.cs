@@ -50,13 +50,40 @@ internal static class RegistryFixtures
         "FIRMA NOUA SRL^478197^J2026000200456^01/10/2026 10:00:00^ROONRC.J2026000200456^SRL^România^Cluj^Comuna Floreşti^^^^^^^^^^^",
     ];
 
-    public static (string Path, CatalogFile File) WriteFirme(string directory, string id, IEnumerable<string> rows)
+    public static readonly string[] Statuses =
+    [
+        "J40/100/2001^1084",
+        "J2024000100123^1048",
+        "J2024000100123^2069",
+        "F12/5/2010^1074",
+        "F12/5/2010^2120",
+        "C12/1/1995^1070",
+        "C12/1/1995^1139",
+        "J99/1/1999^1048",
+    ];
+
+    public static readonly string[] Activities =
+    [
+        "J40/100/2001^6201^2",
+        "J2024000100123^6201^2",
+        "J2024000100123^6210^3",
+        "J2024000100123^7022^3",
+        "F12/5/2010^4711^2",
+        "F12/5/2010^47A1^2",
+        "J99/1/1999^0111^2",
+    ];
+
+    public static (string Path, CatalogFile File) WriteFirme(string directory, string id, IEnumerable<string> rows) =>
+        WriteFile(directory, id, "onrc-firme", Header, rows, new DateOnly(2026, 10, 19));
+
+    public static (string Path, CatalogFile File) WriteFile(
+        string directory, string id, string kind, string header, IEnumerable<string> rows, DateOnly referenceDate)
     {
         var path = Path.Combine(directory, id + ".csv");
-        var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(Header + "\r\n" + string.Join("\r\n", rows) + "\r\n")).ToArray();
+        var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(header + "\r\n" + string.Join("\r\n", rows) + "\r\n")).ToArray();
         File.WriteAllBytes(path, bytes);
-        return (path, new CatalogFile(id, "onrc-firme", "Test snapshot", "OD_FIRME.CSV", new Uri("https://example.test/" + id),
-            "Test publisher", "CC BY 4.0", new DateOnly(2026, 10, 19), bytes.Length, Convert.ToHexStringLower(SHA256.HashData(bytes))));
+        return (path, new CatalogFile(id, kind, "Test snapshot", id + ".csv", new Uri("https://example.test/" + id),
+            "Test publisher", "CC BY 4.0", referenceDate, bytes.Length, Convert.ToHexStringLower(SHA256.HashData(bytes))));
     }
 
     /// <summary>A minimal XLSX with shared strings, in the SIRUTA column layout.</summary>

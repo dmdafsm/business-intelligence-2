@@ -12,6 +12,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<SirutaPlace> Siruta => Set<SirutaPlace>();
     public DbSet<Registration> Registrations => Set<Registration>();
     public DbSet<Company> Companies => Set<Company>();
+    public DbSet<RegistrationStatus> RegistrationStatuses => Set<RegistrationStatus>();
+    public DbSet<CompanyActivity> CompanyActivities => Set<CompanyActivity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
