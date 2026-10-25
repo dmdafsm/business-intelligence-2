@@ -70,6 +70,10 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("company_key");
 
+                    b.Property<short?>("CaenVersion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("caen_version");
+
                     b.Property<short?>("CountyNumber")
                         .HasColumnType("smallint")
                         .HasColumnName("county_number");
@@ -95,6 +99,13 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.Property<string>("LegalForm")
                         .HasColumnType("text")
                         .HasColumnName("legal_form");
+
+                    b.Property<string>("Lifecycle")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Unknown")
+                        .HasColumnName("lifecycle");
 
                     b.Property<int?>("LocalityCode")
                         .HasColumnType("integer")
@@ -135,6 +146,33 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasDatabaseName("ix_companies_snapshot_id_registration_number");
 
                     b.ToTable("companies", "registry");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CompanyActivity", b =>
+                {
+                    b.Property<int>("SnapshotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("snapshot_id");
+
+                    b.Property<string>("CompanyKey")
+                        .HasColumnType("text")
+                        .HasColumnName("company_key");
+
+                    b.Property<short>("CaenVersion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("caen_version");
+
+                    b.Property<string>("CaenCode")
+                        .HasColumnType("text")
+                        .HasColumnName("caen_code");
+
+                    b.HasKey("SnapshotId", "CompanyKey", "CaenVersion", "CaenCode")
+                        .HasName("pk_company_activities");
+
+                    b.HasIndex("SnapshotId", "CaenVersion", "CaenCode")
+                        .HasDatabaseName("ix_company_activities_snapshot_id_caen_version_caen_code");
+
+                    b.ToTable("company_activities", "registry");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CompanyStatusCode", b =>
@@ -247,6 +285,13 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("legal_form");
 
+                    b.Property<string>("Lifecycle")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Unknown")
+                        .HasColumnName("lifecycle");
+
                     b.Property<string>("Locality")
                         .HasColumnType("text")
                         .HasColumnName("locality");
@@ -306,6 +351,26 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasDatabaseName("ix_registrations_snapshot_id_cui");
 
                     b.ToTable("registrations", "registry");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.RegistrationStatus", b =>
+                {
+                    b.Property<int>("SnapshotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("snapshot_id");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("registration_number");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_code");
+
+                    b.HasKey("SnapshotId", "RegistrationNumber", "StatusCode")
+                        .HasName("pk_registration_statuses");
+
+                    b.ToTable("registration_statuses", "registry");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.SirutaPlace", b =>

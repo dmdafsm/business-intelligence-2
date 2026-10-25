@@ -23,6 +23,18 @@ internal static class RegistryImports
         Report = report,
     };
 
+    /// <summary>
+    /// Reclaims rows replaced by an import and refreshes planner statistics. Runs after the commit (VACUUM cannot run
+    /// in a transaction); a failure here leaves the published data correct, only less compact.
+    /// </summary>
+    public static async Task VacuumAsync(AppDbContext database, string tables, CancellationToken cancellationToken)
+    {
+        database.Database.SetCommandTimeout(TimeSpan.FromHours(1));
+#pragma warning disable EF1002 // Table names are constants from the importers, never input.
+        await database.Database.ExecuteSqlRawAsync($"VACUUM (ANALYZE) {tables}", cancellationToken);
+#pragma warning restore EF1002
+    }
+
     /// <summary>Points the dataset at the new file inside the caller's transaction; returns the file it replaced.</summary>
     public static async Task<int?> PublishAsync(AppDbContext database, string kind, int sourceFileId, TimeProvider time, CancellationToken cancellationToken)
     {

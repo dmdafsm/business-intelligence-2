@@ -60,6 +60,8 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         var previous = await RegistryImports.PublishAsync(database, Kind, source.Id, time, cancellationToken);
         if (previous is { } old && old != source.Id)
         {
+            await ExecuteAsync(connection, "DELETE FROM registry.company_activities WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
+            await ExecuteAsync(connection, "DELETE FROM registry.registration_statuses WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
             await ExecuteAsync(connection, "DELETE FROM registry.companies WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
             await ExecuteAsync(connection, "DELETE FROM registry.registrations WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
         }
@@ -80,6 +82,8 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         source.Report = JsonSerializer.Serialize(report);
         await database.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+        await RegistryImports.VacuumAsync(database,
+            "registry.registrations, registry.companies, registry.registration_statuses, registry.company_activities", cancellationToken);
         return new ImportResult(ImportOutcome.Published, source.Id, report);
     }
 
@@ -158,7 +162,7 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         return (pairs.Count, states);
     }
 
-    private static async Task WriteAsync(NpgsqlBinaryImporter writer, string? value, CancellationToken cancellationToken)
+    internal static async Task WriteAsync(NpgsqlBinaryImporter writer, string? value, CancellationToken cancellationToken)
     {
         if (value is null)
         {
@@ -183,7 +187,7 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         }
     }
 
-    private static async Task<int> ExecuteAsync(
+    internal static async Task<int> ExecuteAsync(
         NpgsqlConnection connection, string sql, CancellationToken cancellationToken, params (string Name, object Value)[] parameters)
     {
         await using var command = new NpgsqlCommand(sql, connection) { CommandTimeout = 0 };

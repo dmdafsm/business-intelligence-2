@@ -13,6 +13,30 @@
       "sha256": "e7f48934242c7bb1c3cfb77aa85d778a1857c4b065664fa593f64ade1733ec85"
     },
     {
+      "id": "onrc-stare-firma-2026-10-19",
+      "kind": "onrc-firme-status",
+      "dataset": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
+      "fileName": "OD_STARE_FIRMA.CSV",
+      "url": "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/0689b858-8371-44ec-bc2f-0fc6e5ae2fcc/download/od_stare_firma.csv",
+      "publisher": "Oficiul Național al Registrului Comerțului (ONRC)",
+      "license": "CC BY 4.0",
+      "referenceDate": "2026-10-19",
+      "bytes": 92172215,
+      "sha256": "bcac743ef1de99424018507f3ffca05d821c06fb240bbb4d5e8341e047a97407"
+    },
+    {
+      "id": "onrc-caen-autorizat-2026-10-19",
+      "kind": "onrc-firme-activities",
+      "dataset": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
+      "fileName": "OD_CAEN_AUTORIZAT.CSV",
+      "url": "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/8027039e-c592-436f-8305-ce917e743d5b/download/od_caen_autorizat.csv",
+      "publisher": "Oficiul Național al Registrului Comerțului (ONRC)",
+      "license": "CC BY 4.0",
+      "referenceDate": "2026-10-19",
+      "bytes": 437467917,
+      "sha256": "05db43ffc8a3e5179332c53c0f7d22a5845341506292b7463e42d74747b9440d"
+    },
+    {
       "id": "onrc-n-caen-2026-10-19",
       "kind": "onrc-caen",
       "dataset": "Nomenclatoare ONRC 19.10.2026",

@@ -35,3 +35,28 @@ Not downloaded yet from the same ONRC snapshot: `OD_STARE_FIRMA.CSV` (92 MB, sta
 - N_CAEN: `^`-delimited, BOM, columns SECTIUNEA, SUBSECTIUNEA, DIVIZIUNEA, GRUPA, CLASA, DENUMIRE, VERSIUNE_CAEN. Four versions (0 = 1998, 1 = 2003, 2 = 2008 / Rev.2, 3 = 2025 / Rev.3); 615 Rev.2 and 651 Rev.3 classes. The original repo found 17 version-0 classes with blank names.
 - N_STARE_FIRMA: 197 status codes with names.
 - SIRUTA workbook: one sheet `Data`, columns SIRUTA, DENLOC, CODP, JUD, SIRSUP, TIP, NIV, MED, REGIUNE, FSJ, FSL. Level 1 counties, 2 UATs, 3 localities. The original repo matched 99.89% of registry seats to SIRUTA by parsing the locality structure and matching the UAT first.
+
+## Addendum 2026-10-25: statuses and authorized activities
+
+Downloaded with the maintainer's approval from the same ONRC 19.10.2026 dataset (sizes match the CKAN metadata):
+
+| File | Bytes | SHA-256 |
+| --- | --- | --- |
+| OD_STARE_FIRMA.CSV | 92,172,215 | bcac743ef1de99424018507f3ffca05d821c06fb240bbb4d5e8341e047a97407 |
+| OD_CAEN_AUTORIZAT.CSV | 437,467,917 | 05db43ffc8a3e5179332c53c0f7d22a5845341506292b7463e42d74747b9440d |
+
+Profiling script: [inspect_delimited.py](../tools/inspect_delimited.py).
+
+### OD_STARE_FIRMA.CSV
+
+- UTF-8 BOM, `^`, columns `COD_INMATRICULARE^COD`; 4,670,796 rows covering 4,224,663 registry numbers (up to 15 codes each), no exact duplicates, every code in N_STARE_FIRMA (120 codes used).
+- There are no dates: the file lists the **current** set of status codes per registration, not a history.
+- Codes 1xxx describe the lifecycle (1048 funcțiune 1.79M, 1084 radiată 2.19M, 1074 întrerupere temporară 143k, 1049 dizolvare 60k, 1052 lichidare 16k, 1070 faliment 16k, 1107 insolvență 5k, 1139/1083 under the insolvency laws 22k…). Codes 2xxx are mentions added to the record (2069 sediu expirat 254k, 2120 suspendare expirată 101k, 2065 mandat administratori expirat 30k…).
+- Common combinations: funcțiune + sediu expirat (178k), întrerupere + suspendare expirată (67k), faliment + Legea 85/2014 (9k). 1,653 struck-off registrations also carry mentions.
+
+### OD_CAEN_AUTORIZAT.CSV
+
+- UTF-8 BOM, `^`, columns `COD_INMATRICULARE^COD_CAEN_AUTORIZAT^VER_CAEN_AUTORIZAT`; 19,746,934 rows for 2,861,095 registry numbers (up to 627 rows each; registrations without activities are absent).
+- No column marks the main activity. Main CAEN must come from the MF financial statements (S04).
+- CAEN versions per registration: only Rev.2 1.88M, only Rev.3 738k, only 2003 167k, Rev.2 and Rev.3 together 22k, older mixes 56k. Registrations are being moved to Rev.3 (2025) gradually, so grouping by CAEN must bridge Rev.2 and Rev.3 (ONRC publishes a correspondence table).
+- 139 codes have 2–3 digits (group or division level in old versions); 132 codes are not in N_CAEN for their version.
