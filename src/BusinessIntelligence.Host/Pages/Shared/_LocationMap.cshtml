@@ -1,0 +1,48 @@
+@model BusinessIntelligence.Modules.Profile.LocationMap
+@using BusinessIntelligence.Modules.Registry.Geography
+@{
+    var county = Model.Counties.FirstOrDefault(item => item.Code == Model.CountyCode);
+    var width = ImportBoundaries.Width;
+    var height = ImportBoundaries.Height;
+    // The county close-up frames the county's outline with a margin.
+    var box = county is null ? null : Bounds(county.Path);
+    string Number(double value) => value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+    var countyName = county is null ? null : BusinessIntelligence.Modules.Search.PlaceNames.Display(county.Name, true);
+    var areaName = Model.Area is null ? null : BusinessIntelligence.Modules.Search.PlaceNames.Display(Model.Area.Name);
+    var label = areaName is null ? $"Județul {countyName}" : $"{areaName}, județul {countyName}";
+}
+<figure class="md-map" aria-label="Localizare: @label">
+    <svg class="md-map__plot" viewBox="0 0 @Number(width) @Number(height)" role="img" aria-label="Harta României, cu județul evidențiat">
+        @foreach (var item in Model.Counties)
+        {
+            <path class="md-map__county @(item.Code == Model.CountyCode ? "md-map__county--selected" : null)" d="@item.Path"><title>@BusinessIntelligence.Modules.Search.PlaceNames.Display(item.Name, true)</title></path>
+        }
+    </svg>
+    @if (box is { } frame && county is not null)
+    {
+        var margin = Math.Max(frame.Width, frame.Height) * 0.08;
+        <svg class="md-map__plot md-map__plot--zoom" viewBox="@Number(frame.X - margin) @Number(frame.Y - margin) @Number(frame.Width + 2 * margin) @Number(frame.Height + 2 * margin)" role="img" aria-label="Județul @countyName@(areaName is null ? "" : $", cu {areaName} evidențiat")">
+            <path class="md-map__county md-map__county--selected" d="@county.Path" vector-effect="non-scaling-stroke" />
+            @if (Model.Area is { } area)
+            {
+                <path class="md-map__area" d="@area.Path" vector-effect="non-scaling-stroke"><title>@areaName</title></path>
+            }
+        </svg>
+    }
+    <figcaption class="md-typescale-body-small md-on-surface-variant">@label</figcaption>
+</figure>
+
+@functions {
+    private static (double X, double Y, double Width, double Height)? Bounds(string path)
+    {
+        var numbers = System.Text.RegularExpressions.Regex.Matches(path, @"-?\d+(\.\d+)?").Select(match => double.Parse(match.Value, System.Globalization.CultureInfo.InvariantCulture)).ToList();
+        if (numbers.Count < 4)
+        {
+            return null;
+        }
+
+        var xs = numbers.Where((_, index) => index % 2 == 0).ToList();
+        var ys = numbers.Where((_, index) => index % 2 == 1).ToList();
+        return (xs.Min(), ys.Min(), xs.Max() - xs.Min(), ys.Max() - ys.Min());
+    }
+}

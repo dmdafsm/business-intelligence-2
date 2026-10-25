@@ -6,6 +6,7 @@ The application uses unmodified NuGet packages listed in Directory.Packages.prop
 | --- | --- | --- | --- |
 | Entity Framework Core | 10.0.13 | MIT | [dotnet/efcore](https://github.com/dotnet/efcore) |
 | Npgsql Entity Framework Core provider | 10.0.3 | PostgreSQL License | [npgsql/efcore.pg](https://github.com/npgsql/efcore.pg) |
+| ExcelDataReader | 3.9.0 | MIT | [ExcelDataReader/ExcelDataReader](https://github.com/ExcelDataReader/ExcelDataReader) |
 
 Test-only packages (xUnit, Microsoft.NET.Test.Sdk, Microsoft.Playwright) are not distributed with the application.
 

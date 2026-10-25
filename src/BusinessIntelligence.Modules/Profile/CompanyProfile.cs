@@ -28,6 +28,15 @@ public sealed record ProcurementSummary(
     IReadOnlyList<ProcurementYear> Won, IReadOnlyList<Procurement.ProcurementAward> RecentWins, IReadOnlyList<ProcurementYear> Bought,
     IReadOnlyList<SourceNote> Sources, string Coverage);
 
+/// <summary>An EU-funded project of the company and how it was linked: by CUI, or by exact name within the county.</summary>
+public sealed record FundEntry(Funds.FundProject Project, bool ByName);
+
+/// <summary>A regulator's licence or contract of the company, and whether it was linked by name only.</summary>
+public sealed record LicenceEntry(Licences.Licence Licence, bool ByName, string Source);
+
+/// <summary>Outlines for the location map: every county, the company's county and its UAT (null when not resolved).</summary>
+public sealed record LocationMap(IReadOnlyList<Registry.Geography.AreaOutline> Counties, int? CountyCode, Registry.Geography.AreaOutline? Area, SourceNote Source);
+
 /// <summary>One financial year in the company's range; <see cref="Statement"/> is null when nothing was filed.</summary>
 public sealed record FinancialYear(short Year, FinancialStatement? Statement, SourceFile? Source, string? CaenName);
 
@@ -40,6 +49,14 @@ public sealed record CompanyProfile
     public required IReadOnlyList<ActivityEntry> Activities { get; init; }
     public required IReadOnlyList<PersonEntry> People { get; init; }
     public ProcurementSummary? Procurement { get; init; }
+    public IReadOnlyList<FundEntry> Funds { get; init; } = [];
+    public IReadOnlyList<SourceNote> FundSources { get; init; } = [];
+    public IReadOnlyList<LicenceEntry> Licences { get; init; } = [];
+    public LocationMap? Map { get; init; }
+
+    /// <summary>The latest answer of the ANAF taxpayer web service, if the company was checked.</summary>
+    public Anaf.AnafStatus? Anaf { get; init; }
+    public IReadOnlyList<SourceNote> LicenceSources { get; init; } = [];
     public required IReadOnlyList<RegistrationPeriod> RegistryHistory { get; init; }
     public required IReadOnlyList<TaxpayerPeriod> FiscalHistory { get; init; }
     public required IReadOnlyList<FinancialYear> Financials { get; init; }
@@ -139,6 +156,15 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             FiscalSource = releases.Count == 0 ? null : FiscalNote(releases),
             FiscalReleases = releases,
             Procurement = company.Cui is { } procurementCui ? await ProcurementAsync(procurementCui, cancellationToken) : null,
+            Funds = await FundsAsync(company, cancellationToken),
+            FundSources = await SourcesAsync(Funds.ImportFunds.MinistryKind, Funds.ImportFunds.AfirKind, cancellationToken),
+            Licences = await LicencesAsync(company, cancellationToken),
+            Map = await MapAsync(company, cancellationToken),
+            Anaf = company.Cui is { } anafCui
+                ? await database.AnafStatuses.AsNoTracking().Where(item => item.Cui == anafCui).OrderByDescending(item => item.CheckedOn).FirstOrDefaultAsync(cancellationToken)
+                : null,
+            LicenceSources = [.. (await SourcesAsync(Licences.ImportLicences.AnrscKind, Licences.ImportLicences.AnrmKind, cancellationToken))
+                .Concat(await SourcesAsync(Licences.ImportLicences.CnasKind, Licences.ImportLicences.CnasKind, cancellationToken))],
         };
     }
 
@@ -251,6 +277,78 @@ public sealed class CompanyProfileQuery(AppDbContext database)
         }
 
         return years;
+    }
+
+    /// <summary>
+    /// Projects whose beneficiary has the company's CUI, and projects listed without a CUI whose beneficiary name equals the
+    /// company's current name within its county, when no other company in that county has that name.
+    /// </summary>
+    private async Task<List<FundEntry>> FundsAsync(Company company, CancellationToken cancellationToken)
+    {
+        var byCui = company.Cui is { } cui
+            ? await database.FundProjects.AsNoTracking().Where(item => item.BeneficiaryCui == cui).ToListAsync(cancellationToken)
+            : [];
+        var key = await database.SearchCompanies.AsNoTracking().Where(item => item.CompanyKey == company.CompanyKey).Select(item => item.NameKey).FirstOrDefaultAsync(cancellationToken);
+        var byName = new List<Funds.FundProject>();
+        if (key is not null && company.CountyNumber is { } county
+            && await database.SearchCompanies.CountAsync(item => item.NameKey == key && item.CountyNumber == county, cancellationToken) == 1)
+        {
+            byName = await database.FundProjects.AsNoTracking()
+                .Where(item => item.BeneficiaryCui == null && item.BeneficiaryNameKey == key && item.CountyNumber == county)
+                .ToListAsync(cancellationToken);
+        }
+
+        return [.. byCui.Select(project => new FundEntry(project, false)).Concat(byName.Select(project => new FundEntry(project, true)))
+            .OrderByDescending(item => item.Project.StartDate ?? DateOnly.MinValue).ThenBy(item => item.Project.Programme, StringComparer.Ordinal)];
+    }
+
+    /// <summary>Licences by CUI; ANRM lists only names, so its licences are linked by exact name when no other company has it.</summary>
+    private async Task<List<LicenceEntry>> LicencesAsync(Company company, CancellationToken cancellationToken)
+    {
+        var rows = company.Cui is { } cui
+            ? await database.RegulatorLicences.AsNoTracking().Where(item => item.HolderCui == cui).ToListAsync(cancellationToken)
+            : [];
+        var key = await database.SearchCompanies.AsNoTracking().Where(item => item.CompanyKey == company.CompanyKey).Select(item => item.NameKey).FirstOrDefaultAsync(cancellationToken);
+        var byName = key is not null && await database.SearchCompanies.CountAsync(item => item.NameKey == key, cancellationToken) == 1
+            ? await database.RegulatorLicences.AsNoTracking().Where(item => item.HolderCui == null && item.HolderNameKey == key).ToListAsync(cancellationToken)
+            : [];
+        var files = await database.SourceFiles.AsNoTracking()
+            .Where(file => rows.Select(row => row.SourceFileId).Concat(byName.Select(row => row.SourceFileId)).Contains(file.Id))
+            .ToDictionaryAsync(file => file.Id, file => $"{file.Publisher}, {file.ReferenceDate.ToString("dd.MM.yyyy", Culture)}", cancellationToken);
+        return [.. rows.Select(row => new LicenceEntry(row, false, files.GetValueOrDefault(row.SourceFileId, "")))
+            .Concat(byName.Select(row => new LicenceEntry(row, true, files.GetValueOrDefault(row.SourceFileId, ""))))
+            .OrderBy(item => item.Licence.Authority, StringComparer.Ordinal).ThenBy(item => item.Licence.Status, StringComparer.Ordinal)];
+    }
+
+    private async Task<LocationMap?> MapAsync(Company company, CancellationToken cancellationToken)
+    {
+        if (company.CountyNumber is not { } county)
+        {
+            return null;
+        }
+
+        var counties = await database.AreaOutlines.AsNoTracking().Where(item => item.Level == 1).OrderBy(item => item.Code).ToListAsync(cancellationToken);
+        if (counties.Count == 0)
+        {
+            return null;
+        }
+
+        var countyCode = await database.Siruta.AsNoTracking().Where(item => item.Level == 1 && item.CountyNumber == county).Select(item => (int?)item.Code).FirstOrDefaultAsync(cancellationToken);
+        var area = company.UatCode is { } uat
+            ? await database.AreaOutlines.AsNoTracking().FirstOrDefaultAsync(item => item.Level == 2 && item.Code == uat, cancellationToken)
+            : null;
+        var file = await database.SourceFiles.AsNoTracking().Where(item => item.Kind == Registry.Geography.ImportBoundaries.Kind)
+            .Join(database.PublishedDatasets, item => item.Id, published => published.SourceFileId, (item, _) => item).FirstAsync(cancellationToken);
+        return new LocationMap(counties, countyCode, area, Note(file, "limite " + file.ReferenceDate.ToString("dd.MM.yyyy", Culture)));
+    }
+
+    private async Task<List<SourceNote>> SourcesAsync(string kind, string otherKind, CancellationToken cancellationToken)
+    {
+        var files = await database.SourceFiles.AsNoTracking().Where(file => file.Kind == kind || file.Kind == otherKind)
+            .Join(database.PublishedDatasets, file => file.Id, published => published.SourceFileId, (file, _) => file)
+            .ToListAsync(cancellationToken);
+        return [.. files.GroupBy(file => (file.Publisher, file.Dataset, file.License)).Select(group => new SourceNote(group.Key.Publisher, group.Key.Dataset,
+            string.Join(", ", group.Select(file => file.ReferenceDate).Distinct().Order().Select(date => date.ToString("dd.MM.yyyy", Culture))), group.Key.License))];
     }
 
     private async Task<Dictionary<int, string>> PlacesAsync(IEnumerable<int?> codes, CancellationToken cancellationToken)
