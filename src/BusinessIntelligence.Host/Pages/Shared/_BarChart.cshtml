@@ -1,0 +1,50 @@
+@model BarChart
+<figure class="md-chart" aria-labelledby="@(Model.Id)-title">
+    <figcaption id="@(Model.Id)-title" class="md-chart__title">@Model.Title</figcaption>
+    @if (!Model.HasData)
+    {
+        <p class="md-chart__empty md-missing">Nicio valoare depusă</p>
+    }
+    else
+    {
+        <svg class="md-chart__plot" viewBox="0 0 @BarChart.Number(BarChart.Width) @BarChart.Number(BarChart.Height)" role="img" aria-labelledby="@(Model.Id)-title @(Model.Id)-desc">
+            <desc id="@(Model.Id)-desc">@Model.Description</desc>
+            @foreach (var tick in Model.Ticks)
+            {
+                <g>
+                    <line class="md-chart__grid" x1="@BarChart.Number(BarChart.Left)" x2="@BarChart.Number(BarChart.Width - BarChart.Right)" y1="@BarChart.Number(tick.Y)" y2="@BarChart.Number(tick.Y)" />
+                    <text class="md-chart__tick" x="@BarChart.Number(BarChart.Left - 6)" y="@BarChart.Number(tick.Y + 4)" text-anchor="end">@tick.Label</text>
+                </g>
+            }
+            <line class="md-chart__baseline" x1="@BarChart.Number(BarChart.Left)" x2="@BarChart.Number(BarChart.Width - BarChart.Right)" y1="@BarChart.Number(Model.Baseline)" y2="@BarChart.Number(Model.Baseline)" />
+            @foreach (var column in Model.Columns)
+            {
+                <g class="md-chart__year">
+                    <title>@column.Point.Tooltip</title>
+                    <rect class="md-chart__hit" x="@BarChart.Number(column.Center - column.Slot / 2)" y="@BarChart.Number(BarChart.Top)" width="@BarChart.Number(column.Slot)" height="@BarChart.Number(BarChart.Height - BarChart.Top - BarChart.Bottom)" />
+                    @if (column.Point.Value is null)
+                    {
+                        <line class="md-chart__missing" x1="@BarChart.Number(column.Center - 3)" x2="@BarChart.Number(column.Center + 3)" y1="@BarChart.Number(Model.Baseline)" y2="@BarChart.Number(Model.Baseline)" />
+                    }
+                    else if (Model.ColumnPath(column) is { Length: > 0 } path)
+                    {
+                        <path class="md-chart__bar @(column.Point.Value < 0 ? "md-chart__bar--negative" : null)" d="@path" />
+                    }
+                    else
+                    {
+                        <line class="md-chart__zero" x1="@BarChart.Number(column.Center - column.Width / 2)" x2="@BarChart.Number(column.Center + column.Width / 2)" y1="@BarChart.Number(Model.Baseline - 1)" y2="@BarChart.Number(Model.Baseline - 1)" />
+                    }
+                    @if (column.ShowYear)
+                    {
+                        <g><text class="md-chart__tick" x="@BarChart.Number(column.Center)" y="@BarChart.Number(BarChart.Height - 6)" text-anchor="middle">@column.Point.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)[2..]</text></g>
+                    }
+                </g>
+            }
+            @if (Model.Latest is { } latest)
+            {
+                var above = latest.Point.Value >= 0;
+                <g><text class="md-chart__value" x="@BarChart.Number(Math.Min(latest.Center + latest.Width / 2, BarChart.Width - BarChart.Right))" y="@BarChart.Number(above ? latest.Y - 5 : latest.Y + 12)" text-anchor="end">@BarChart.Compact(latest.Point.Value!.Value)</text></g>
+            }
+        </svg>
+    }
+</figure>

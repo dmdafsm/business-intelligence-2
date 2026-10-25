@@ -1,3 +1,5 @@
+using BusinessIntelligence.Modules.Financials;
+using BusinessIntelligence.Modules.Fiscal;
 using BusinessIntelligence.Modules.Platform.Persistence;
 using BusinessIntelligence.Modules.Registry;
 using BusinessIntelligence.Modules.Registry.Onrc;
@@ -6,8 +8,8 @@ using BusinessIntelligence.Modules.Search;
 namespace BusinessIntelligence.Tests.Search;
 
 /// <summary>
-/// A small published registry snapshot written straight into the registry tables, then indexed. Synthetic names and
-/// numbers; CUIs carry valid check digits.
+/// A small published registry snapshot written straight into the registry tables, with fiscal periods and financial
+/// statements for EXEMPLU SOFT, then indexed. Synthetic names and numbers; CUIs carry valid check digits.
 /// </summary>
 public static class SearchFixtures
 {
@@ -101,8 +103,31 @@ public static class SearchFixtures
         AddCompany(database, Zarzavat, "J12/4/2011", "ZARZAVAT FRESH SRL", Lifecycle.Insolvency, Cluj, ClujNapoca, 2001, null, []);
 
         // A sole trader whose CUI column held a personal code: no CUI, keyed by its registry number.
-        database.Registrations.Add(Registration(null, "F12/5/2010", "POPESCU ION PFA", "PersonalCode"));
-        database.Companies.Add(Company(null, "RF12/5/2010", "F12/5/2010", "POPESCU ION PFA", Lifecycle.Active, Cluj, Floresti, 3001, null));
+        var individualRegistration = Registration(null, "F12/5/2010", "POPESCU ION PFA", "PersonalCode");
+        individualRegistration.FormCategory = "individual";
+        individualRegistration.LegalForm = "PFA";
+        database.Registrations.Add(individualRegistration);
+        var individual = Company(null, "RF12/5/2010", "F12/5/2010", "POPESCU ION PFA", Lifecycle.Active, Cluj, Floresti, 3001, null);
+        individual.FormCategory = "individual";
+        individual.LegalForm = "PFA";
+        database.Companies.Add(individual);
+
+        // A number only the history knows, tied to the company by its CUI.
+        database.RegistrationPeriods.Add(new RegistrationPeriod
+        {
+            RegistrationNumber = "J12/99/2000",
+            ValidFrom = new DateOnly(2013, 10, 21),
+            ValidTo = new DateOnly(2014, 10, 31),
+            Name = "EXEMPLU SOFT SRL",
+            NameKey = "EXEMPLU SOFT SRL",
+            Cui = ExempluSoft,
+            CuiState = "Valid",
+            Lifecycle = Lifecycle.Active,
+            StatusCodes = [1048],
+        });
+        AddFiscal(database);
+        await database.SaveChangesAsync();
+        AddFinancials(database);
 
         for (var index = 1; index <= Filler; index++)
         {
@@ -114,6 +139,87 @@ public static class SearchFixtures
         {
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
         }
+    }
+
+    private static void AddFiscal(AppDbContext database)
+    {
+        database.FiscalReleases.AddRange(
+            new FiscalRelease { ReleaseDate = new DateOnly(2022, 6, 21), ImportedAt = DateTimeOffset.UnixEpoch, ParserVersion = "test", Report = "{}" },
+            new FiscalRelease { ReleaseDate = new DateOnly(2026, 7, 23), ImportedAt = DateTimeOffset.UnixEpoch, ParserVersion = "test", Report = "{}" });
+        database.TaxpayerPeriods.AddRange(
+            Taxpayer(new DateOnly(2022, 6, 21), new DateOnly(2022, 6, 21), false, "0264000001"),
+            Taxpayer(new DateOnly(2026, 7, 23), new DateOnly(2026, 7, 23), true, "0264000002"));
+
+        static TaxpayerPeriod Taxpayer(DateOnly from, DateOnly to, bool latest, string phone) => new()
+        {
+            Cui = ExempluSoft,
+            ValidFrom = from,
+            ValidTo = to,
+            Latest = latest,
+            Releases = 1,
+            Name = "EXEMPLU SOFT SRL",
+            NameKey = "EXEMPLU SOFT SRL",
+            Kind = "PJ",
+            County = "CLUJ",
+            Locality = "Cluj-Napoca",
+            Street = "Str. Nouă",
+            StreetNumber = "7",
+            Sector = "0",
+            Phone = phone,
+            VatPayer = latest,
+            FiscalStatus = "INREGISTRAT",
+            Obligations = latest ? [100, 602] : [120],
+        };
+    }
+
+    /// <summary>
+    /// Published years 2010–2014; EXEMPLU SOFT filed 2010 (profit), 2012 (loss) and 2013 (blank turnover), nothing in 2011
+    /// and 2014. Registered in 2010, so its range is 2010–2014.
+    /// </summary>
+    private static void AddFinancials(AppDbContext database)
+    {
+        for (short year = 2010; year <= 2014; year++)
+        {
+            var id = 100 + year - 2010;
+            database.SourceFiles.Add(new SourceFile
+            {
+                Id = id,
+                CatalogId = $"test-mf-{year}",
+                Kind = "mf-financials-data",
+                Dataset = $"Situații financiare {year}",
+                FileName = $"web{year}.txt",
+                Url = $"https://example.invalid/web{year}.txt",
+                Publisher = "Ministerul Finanțelor",
+                License = "CC BY 4.0",
+                ReferenceDate = new DateOnly(year, 12, 31),
+                Sha256 = new string((char)('a' + year - 2010), 64),
+                Bytes = 1,
+                ParserVersion = "test",
+                ImportedAt = DateTimeOffset.UnixEpoch,
+                Report = "{}",
+            });
+            database.PublishedDatasets.Add(new PublishedDataset { Kind = $"mf-financials-{year}-BL", SourceFileId = id, PublishedAt = DateTimeOffset.UnixEpoch });
+        }
+
+        database.FinancialStatements.AddRange(
+            Statement(2010, turnover: 1_000_000, netProfit: 120_000, netLoss: null, employees: 5),
+            Statement(2012, turnover: 800_000, netProfit: 0, netLoss: 45_000, employees: 0),
+            Statement(2013, turnover: null, netProfit: 10_000, netLoss: 0, employees: 3));
+
+        static FinancialStatement Statement(short year, decimal? turnover, decimal? netProfit, decimal? netLoss, int? employees) => new()
+        {
+            Year = year,
+            Cui = ExempluSoft,
+            Family = "BL",
+            CaenCode = "6201",
+            CaenVersion = 2,
+            SourceFileId = 100 + year - 2010,
+            Turnover = turnover,
+            NetProfit = netProfit,
+            NetLoss = netLoss,
+            Employees = employees,
+            Equity = 50_000,
+        };
     }
 
     private static void AddCompany(AppDbContext database, long cui, string number, string name, string lifecycle, short county, int uat, int locality,
@@ -137,7 +243,7 @@ public static class SearchFixtures
         Name = name,
         Cui = cui,
         CuiState = state,
-        FormCategory = "Company",
+        FormCategory = "company",
         GeographyState = "Locality",
         ConflictingFields = [],
     };
@@ -149,7 +255,7 @@ public static class SearchFixtures
         Cui = cui,
         RegistrationNumber = number,
         Name = name,
-        FormCategory = "Company",
+        FormCategory = "company",
         CountyNumber = county,
         UatCode = uat,
         LocalityCode = locality,

@@ -27,6 +27,5 @@ Found while running it and fixed: the first ranking used substring matches plus 
 - No Rev.2 ↔ Rev.3 correspondence: companies still registered under Rev.2 appear only in the Rev.2 tree. The ONRC correspondence table is a PDF with split classes; bridging needs its download and a mapping decision.
 - CAEN groups use authorized activities (ONRC marks no main one); a company counts under each of them.
 - Bucharest is one UAT, so its locality filter adds nothing; selecting it is counted live (1.26 s).
-- Results do not link to a profile yet (S06).
 - Two typos in a short query usually find nothing.
 - Not run in Docker.

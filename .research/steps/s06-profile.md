@@ -1,6 +1,6 @@
 # S06 Company profile
 
-Status: planned. Depends on S02–S05. Part of the [MVP plan](../mvp-plan.md).
+Status: completed. Depends on S02–S05. Part of the [MVP plan](../mvp-plan.md).
 
 ## Outcome
 
@@ -15,4 +15,4 @@ One page per company with general information, contact details, address, activit
 
 ## Tasks
 
-To be split during readiness.
+- S06.1 Company profile with history, financials and sources — [note](../tasks/s06-1-profile.md). Rules: [company profile guide](../../docs/engineering/company-profile.md).

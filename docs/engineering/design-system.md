@@ -7,7 +7,7 @@ The UI follows [Material 3](https://m3.material.io), implemented in this reposit
 | File | Contents |
 | --- | --- |
 | [tokens.css](../../src/BusinessIntelligence.Host/wwwroot/css/tokens.css) | System tokens: color roles (light and dark), type scale, shape, elevation, state opacities, motion, spacing |
-| [components.css](../../src/BusinessIntelligence.Host/wwwroot/css/components.css) | Components: buttons, icon button, search bar, outlined text field and select, chips (filter and input), cards, list, data table, tabs, status label, pagination, empty state |
+| [components.css](../../src/BusinessIntelligence.Host/wwwroot/css/components.css) | Components: buttons, icon button, search bar, outlined text field and select, chips (filter and input), cards, list, data table, tabs, status label, pagination, facts list, source note, charts, empty state |
 | [layout.css](../../src/BusinessIntelligence.Host/wwwroot/css/layout.css) | App shell (navigation rail, navigation bar, top app bar) and page section helpers |
 | [_Layout.cshtml](../../src/BusinessIntelligence.Host/Pages/Shared/_Layout.cshtml) | Shell markup, skip link, icon sprite |
 | [Icons.cs](../../src/BusinessIntelligence.Host/Components/Icons.cs) | Icon paths; `<md-icon name="search" />` renders one |
@@ -23,6 +23,8 @@ In Development, `/Design` shows every component, the color roles and the type sc
 - Interactive elements get the M3 state layer (8% hover, 10% focus/pressed) and a visible focus outline.
 - Numbers in tables are right-aligned with tabular figures. Missing values are labeled (for example "nedepus") and styled with `md-missing`, never shown as 0.
 - Selected filters are links with `aria-current="true"` (chips and list items) and keep state in the URL, so they work without JavaScript. Applied filters also show as input chips whose link removes them.
+- Charts are server-rendered SVG (`_BarChart` partial): one series, one axis, `--md-chart-positive`/`--md-chart-negative` (validated for each scheme), a table with every value next to them.
+- Every section that shows imported data ends with an `md-source` note: publisher, dataset, period and license.
 - A company's lifecycle is an `md-status` label: secondary container for active, tertiary container for states that need attention, neutral for struck off. Never `error`.
 - Wide tables scroll inside `md-table-wrapper`; the page never scrolls horizontally at 360px.
 - New components get a class `md-<name>`, use only tokens, and are added to `/Design`.

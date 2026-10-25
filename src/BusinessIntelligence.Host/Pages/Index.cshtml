@@ -132,7 +132,8 @@
             <ol class="md-list md-card md-card--outlined md-card--flush result-list" start="@((result.Page - 1) * BusinessIntelligence.Modules.Search.CompanySearch.PageSize + 1)">
                 @foreach (var hit in result.Hits)
                 {
-                    <li class="md-list__item result">
+                    <li class="result">
+                        <a class="md-list__item result__link" href="@(hit.Cui is { } cui ? Url.Page("/Firma", new { cui }) : Url.Page("/Firma", new { nr = hit.RegistrationNumber }))">
                         <span class="md-list__text">
                             <span class="md-list__headline result__name">@(hit.Name ?? "Fără denumire")</span>
                             @if (hit.EarlierName is not null)
@@ -149,6 +150,7 @@
                             </span>
                         </span>
                         <span class="md-status md-status--@hit.Lifecycle.ToLowerInvariant()">@Model.LifecycleLabel(hit.Lifecycle)</span>
+                        </a>
                     </li>
                 }
             </ol>

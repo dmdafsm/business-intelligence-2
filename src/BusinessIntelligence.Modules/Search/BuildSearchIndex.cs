@@ -135,12 +135,17 @@ public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
         ORDER BY k.company_key, k.name_key, k.valid_to DESC
         """;
 
+    // Numbers of the current registrations, and earlier numbers that history ties to a company's CUI (a company that moved county or was renumbered).
     private static readonly string RegistrationNumbersSql = $"""
         INSERT INTO search.registration_numbers (number_key, company_key)
-        SELECT DISTINCT {SearchKeys.RegistrationNumberSql("r.registration_number")},
+        SELECT {SearchKeys.RegistrationNumberSql("r.registration_number")},
             CASE WHEN r.cui IS NOT NULL THEN 'C' || r.cui ELSE 'R' || r.registration_number END
         FROM registry.registrations r
         WHERE r.snapshot_id = @snapshot
+        UNION
+        SELECT {SearchKeys.RegistrationNumberSql("p.registration_number")}, 'C' || p.cui
+        FROM registry.registration_periods p
+        WHERE p.cui IS NOT NULL AND EXISTS (SELECT 1 FROM search.companies c WHERE c.company_key = 'C' || p.cui)
         """;
 
     // The empty token stands for "any activity", so one pass also counts companies by county and lifecycle alone.
