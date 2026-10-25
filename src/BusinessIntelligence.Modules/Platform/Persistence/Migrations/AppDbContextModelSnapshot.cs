@@ -169,6 +169,206 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("statements", "financials");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Fiscal.FiscalRelease", b =>
+                {
+                    b.Property<DateOnly>("ReleaseDate")
+                        .HasColumnType("date")
+                        .HasColumnName("release_date");
+
+                    b.Property<DateTimeOffset>("ImportedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("imported_at");
+
+                    b.Property<string>("ParserVersion")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("parser_version");
+
+                    b.Property<string>("Report")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("report");
+
+                    b.HasKey("ReleaseDate")
+                        .HasName("pk_releases");
+
+                    b.ToTable("releases", "fiscal");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Fiscal.TaxpayerKind", b =>
+                {
+                    b.Property<long>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<DateOnly>("ReleaseDate")
+                        .HasColumnType("date")
+                        .HasColumnName("release_date");
+
+                    b.HasKey("Cui")
+                        .HasName("pk_taxpayer_kinds");
+
+                    b.ToTable("taxpayer_kinds", "fiscal");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Fiscal.TaxpayerPeriod", b =>
+                {
+                    b.Property<long>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<string>("AddressDetails")
+                        .HasColumnType("text")
+                        .HasColumnName("address_details");
+
+                    b.Property<string>("Apartment")
+                        .HasColumnType("text")
+                        .HasColumnName("apartment");
+
+                    b.Property<string>("AuthorizationAct")
+                        .HasColumnType("text")
+                        .HasColumnName("authorization_act");
+
+                    b.Property<string>("Block")
+                        .HasColumnType("text")
+                        .HasColumnName("block");
+
+                    b.Property<string>("County")
+                        .HasColumnType("text")
+                        .HasColumnName("county");
+
+                    b.Property<DateOnly?>("DeregistrationDate")
+                        .HasColumnType("date")
+                        .HasColumnName("deregistration_date");
+
+                    b.Property<string>("Fax")
+                        .HasColumnType("text")
+                        .HasColumnName("fax");
+
+                    b.Property<string>("FiscalStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("fiscal_status");
+
+                    b.Property<string>("Floor")
+                        .HasColumnType("text")
+                        .HasColumnName("floor");
+
+                    b.Property<string>("Kind")
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<DateOnly?>("LastDeclaration")
+                        .HasColumnType("date")
+                        .HasColumnName("last_declaration");
+
+                    b.Property<DateOnly?>("LastProcessed")
+                        .HasColumnType("date")
+                        .HasColumnName("last_processed");
+
+                    b.Property<bool>("Latest")
+                        .HasColumnType("boolean")
+                        .HasColumnName("latest");
+
+                    b.Property<string>("Locality")
+                        .HasColumnType("text")
+                        .HasColumnName("locality");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NameKey")
+                        .HasColumnType("text")
+                        .HasColumnName("name_key");
+
+                    b.Property<string>("ObligationDates")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("obligation_dates");
+
+                    b.PrimitiveCollection<int[]>("Obligations")
+                        .IsRequired()
+                        .HasColumnType("integer[]")
+                        .HasColumnName("obligations");
+
+                    b.Property<long?>("ParentCui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("parent_cui");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PlaceKey")
+                        .HasColumnType("text")
+                        .HasColumnName("place_key");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("text")
+                        .HasColumnName("postal_code");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("registration_number");
+
+                    b.Property<short>("Releases")
+                        .HasColumnType("smallint")
+                        .HasColumnName("releases");
+
+                    b.Property<string>("Sector")
+                        .HasColumnType("text")
+                        .HasColumnName("sector");
+
+                    b.Property<string>("Staircase")
+                        .HasColumnType("text")
+                        .HasColumnName("staircase");
+
+                    b.Property<DateOnly?>("StatusDate")
+                        .HasColumnType("date")
+                        .HasColumnName("status_date");
+
+                    b.Property<string>("Street")
+                        .HasColumnType("text")
+                        .HasColumnName("street");
+
+                    b.Property<string>("StreetKey")
+                        .HasColumnType("text")
+                        .HasColumnName("street_key");
+
+                    b.Property<string>("StreetNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("street_number");
+
+                    b.Property<string>("UnitType")
+                        .HasColumnType("text")
+                        .HasColumnName("unit_type");
+
+                    b.Property<DateOnly>("ValidTo")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_to");
+
+                    b.Property<bool?>("VatPayer")
+                        .HasColumnType("boolean")
+                        .HasColumnName("vat_payer");
+
+                    b.Property<DateOnly?>("VatSince")
+                        .HasColumnType("date")
+                        .HasColumnName("vat_since");
+
+                    b.HasKey("Cui", "ValidFrom")
+                        .HasName("pk_taxpayer_periods");
+
+                    b.ToTable("taxpayer_periods", "fiscal");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CaenEntry", b =>
                 {
                     b.Property<short>("Version")

@@ -22,10 +22,11 @@ public sealed class VerifiedFileStream : Stream
     public static VerifiedFileStream Open(string path, CatalogFile expected)
     {
         var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16, FileOptions.SequentialScan);
-        if (stream.Length != expected.Bytes)
+        var length = stream.Length;
+        if (length != expected.Bytes)
         {
             stream.Dispose();
-            throw new InvalidDataException($"{expected.FileName}: expected {expected.Bytes} bytes, found {stream.Length}.");
+            throw new InvalidDataException($"{expected.FileName}: expected {expected.Bytes} bytes, found {length}.");
         }
 
         return new VerifiedFileStream(stream, expected);

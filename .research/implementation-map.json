@@ -59,12 +59,25 @@
     {
       "id": "S03",
       "title": "Fiscal data and contacts",
-      "status": "planned",
+      "status": "completed",
       "path": "steps/s03-fiscal.md",
       "depends_on": [
         "S02"
       ],
-      "tasks": []
+      "tasks": [
+        {
+          "id": "S03.1",
+          "title": "Inspect every yearly MF identification release",
+          "status": "completed",
+          "note": "tasks/s03-1-fiscal-inspection.md"
+        },
+        {
+          "id": "S03.2",
+          "title": "Import all releases as taxpayer periods",
+          "status": "completed",
+          "note": "tasks/s03-2-fiscal-import.md"
+        }
+      ]
     },
     {
       "id": "S04",
