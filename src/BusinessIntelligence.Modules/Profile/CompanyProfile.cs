@@ -15,6 +15,12 @@ public sealed record StatusEntry(string RegistrationNumber, int Code, string Nam
 
 public sealed record ActivityEntry(short Version, string Code, string? Name);
 
+/// <summary>
+/// A representative as pages may show it (ADR 0001): name, role, birth year for natural persons, and the place only for
+/// firms acting as representatives. Full birth dates, places of birth and the rest stay in the database.
+/// </summary>
+public sealed record PersonEntry(string RegistrationNumber, string? Name, string? Role, string Kind, int? BirthYear, string? Place);
+
 /// <summary>One financial year in the company's range; <see cref="Statement"/> is null when nothing was filed.</summary>
 public sealed record FinancialYear(short Year, FinancialStatement? Statement, SourceFile? Source, string? CaenName);
 
@@ -25,6 +31,7 @@ public sealed record CompanyProfile
     public required IReadOnlyList<Registration> Registrations { get; init; }
     public required IReadOnlyList<StatusEntry> Statuses { get; init; }
     public required IReadOnlyList<ActivityEntry> Activities { get; init; }
+    public required IReadOnlyList<PersonEntry> People { get; init; }
     public required IReadOnlyList<RegistrationPeriod> RegistryHistory { get; init; }
     public required IReadOnlyList<TaxpayerPeriod> FiscalHistory { get; init; }
     public required IReadOnlyList<FinancialYear> Financials { get; init; }
@@ -87,6 +94,15 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             .SelectMany(pair => pair.entries.DefaultIfEmpty(), (pair, entry) => new ActivityEntry(pair.item.CaenVersion, pair.item.CaenCode, entry != null ? entry.Name : null))
             .ToListAsync(cancellationToken);
 
+        var people = await database.Representatives.AsNoTracking()
+            .Where(item => item.SnapshotId == snapshot && numbers.Contains(item.RegistrationNumber))
+            .Select(item => new PersonEntry(item.RegistrationNumber, item.Name, item.Role, item.PersonKind,
+                // Birth years outside 1900 and the snapshot year are source errors and are not shown.
+                item.PersonKind == "natural" && item.BirthDate != null && item.BirthDate.Value.Year >= 1900 && item.BirthDate.Value.Year <= firme.ReferenceDate.Year
+                    ? item.BirthDate.Value.Year : null,
+                item.PersonKind == "legal" ? string.Join(", ", new[] { item.Locality, item.County, item.Country }.Where(part => part != null)) : null))
+            .ToListAsync(cancellationToken);
+
         // Earlier registry numbers of the same CUI (a company moved or renumbered) appear in the history by CUI.
         var history = await database.RegistrationPeriods.AsNoTracking()
             .Where(item => (company.Cui != null && item.Cui == company.Cui) || numbers.Contains(item.RegistrationNumber))
@@ -103,6 +119,7 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             Registrations = registrations,
             Statuses = [.. statuses.OrderBy(item => item.RegistrationNumber != company.RegistrationNumber).ThenBy(item => item.Code)],
             Activities = [.. activities.OrderByDescending(item => item.Version).ThenBy(item => item.Code, StringComparer.Ordinal)],
+            People = [.. people.OrderBy(item => RoleOrder(item.Role)).ThenBy(item => item.Name, StringComparer.Create(Culture, true))],
             RegistryHistory = history,
             FiscalHistory = fiscal,
             Financials = await FinancialsAsync(company, registrations, cancellationToken),
@@ -115,6 +132,17 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             FiscalReleases = releases,
         };
     }
+
+    /// <summary>Management first, then representatives, then insolvency and liquidation roles, then the rest.</summary>
+    private static int RoleOrder(string? role) => role switch
+    {
+        null => 9,
+        _ when role.StartsWith("administrator", StringComparison.Ordinal) && !role.Contains("judiciar", StringComparison.Ordinal) => 0,
+        _ when role.StartsWith("director", StringComparison.Ordinal) || role.StartsWith("membru", StringComparison.Ordinal) => 1,
+        _ when role.StartsWith("reprezentant", StringComparison.Ordinal) || role.StartsWith("titular", StringComparison.Ordinal) => 2,
+        _ when role.Contains("lichidator", StringComparison.Ordinal) || role.Contains("judiciar", StringComparison.Ordinal) => 3,
+        _ => 4,
+    };
 
     private static readonly System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.GetCultureInfo("ro-RO");
 

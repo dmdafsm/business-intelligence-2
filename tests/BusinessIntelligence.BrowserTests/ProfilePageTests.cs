@@ -8,7 +8,7 @@ namespace BusinessIntelligence.BrowserTests;
 public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture<SearchPortalFixture>
 {
     private static readonly BrowserNewContextOptions NoScript = new() { JavaScriptEnabled = false, ViewportSize = new() { Width = 1280, Height = 900 } };
-    private static readonly string[] Sections = ["Prezentare", "Contact", "Activități", "Istoric", "Financiar"];
+    private static readonly string[] Sections = ["Prezentare", "Contact", "Persoane", "Activități", "Istoric", "Financiar"];
     private static readonly BrowserNewContextOptions Phone = new() { ViewportSize = new() { Width = 360, Height = 740 }, IsMobile = true, HasTouch = true };
 
     [Fact]
@@ -30,6 +30,11 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
             var contact = page.GetByRole(AriaRole.Region, new() { Name = "Contact" });
             await Assertions.Expect(contact).ToContainTextAsync("0264000002");
             await Assertions.Expect(contact).Not.ToContainTextAsync("sector 0");
+            var people = page.GetByRole(AriaRole.Region, new() { Name = "Persoane" });
+            await Assertions.Expect(people.GetByRole(AriaRole.Row, new() { Name = "POPESCU ANA" })).ToContainTextAsync("1980");
+            await Assertions.Expect(people).Not.ToContainTextAsync("05.03.1980");
+            await Assertions.Expect(people).Not.ToContainTextAsync("Turda");
+            await Assertions.Expect(people.GetByRole(AriaRole.Row, new() { Name = "EXEMPLU INSOLV IPURL" })).ToContainTextAsync("Cluj-Napoca, Cluj, România");
             var history = page.GetByRole(AriaRole.Region, new() { Name = "Istoric" });
             await Assertions.Expect(history).ToContainTextAsync("VECHI NUME S.R.L.");
             await Assertions.Expect(history).ToContainTextAsync("J12/99/2000");

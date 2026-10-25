@@ -138,6 +138,24 @@
           "note": "tasks/s06-1-profile.md"
         }
       ]
+    },
+    {
+      "id": "S07",
+      "title": "Persons of interest",
+      "status": "in_progress",
+      "path": "steps/s07-persons.md",
+      "depends_on": [
+        "S02",
+        "S06"
+      ],
+      "tasks": [
+        {
+          "id": "S07.1",
+          "title": "Import ONRC representatives and show them on the profile",
+          "status": "completed",
+          "note": "tasks/s07-1-representatives.md"
+        }
+      ]
     }
   ]
 }

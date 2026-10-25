@@ -80,6 +80,8 @@ internal static class RegistryCommands
             ImportOnrcFirme.Kind => await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.StatusKind => await new ImportOnrcAnnexes(database, TimeProvider.System).StatusesAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.ActivitiesKind => await new ImportOnrcAnnexes(database, TimeProvider.System).ActivitiesAsync(path, file, cancellationToken),
+            ImportOnrcAnnexes.RepresentativesKind => await new ImportOnrcAnnexes(database, TimeProvider.System).RepresentativesAsync(path, file, cancellationToken),
+            ImportOnrcAnnexes.FamilyMembersKind => await new ImportOnrcAnnexes(database, TimeProvider.System).FamilyMembersAsync(path, file, cancellationToken),
             _ => throw new ArgumentException($"No importer for {file.Kind}."),
         };
         await WriteAsync(new

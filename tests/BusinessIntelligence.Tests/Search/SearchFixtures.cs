@@ -126,6 +126,34 @@ public static class SearchFixtures
             StatusCodes = [1048],
         });
         AddFiscal(database);
+        database.Representatives.AddRange(
+            new Representative
+            {
+                SnapshotId = Snapshot,
+                Source = "legal",
+                RowNumber = 1,
+                RegistrationNumber = "J2024000100123",
+                Name = "POPESCU ANA",
+                Role = "administrator",
+                BirthDate = new DateOnly(1980, 3, 5),
+                BirthLocality = "Turda",
+                BirthCounty = "Cluj",
+                BirthCountry = "România",
+                PersonKind = "natural",
+            },
+            new Representative
+            {
+                SnapshotId = Snapshot,
+                Source = "legal",
+                RowNumber = 2,
+                RegistrationNumber = "J2024000100123",
+                Name = "EXEMPLU INSOLV IPURL",
+                Role = "lichidator judiciar",
+                Locality = "Cluj-Napoca",
+                County = "Cluj",
+                Country = "România",
+                PersonKind = "legal",
+            });
         await database.SaveChangesAsync();
         AddFinancials(database);
 

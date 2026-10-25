@@ -17,6 +17,8 @@ STEPS = [
     ["registry", "import", "onrc-firme-2026-10-19", f"{RAW}/onrc-2026-10-19/OD_FIRME.CSV"],
     ["registry", "import", "onrc-stare-firma-2026-10-19", f"{RAW}/onrc-2026-10-19/OD_STARE_FIRMA.CSV"],
     ["registry", "import", "onrc-caen-autorizat-2026-10-19", f"{RAW}/onrc-2026-10-19/OD_CAEN_AUTORIZAT.CSV"],
+    ["registry", "import", "onrc-reprezentanti-legali-2026-10-19", f"{RAW}/onrc-2026-10-19/od_reprezentanti_legali.csv"],
+    ["registry", "import", "onrc-reprezentanti-if-2026-10-19", f"{RAW}/onrc-2026-10-19/od_reprezentanti_if.csv"],
     ["registry", "history", RAW],
     ["financials", "import-all", RAW],
     ["fiscal", "import-all", RAW],

@@ -11,23 +11,43 @@ using NpgsqlTypes;
 namespace BusinessIntelligence.Modules.Registry.Onrc;
 
 /// <summary>
-/// Imports the files that annex an OD_FIRME snapshot (statuses and authorized activities). They must have the same
+/// Imports the files that annex an OD_FIRME snapshot (statuses, authorized activities, representatives). They must have the same
 /// reference date as the published snapshot and are applied to it in one transaction; a new OD_FIRME snapshot deletes them.
 /// </summary>
 public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
 {
     public const string StatusKind = "onrc-firme-status";
     public const string ActivitiesKind = "onrc-firme-activities";
+    public const string RepresentativesKind = "onrc-firme-representatives";
+    public const string FamilyMembersKind = "onrc-firme-family-members";
     public const string ParserVersion = "onrc-annex-v1";
 
     private static readonly string[] StatusHeader = ["COD_INMATRICULARE", "COD"];
     private static readonly string[] ActivityHeader = ["COD_INMATRICULARE", "COD_CAEN_AUTORIZAT", "VER_CAEN_AUTORIZAT"];
+    private static readonly string[] RepresentativeHeader =
+        ["COD_INMATRICULARE", "PERSOANA_IMPUTERNICITA", "CALITATE", "DATA_NASTERE", "LOCALITATE_NASTERE", "JUDET_NASTERE", "TARA_NASTERE", "LOCALITATE", "JUDET", "TARA"];
+    private static readonly string[] FamilyMemberHeader =
+        ["COD_INMATRICULARE", "NUME", "DATA_NASTERE", "LOCALITATE_NASTERE", "JUDET_NASTERE", "TARA_NASTERE", "CALITATE"];
 
     public Task<ImportResult> StatusesAsync(string path, CatalogFile file, CancellationToken cancellationToken) =>
         ImportAsync(path, file, StatusKind, StatusHeader, Sql.CreateStatusStaging, Sql.CopyStatuses, WriteStatusAsync, ApplyStatusesAsync, cancellationToken);
 
     public Task<ImportResult> ActivitiesAsync(string path, CatalogFile file, CancellationToken cancellationToken) =>
         ImportAsync(path, file, ActivitiesKind, ActivityHeader, Sql.CreateActivityStaging, Sql.CopyActivities, WriteActivityAsync, ApplyActivitiesAsync, cancellationToken);
+
+    /// <summary>Administrators, legal representatives and liquidators. Every column is kept (ADR 0001).</summary>
+    public Task<ImportResult> RepresentativesAsync(string path, CatalogFile file, CancellationToken cancellationToken) =>
+        ImportAsync(path, file, RepresentativesKind, RepresentativeHeader, Sql.CreateRepresentativeStaging, Sql.CopyRepresentatives,
+            (writer, fields, counts, token) => WriteRepresentativeAsync(writer, counts,
+                [fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6], fields[7], fields[8], fields[9]], token),
+            (connection, snapshot, report, token) => ApplyRepresentativesAsync(connection, snapshot, "legal", report, token), cancellationToken);
+
+    /// <summary>Members and representatives of family enterprises; the file has no address columns.</summary>
+    public Task<ImportResult> FamilyMembersAsync(string path, CatalogFile file, CancellationToken cancellationToken) =>
+        ImportAsync(path, file, FamilyMembersKind, FamilyMemberHeader, Sql.CreateRepresentativeStaging, Sql.CopyRepresentatives,
+            (writer, fields, counts, token) => WriteRepresentativeAsync(writer, counts,
+                [fields[0], fields[1], fields[6], fields[2], fields[3], fields[4], fields[5], "", "", ""], token),
+            (connection, snapshot, report, token) => ApplyRepresentativesAsync(connection, snapshot, "family", report, token), cancellationToken);
 
     private async Task<ImportResult> ImportAsync(
         string path, CatalogFile file, string kind, string[] header, string createStaging, string copy,
@@ -91,7 +111,7 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
         await RegistryImports.PublishAsync(database, kind, source.Id, time, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         await RegistryImports.VacuumAsync(database,
-            "registry.registrations, registry.companies, registry.registration_statuses, registry.company_activities", cancellationToken);
+            "registry.registrations, registry.companies, registry.registration_statuses, registry.company_activities, registry.representatives", cancellationToken);
         return new ImportResult(ImportOutcome.Published, source.Id, report);
     }
 
@@ -122,6 +142,73 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
         await writer.WriteAsync(fields[0], NpgsqlDbType.Text, cancellationToken);
         await writer.WriteAsync(fields[1], NpgsqlDbType.Text, cancellationToken);
         await writer.WriteAsync(version, NpgsqlDbType.Smallint, cancellationToken);
+    }
+
+    /// <summary>
+    /// Fields in the order registration number, name, role, birth date, birth locality, county and country, locality,
+    /// county, country. The birth date is published as dd/MM/yyyy, sometimes with a time; anything else is kept as text.
+    /// </summary>
+    private static async Task WriteRepresentativeAsync(NpgsqlBinaryImporter writer, AnnexCounts counts, string[] values, CancellationToken cancellationToken)
+    {
+        var birth = values[3];
+        DateOnly? date = null;
+        if (birth.Length > 0)
+        {
+            if (DateOnly.TryParseExact(birth.Split(' ')[0], "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+            {
+                date = parsed;
+            }
+            else
+            {
+                counts.Invalid++;
+            }
+        }
+
+        await writer.StartRowAsync(cancellationToken);
+        await writer.WriteAsync(counts.Rows, NpgsqlDbType.Integer, cancellationToken);
+        await ImportOnrcFirme.WriteAsync(writer, values[0], cancellationToken);
+        await ImportOnrcFirme.WriteAsync(writer, Blank(values[1]), cancellationToken);
+        await ImportOnrcFirme.WriteAsync(writer, Blank(values[2]), cancellationToken);
+        if (date is { } value)
+        {
+            await writer.WriteAsync(value, NpgsqlDbType.Date, cancellationToken);
+        }
+        else
+        {
+            await writer.WriteNullAsync(cancellationToken);
+        }
+
+        await ImportOnrcFirme.WriteAsync(writer, date is null ? Blank(birth) : null, cancellationToken);
+        for (var index = 4; index < 10; index++)
+        {
+            await ImportOnrcFirme.WriteAsync(writer, Blank(values[index]), cancellationToken);
+        }
+
+        static string? Blank(string value) => value.Length == 0 ? null : value;
+    }
+
+    private static async Task ApplyRepresentativesAsync(NpgsqlConnection connection, int snapshot, string source, Dictionary<string, object> report, CancellationToken cancellationToken)
+    {
+        await ImportOnrcFirme.ExecuteAsync(connection, "DELETE FROM registry.representatives WHERE snapshot_id = @snapshot AND source = @source",
+            cancellationToken, ("snapshot", snapshot), ("source", source));
+        report["representatives"] = await ImportOnrcFirme.ExecuteAsync(connection, Sql.InsertRepresentatives, cancellationToken, ("snapshot", snapshot), ("source", source));
+        report["rowsForUnknownRegistrations"] = await ScalarAsync(connection, Sql.UnknownRepresentativeRegistrations, snapshot, cancellationToken);
+        report["unreadableBirthDates"] = report["rowsWithInvalidValues"];
+        await using var command = new NpgsqlCommand(
+            "SELECT person_kind, count(*) FROM registry.representatives WHERE snapshot_id = @snapshot AND source = @source GROUP BY person_kind", connection)
+        { CommandTimeout = 0 };
+        command.Parameters.AddWithValue("snapshot", snapshot);
+        command.Parameters.AddWithValue("source", source);
+        var kinds = new Dictionary<string, long>();
+        await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+        {
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                kinds[reader.GetString(0)] = reader.GetInt64(1);
+            }
+        }
+
+        report["personKinds"] = kinds;
     }
 
     private static async Task ApplyStatusesAsync(NpgsqlConnection connection, int snapshot, Dictionary<string, object> report, CancellationToken cancellationToken)
@@ -229,6 +316,37 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
             "CREATE TEMP TABLE activity_rows (registration_number text NOT NULL, code text NOT NULL, version smallint NOT NULL) ON COMMIT DROP";
 
         public const string CopyActivities = "COPY activity_rows (registration_number, code, version) FROM STDIN (FORMAT BINARY)";
+
+        public const string CreateRepresentativeStaging = """
+            CREATE TEMP TABLE representative_rows (
+                row_number integer NOT NULL, registration_number text NOT NULL, name text, role text, birth_date date, birth_date_text text,
+                birth_locality text, birth_county text, birth_country text, locality text, county text, country text) ON COMMIT DROP
+            """;
+
+        public const string CopyRepresentatives = """
+            COPY representative_rows (row_number, registration_number, name, role, birth_date, birth_date_text, birth_locality, birth_county,
+                birth_country, locality, county, country) FROM STDIN (FORMAT BINARY)
+            """;
+
+        // Identical rows are stored once, under the first line that has them; rows for registrations not in the snapshot are counted, not kept.
+        public const string InsertRepresentatives = """
+            INSERT INTO registry.representatives (snapshot_id, source, row_number, registration_number, name, role, birth_date, birth_date_text,
+                birth_locality, birth_county, birth_country, locality, county, country, person_kind)
+            SELECT @snapshot, @source, min(p.row_number), p.registration_number, p.name, p.role, p.birth_date, p.birth_date_text,
+                p.birth_locality, p.birth_county, p.birth_country, p.locality, p.county, p.country,
+                CASE WHEN p.birth_date IS NOT NULL OR p.birth_date_text IS NOT NULL THEN 'natural'
+                     WHEN coalesce(p.locality, p.county, p.country) IS NOT NULL THEN 'legal'
+                     ELSE 'unknown' END
+            FROM representative_rows p
+            WHERE EXISTS (SELECT 1 FROM registry.registrations r WHERE r.snapshot_id = @snapshot AND r.registration_number = p.registration_number)
+            GROUP BY p.registration_number, p.name, p.role, p.birth_date, p.birth_date_text, p.birth_locality, p.birth_county, p.birth_country,
+                p.locality, p.county, p.country
+            """;
+
+        public const string UnknownRepresentativeRegistrations = """
+            SELECT count(*) FROM representative_rows p
+            WHERE NOT EXISTS (SELECT 1 FROM registry.registrations r WHERE r.snapshot_id = @snapshot AND r.registration_number = p.registration_number)
+            """;
 
         public const string InsertStatuses = """
             INSERT INTO registry.registration_statuses (snapshot_id, registration_number, status_code)

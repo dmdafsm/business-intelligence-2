@@ -10,6 +10,7 @@
     var filed = profile.Financials.Where(year => year.Statement is not null).ToList();
     var latestStatement = filed.LastOrDefault();
     var fiscalEdition = fiscal is not null && profile.FiscalSource is { } fiscalNote ? fiscalNote with { Period = "ediția " + FirmaModel.Date(fiscal.ValidTo) } : null;
+    var peopleSource = profile.RegistrySource with { Dataset = profile.RegistrySource.Dataset + " (reprezentanți)" };
     var websiteSource = profile.RegistrySource with { Dataset = profile.RegistrySource.Dataset + " (site web)" };
 }
 
@@ -27,6 +28,7 @@
 <nav class="md-tabs profile-nav" aria-label="Secțiuni">
     <a class="md-tab" href="#prezentare">Prezentare</a>
     <a class="md-tab" href="#contact">Contact</a>
+    <a class="md-tab" href="#persoane">Persoane</a>
     <a class="md-tab" href="#activitati">Activități</a>
     <a class="md-tab" href="#istoric">Istoric</a>
     <a class="md-tab" href="#financiar">Financiar</a>
@@ -85,6 +87,42 @@
         <partial name="_SourceNote" model="fiscalEdition" />
     }
     <partial name="_SourceNote" model="websiteSource" />
+</section>
+
+<section id="persoane" class="md-card md-card--outlined profile-section" aria-labelledby="persoane-title">
+    <h2 id="persoane-title" class="md-card__title">Persoane</h2>
+    @if (profile.People.Count == 0)
+    {
+        <p class="md-typescale-body-medium md-missing">Registrul nu listează administratori sau reprezentanți pentru această înregistrare.</p>
+    }
+    else
+    {
+        var severalRegistrations = profile.People.Select(item => item.RegistrationNumber).Distinct().Count() > 1;
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <caption class="md-visually-hidden">Administratori și reprezentanți</caption>
+                <thead><tr><th scope="col">Nume</th><th scope="col">Calitate</th><th scope="col">Născut(ă) / sediu</th>@if (severalRegistrations) {<th scope="col">Nr. înregistrare</th>}</tr></thead>
+                <tbody>
+                    @foreach (var person in profile.People)
+                    {
+                        <tr>
+                            <td>@(person.Name ?? "—")</td>
+                            <td>@(person.Role ?? "—")</td>
+                            <td class="md-numeric">@(person.Kind switch
+                            {
+                                "natural" => person.BirthYear?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "—",
+                                "legal" => string.IsNullOrEmpty(person.Place) ? "persoană juridică" : person.Place,
+                                _ => "—",
+                            })</td>
+                            @if (severalRegistrations) {<td>@person.RegistrationNumber</td>}
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <p class="md-typescale-body-small md-on-surface-variant">Pentru persoanele fizice se afișează doar numele, calitatea și anul nașterii. Aceeași persoană poate apărea la mai multe firme, iar nume identice pot aparține unor persoane diferite. Asociații și beneficiarii reali nu sunt publicați de ONRC ca date deschise.</p>
+    <partial name="_SourceNote" model="peopleSource" />
 </section>
 
 <section id="activitati" class="md-card md-card--outlined profile-section" aria-labelledby="activitati-title">

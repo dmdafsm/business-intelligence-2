@@ -71,6 +71,47 @@ public sealed class RegistryAnnexTests(PostgresFixture postgres) : IClassFixture
     }
 
     [Fact]
+    public async Task RepresentativesKeepEveryColumnAndAreClassifiedByKind()
+    {
+        await using var database = await PublishedSnapshotAsync();
+        var (path, file) = RegistryFixtures.WriteFile(_files.FullName, "representatives", ImportOnrcAnnexes.RepresentativesKind,
+            "COD_INMATRICULARE^PERSOANA_IMPUTERNICITA^CALITATE^DATA_NASTERE^LOCALITATE_NASTERE^JUDET_NASTERE^TARA_NASTERE^LOCALITATE^JUDET^TARA",
+            [
+                "J12/9/2005^POPESCU ANA^administrator^05/03/1980 00:00:00^Cluj-Napoca^Cluj^România^^^",
+                "J12/9/2005^POPESCU ANA^administrator^05/03/1980 00:00:00^Cluj-Napoca^Cluj^România^^^",
+                "J12/9/2005^EXEMPLU INSOLV IPURL^lichidator judiciar^^^^^Cluj-Napoca^Cluj^România",
+                "J12/9/2005^IONESCU DAN^administrator^31/02/1975^Turda^Cluj^România^^^",
+                "C12/1/1995^VASILE ION^reprezentant al persoanei juridice^^^^^^^",
+                "J99/1/2000^NIMENI^administrator^01/01/1990^Arad^Arad^România^^^",
+            ], Snapshot);
+
+        var result = await new ImportOnrcAnnexes(database, TimeProvider.System).RepresentativesAsync(path, file, CancellationToken.None);
+
+        Assert.Equal(4, result.Report["representatives"]);
+        Assert.Equal(1L, result.Report["rowsForUnknownRegistrations"]);
+        Assert.Equal(1, result.Report["unreadableBirthDates"]);
+        var rows = await database.Representatives.AsNoTracking().OrderBy(item => item.RowNumber).ToListAsync();
+        var natural = rows[0];
+        Assert.Equal(("natural", new DateOnly(1980, 3, 5), "Cluj-Napoca", "Cluj", "România"),
+            (natural.PersonKind, natural.BirthDate!.Value, natural.BirthLocality!, natural.BirthCounty!, natural.BirthCountry!));
+        Assert.Equal(("legal", "Cluj-Napoca"), (rows[1].PersonKind, rows[1].Locality!));
+        Assert.Equal(("natural", (DateOnly?)null, "31/02/1975"), (rows[2].PersonKind, rows[2].BirthDate, rows[2].BirthDateText!));
+        Assert.Equal("unknown", rows[3].PersonKind);
+
+        var (familyPath, familyFile) = RegistryFixtures.WriteFile(_files.FullName, "family", ImportOnrcAnnexes.FamilyMembersKind,
+            "COD_INMATRICULARE^NUME^DATA_NASTERE^LOCALITATE_NASTERE^JUDET_NASTERE^TARA_NASTERE^CALITATE",
+            ["F12/5/2010^POPESCU ION^01/01/1970^Florești^Cluj^România^membru întreprindere familiala"], Snapshot);
+        await new ImportOnrcAnnexes(database, TimeProvider.System).FamilyMembersAsync(familyPath, familyFile, CancellationToken.None);
+        var member = await database.Representatives.AsNoTracking().SingleAsync(item => item.Source == "family");
+        Assert.Equal(("membru întreprindere familiala", new DateOnly(1970, 1, 1), "natural"), (member.Role!, member.BirthDate!.Value, member.PersonKind));
+
+        // A newer OD_FIRME snapshot removes the previous snapshot's representatives with its other annexes.
+        var (firme, firmeFile) = RegistryFixtures.WriteFile(_files.FullName, "firme-next", "onrc-firme", RegistryFixtures.Header, RegistryFixtures.SecondSnapshot, Snapshot.AddDays(1));
+        await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(firme, firmeFile, CancellationToken.None);
+        Assert.Equal(0, await database.Representatives.CountAsync());
+    }
+
+    [Fact]
     public async Task AnnexOfAnotherSnapshotIsRefused()
     {
         await using var database = await PublishedSnapshotAsync();

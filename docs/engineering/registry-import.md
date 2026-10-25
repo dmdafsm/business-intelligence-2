@@ -21,7 +21,14 @@ dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Ho
 dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Host.dll registry import onrc-caen-autorizat-2026-10-19 .research/raw/onrc-2026-10-19/OD_CAEN_AUTORIZAT.CSV
 ```
 
-The last two are annexes of the OD_FIRME snapshot: they need the published snapshot to have the same reference date, and a newer OD_FIRME snapshot removes them until its own annexes are imported.
+Then the representatives files of the same snapshot:
+
+```sh
+dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Host.dll registry import onrc-reprezentanti-legali-2026-10-19 .research/raw/onrc-2026-10-19/od_reprezentanti_legali.csv
+dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Host.dll registry import onrc-reprezentanti-if-2026-10-19 .research/raw/onrc-2026-10-19/od_reprezentanti_if.csv
+```
+
+The status, activity and representatives files are annexes of the OD_FIRME snapshot: they need the published snapshot to have the same reference date, and a newer OD_FIRME snapshot removes them until its own annexes are imported.
 
 `registry status` lists the published files and row counts; `registry show <cui|registry-number>` prints one company with its registrations.
 
@@ -67,3 +74,11 @@ The legacy files have no legal form or registration date; periods keep only what
 ## Not covered yet
 
 In Docker, the raw files must be mounted into the container for these commands; that setup is not done yet.
+
+## Representatives
+
+`OD_REPREZENTANTI_LEGALI` (administrators, legal representatives, liquidators) and `OD_REPREZENTANTI_IF` (family enterprise members) go into `registry.representatives` with every published column, as decided in [ADR 0001](decisions/0001-representatives-personal-data.md). Birth dates are read as dd/MM/yyyy (a time part is ignored); an unreadable one is kept as text. Each row gets a kind: natural (a birth date is given), legal (no birth date, an address is given: mostly insolvency firms) or unknown. Identical rows are stored once; rows for registrations not in the snapshot are counted and left out.
+
+On the 19.10.2026 files: 3,689,221 rows give 3,685,803 representatives (3 without registry number, 3,415 identical repeats); natural 3,214,000, legal 310,829, unknown 160,974. The family file gives 123,398 members, all natural except 14 without a birth date. 36 s and 6 s in Docker. 400 birth dates fall before 1900 or after the snapshot; pages do not show their year.
+
+These files list who runs a company, not who owns it: shareholders and beneficial owners are not open data. The holder of a PFA or II is not listed as a representative (the firm name is the holder's name).
