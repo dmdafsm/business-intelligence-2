@@ -6,7 +6,7 @@ using Xunit;
 
 namespace BusinessIntelligence.BrowserTests;
 
-public sealed class PortalFixture : IAsyncLifetime
+public class PortalFixture : IAsyncLifetime
 {
     private readonly PostgresFixture _postgres = new();
     private WebApplication? _app;
@@ -17,6 +17,11 @@ public sealed class PortalFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _postgres.InitializeAsync();
+        await using (var database = _postgres.CreateContext())
+        {
+            await SeedAsync(database);
+        }
+
         var root = new DirectoryInfo(AppContext.BaseDirectory);
         while (root is not null && !File.Exists(Path.Combine(root.FullName, "BusinessIntelligence.slnx")))
         {
@@ -32,6 +37,9 @@ public sealed class PortalFixture : IAsyncLifetime
         _playwright = await Playwright.CreateAsync();
         Browser = await _playwright.Chromium.LaunchAsync(new() { Headless = true });
     }
+
+    /// <summary>Runs once against the migrated database before the portal starts.</summary>
+    protected virtual Task SeedAsync(BusinessIntelligence.Modules.Platform.Persistence.AppDbContext database) => Task.CompletedTask;
 
     public async Task WithPageAsync(string test, Func<IPage, Task> action, BrowserNewContextOptions? options = null)
     {

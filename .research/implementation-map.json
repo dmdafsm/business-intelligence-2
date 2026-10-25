@@ -105,12 +105,19 @@
     {
       "id": "S05",
       "title": "Search and grouping",
-      "status": "planned",
+      "status": "completed",
       "path": "steps/s05-search.md",
       "depends_on": [
         "S02"
       ],
-      "tasks": []
+      "tasks": [
+        {
+          "id": "S05.1",
+          "title": "Search by name, CUI and registry number; grouping by CAEN, county and city",
+          "status": "completed",
+          "note": "tasks/s05-1-search.md"
+        }
+      ]
     },
     {
       "id": "S06",

@@ -1,0 +1,28 @@
+@model FacetListModel
+@{
+    var ro = System.Globalization.CultureInfo.GetCultureInfo("ro-RO");
+    var ordered = Model.Links.OrderByDescending(link => link.Selected).ThenByDescending(link => link.Count).ToList();
+}
+@if (ordered.Count == 0)
+{
+    <p class="md-typescale-body-medium md-on-surface-variant">Nicio valoare pentru rezultatele curente.</p>
+    return;
+}
+<ul class="md-list facet__list">
+    @foreach (var link in ordered.Take(Model.Visible))
+    {
+        <partial name="_FacetLink" model="link" />
+    }
+</ul>
+@if (ordered.Count > Model.Visible)
+{
+    <details class="facet__more">
+        <summary>Toate @Model.MoreLabel (@ordered.Count.ToString("N0", ro))</summary>
+        <ul class="md-list facet__list">
+            @foreach (var link in ordered.Skip(Model.Visible))
+            {
+                <partial name="_FacetLink" model="link" />
+            }
+        </ul>
+    </details>
+}

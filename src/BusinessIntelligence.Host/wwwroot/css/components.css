@@ -278,6 +278,11 @@ select.md-text-field__input { appearance: none; padding-inline-end: var(--md-sys
 }
 
 .md-chip .md-icon { width: 18px; height: 18px; }
+.md-chip__count { color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.md-chip[aria-current="true"] .md-chip__count { color: inherit; }
+
+/* Input chip: an applied filter; the trailing icon removes it. */
+.md-chip--input { padding-inline-end: var(--md-sys-spacing-2); color: var(--md-sys-color-on-surface); }
 
 /* ---------- Cards ---------- */
 
@@ -330,6 +335,11 @@ a.md-list__item:hover::before { opacity: 0.08; }
 .md-list__headline { display: block; font: var(--md-sys-typescale-body-large); letter-spacing: var(--md-sys-typescale-body-large-tracking); overflow-wrap: anywhere; }
 .md-list__supporting { display: block; font: var(--md-sys-typescale-body-medium); letter-spacing: var(--md-sys-typescale-body-medium-tracking); color: var(--md-sys-color-on-surface-variant); }
 .md-list__trailing { font: var(--md-sys-typescale-label-small); letter-spacing: var(--md-sys-typescale-label-small-tracking); color: var(--md-sys-color-on-surface-variant); }
+
+.md-list__item--dense { min-height: 48px; gap: var(--md-sys-spacing-3); padding-inline-end: var(--md-sys-spacing-4); }
+.md-list__item--dense .md-list__headline { font: var(--md-sys-typescale-body-medium); letter-spacing: var(--md-sys-typescale-body-medium-tracking); }
+a.md-list__item[aria-current="true"] { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.md-caen-code { min-width: 3.5ch; font: var(--md-sys-typescale-label-large); font-variant-numeric: tabular-nums; color: var(--md-sys-color-on-surface-variant); }
 
 .md-divider { height: 1px; margin: 0; border: 0; background: var(--md-sys-color-outline-variant); }
 
@@ -408,6 +418,32 @@ a.md-list__item:hover::before { opacity: 0.08; }
   border-radius: 3px 3px 0 0;
   background: var(--md-sys-color-primary);
 }
+
+/* ---------- Status label ---------- */
+/* A company's lifecycle; not interactive. Tertiary marks states that need attention, never error (reserved for errors). */
+
+.md-status {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 24px;
+  padding: 0 var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-medium);
+  letter-spacing: var(--md-sys-typescale-label-medium-tracking);
+  white-space: nowrap;
+}
+
+.md-status--active { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.md-status--suspended, .md-status--dissolution, .md-status--insolvency { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+
+/* ---------- Pagination ---------- */
+
+.md-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--md-sys-spacing-3); padding: var(--md-sys-spacing-4) 0; }
+.md-pagination__label { font: var(--md-sys-typescale-body-medium); color: var(--md-sys-color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.md-button .md-icon:last-child:not(:first-child) { margin-inline: 0 calc(-1 * var(--md-sys-spacing-2)); }
 
 /* ---------- Empty state ---------- */
 

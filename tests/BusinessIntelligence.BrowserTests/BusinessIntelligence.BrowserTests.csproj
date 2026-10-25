@@ -12,5 +12,6 @@
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <ProjectReference Include="../../src/BusinessIntelligence.Host/BusinessIntelligence.Host.csproj" />
     <Compile Include="../BusinessIntelligence.Tests/Infrastructure/PostgresFixture.cs" Link="Infrastructure/PostgresFixture.cs" />
+    <Compile Include="../BusinessIntelligence.Tests/Search/SearchFixtures.cs" Link="Search/SearchFixtures.cs" />
   </ItemGroup>
 </Project>

@@ -20,6 +20,7 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Financials.FinancialStatement", b =>
@@ -945,6 +946,191 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasDatabaseName("ix_source_files_sha256_parser_version");
 
                     b.ToTable("source_files", "registry");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Search.SearchBuild", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("BuiltAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("built_at");
+
+                    b.Property<int>("RegistrySnapshotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("registry_snapshot_id");
+
+                    b.Property<string>("Report")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("report");
+
+                    b.HasKey("Id")
+                        .HasName("pk_builds");
+
+                    b.ToTable("builds", "search");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Search.SearchCompany", b =>
+                {
+                    b.Property<string>("CompanyKey")
+                        .HasColumnType("text")
+                        .HasColumnName("company_key");
+
+                    b.PrimitiveCollection<string[]>("Caen")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("caen");
+
+                    b.Property<short?>("CaenVersion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("caen_version");
+
+                    b.Property<short?>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<long?>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<DateOnly?>("FirstRegistrationDate")
+                        .HasColumnType("date")
+                        .HasColumnName("first_registration_date");
+
+                    b.Property<string>("LegalForm")
+                        .HasColumnType("text")
+                        .HasColumnName("legal_form");
+
+                    b.Property<string>("Lifecycle")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("lifecycle");
+
+                    b.Property<int?>("LocalityCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("locality_code");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("NameKey")
+                        .HasColumnType("text")
+                        .HasColumnName("name_key")
+                        .UseCollation("C");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("registration_number");
+
+                    b.Property<int?>("UatCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("uat_code");
+
+                    b.HasKey("CompanyKey")
+                        .HasName("pk_companies");
+
+                    b.HasIndex("Caen")
+                        .HasDatabaseName("ix_companies_caen");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Caen"), "gin");
+
+                    b.HasIndex("Cui")
+                        .HasDatabaseName("ix_companies_cui");
+
+                    b.HasIndex("NameKey")
+                        .HasDatabaseName("ix_companies_name_key");
+
+                    b.HasIndex("CountyNumber", "UatCode")
+                        .HasDatabaseName("ix_companies_county_number_uat_code");
+
+                    b.ToTable("companies", "search");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Search.SearchCount", b =>
+                {
+                    b.Property<short>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<string>("Lifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("lifecycle");
+
+                    b.Property<string>("Caen")
+                        .HasColumnType("text")
+                        .HasColumnName("caen");
+
+                    b.Property<int>("Companies")
+                        .HasColumnType("integer")
+                        .HasColumnName("companies");
+
+                    b.HasKey("CountyNumber", "Lifecycle", "Caen")
+                        .HasName("pk_counts");
+
+                    b.ToTable("counts", "search");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Search.SearchName", b =>
+                {
+                    b.Property<string>("CompanyKey")
+                        .HasColumnType("text")
+                        .HasColumnName("company_key");
+
+                    b.Property<string>("NameKey")
+                        .HasColumnType("text")
+                        .HasColumnName("name_key")
+                        .UseCollation("C");
+
+                    b.Property<bool>("Current")
+                        .HasColumnType("boolean")
+                        .HasColumnName("current");
+
+                    b.Property<DateOnly?>("LastSeen")
+                        .HasColumnType("date")
+                        .HasColumnName("last_seen");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("CompanyKey", "NameKey")
+                        .HasName("pk_names");
+
+                    b.HasIndex(new[] { "NameKey" }, "ix_names_name_key_prefix")
+                        .HasDatabaseName("ix_names_name_key_prefix");
+
+                    b.HasIndex(new[] { "NameKey" }, "ix_names_name_key_trgm")
+                        .HasDatabaseName("ix_names_name_key_trgm");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex(new[] { "NameKey" }, "ix_names_name_key_trgm"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex(new[] { "NameKey" }, "ix_names_name_key_trgm"), new[] { "gin_trgm_ops" });
+
+                    b.ToTable("names", "search");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Search.SearchRegistration", b =>
+                {
+                    b.Property<string>("NumberKey")
+                        .HasColumnType("text")
+                        .HasColumnName("number_key");
+
+                    b.Property<string>("CompanyKey")
+                        .HasColumnType("text")
+                        .HasColumnName("company_key");
+
+                    b.HasKey("NumberKey", "CompanyKey")
+                        .HasName("pk_registration_numbers");
+
+                    b.ToTable("registration_numbers", "search");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.PublishedDataset", b =>

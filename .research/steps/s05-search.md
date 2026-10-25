@@ -1,6 +1,6 @@
 # S05 Search and grouping
 
-Status: planned. Depends on S02. Part of the [MVP plan](../mvp-plan.md).
+Status: completed. Depends on S02. Part of the [MVP plan](../mvp-plan.md).
 
 ## Outcome
 
@@ -15,4 +15,6 @@ Users find companies by name (fuzzy), CUI or registry number, and browse or filt
 
 ## Tasks
 
-To be split during readiness.
+- S05.1 Search index, search and grouping page — [note](../tasks/s05-1-search.md). Operation: [search guide](../../docs/engineering/search.md).
+
+Open: CAEN Rev.2 ↔ Rev.3 bridging (needs the ONRC correspondence table).
