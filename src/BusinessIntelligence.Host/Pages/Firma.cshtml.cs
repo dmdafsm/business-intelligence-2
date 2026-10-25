@@ -67,6 +67,20 @@ public sealed class FirmaModel(CompanyProfileQuery query) : PageModel
 
     public bool Individual => Profile.Company.FormCategory == "individual";
 
+    /// <summary>ANAF administers large and medium taxpayers through dedicated offices; the office name says which.</summary>
+    public static string? TaxpayerCategory(string? office) =>
+        office is null ? null
+        : office.Contains("Marilor Contribuabili", StringComparison.OrdinalIgnoreCase) || office.Contains("Mari Contribuabili", StringComparison.OrdinalIgnoreCase) ? "mare contribuabil"
+        : office.Contains("Contribuabili Mijlocii", StringComparison.OrdinalIgnoreCase) ? "contribuabil mijlociu"
+        : null;
+
+    public static string YesNo(bool? value, DateOnly? since = null) => value switch
+    {
+        true => since is { } date ? $"Da, din {Date(date)}" : "Da",
+        false => "Nu",
+        null => "nedeclarat",
+    };
+
     public string Lifecycle(string value) =>
         CompanySearch.LifecycleLabels.FirstOrDefault(item => item.Value == value).Label ?? value;
 

@@ -14,6 +14,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<RegistrationStatus> RegistrationStatuses => Set<RegistrationStatus>();
     public DbSet<CompanyActivity> CompanyActivities => Set<CompanyActivity>();
+    public DbSet<Registry.Geography.AreaOutline> AreaOutlines => Set<Registry.Geography.AreaOutline>();
     public DbSet<Representative> Representatives => Set<Representative>();
     public DbSet<RegistrationPeriod> RegistrationPeriods => Set<RegistrationPeriod>();
     public DbSet<HistorySnapshot> HistorySnapshots => Set<HistorySnapshot>();
@@ -21,6 +22,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Fiscal.TaxpayerPeriod> TaxpayerPeriods => Set<Fiscal.TaxpayerPeriod>();
     public DbSet<Fiscal.FiscalRelease> FiscalReleases => Set<Fiscal.FiscalRelease>();
     public DbSet<Fiscal.TaxpayerKind> TaxpayerKinds => Set<Fiscal.TaxpayerKind>();
+    public DbSet<Licences.Licence> RegulatorLicences => Set<Licences.Licence>();
+    public DbSet<Funds.FundProject> FundProjects => Set<Funds.FundProject>();
+    public DbSet<Anaf.AnafStatus> AnafStatuses => Set<Anaf.AnafStatus>();
     public DbSet<Procurement.ProcurementAward> ProcurementAwards => Set<Procurement.ProcurementAward>();
     public DbSet<Search.SearchCompany> SearchCompanies => Set<Search.SearchCompany>();
     public DbSet<Search.SearchName> SearchNames => Set<Search.SearchName>();
@@ -37,6 +41,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         Fiscal.FiscalPersistence.Configure(modelBuilder);
         Search.SearchPersistence.Configure(modelBuilder);
         Procurement.ProcurementPersistence.Configure(modelBuilder);
+        Anaf.AnafPersistence.Configure(modelBuilder);
+        Funds.FundsPersistence.Configure(modelBuilder);
+        Licences.LicencesPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }

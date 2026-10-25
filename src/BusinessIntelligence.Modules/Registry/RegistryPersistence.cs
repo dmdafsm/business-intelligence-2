@@ -279,6 +279,12 @@ public static class RegistryPersistence
             entity.HasKey(item => item.SnapshotDate);
             entity.Property(item => item.Report).HasColumnType("jsonb");
         });
+        builder.Entity<Geography.AreaOutline>(entity =>
+        {
+            entity.ToTable("area_outlines", Schema);
+            entity.HasKey(item => new { item.Level, item.Code });
+            entity.Property(item => item.Code).ValueGeneratedNever();
+        });
         builder.Entity<Representative>(entity =>
         {
             entity.ToTable("representatives", Schema);

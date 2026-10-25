@@ -1,17 +1,22 @@
 using System.Data.Common;
 using System.Diagnostics;
 using System.Text.Json;
+using BusinessIntelligence.Modules.Funds;
+using BusinessIntelligence.Modules.Licences;
 using BusinessIntelligence.Modules.Procurement;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessIntelligence.Host.Composition;
 
+/// <summary>Import commands for the S08 open-data sources: each runs every pinned file of its kinds, oldest first.</summary>
 internal static class ProcurementCommands
 {
     private const string Usage = """
         Commands:
           procurement import-all <raw-root>   import every pinned SEAP quarterly export (contracts, direct purchases)
           procurement status                  awards per kind, year and quarter
+          funds import-all <raw-root>         import every pinned list of EU-funded projects (Ministry, AFIR)
+          licences import-all <raw-root>      import every pinned regulator list (ANRSC, ANRM, CNAS)
         """;
 
     private static readonly JsonSerializerOptions Output = new(JsonSerializerDefaults.Web)
@@ -22,7 +27,7 @@ internal static class ProcurementCommands
 
     public static async Task<int> ExecuteAsync(string[] arguments, CancellationToken cancellationToken)
     {
-        if (arguments is not (["procurement", "import-all", _] or ["procurement", "status"]))
+        if (arguments is not (["procurement", "import-all", _] or ["procurement", "status"] or ["funds", "import-all", _] or ["licences", "import-all", _]))
         {
             await Console.Error.WriteLineAsync(Usage);
             return 2;
@@ -47,12 +52,18 @@ internal static class ProcurementCommands
                 return 0;
             }
 
-            foreach (var file in ImportSeap.Files())
+            var files = arguments[0] switch { "funds" => ImportFunds.Files(), "licences" => ImportLicences.Files(), _ => ImportSeap.Files() };
+            foreach (var file in files)
             {
                 var path = Path.Combine(arguments[2], file.LocalPath ?? throw new InvalidOperationException($"{file.Id} has no local path."));
                 var watch = Stopwatch.StartNew();
                 await using var database = OperatorDatabase.Create(connection);
-                var result = await new ImportSeap(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken);
+                var result = arguments[0] switch
+                {
+                    "funds" => await new ImportFunds(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
+                    "licences" => await new ImportLicences(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
+                    _ => await new ImportSeap(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
+                };
                 await WriteAsync(new { catalogId = file.Id, outcome = result.Outcome.ToString(), seconds = Math.Round(watch.Elapsed.TotalSeconds, 1), report = result.Report },
                     cancellationToken);
             }

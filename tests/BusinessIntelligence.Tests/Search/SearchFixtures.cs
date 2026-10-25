@@ -175,6 +175,7 @@ public static class SearchFixtures
             Report = "{}",
         });
         database.PublishedDatasets.Add(new PublishedDataset { Kind = "seap-direct-2025-Q1", SourceFileId = 200, PublishedAt = DateTimeOffset.UnixEpoch });
+        AddOpenData(database);
         database.ProcurementAwards.Add(new BusinessIntelligence.Modules.Procurement.ProcurementAward
         {
             SourceFileId = 200,
@@ -204,6 +205,7 @@ public static class SearchFixtures
         // Source files were added with explicit ids; later imports take the next free one.
         await database.Database.ExecuteSqlRawAsync(
             "SELECT setval(pg_get_serial_sequence('registry.source_files', 'id'), (SELECT max(id) FROM registry.source_files))");
+        database.ChangeTracker.Clear();
         if (build)
         {
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
@@ -289,6 +291,84 @@ public static class SearchFixtures
             Employees = employees,
             Equity = 50_000,
         };
+    }
+
+    /// <summary>One row for each S08 source: an ANAF answer from before any test harvest, county and UAT outlines, an EU project and a licence.</summary>
+    private static void AddOpenData(AppDbContext database)
+    {
+        SourceFile Source(int id, string kind, string publisher) => new()
+        {
+            Id = id,
+            CatalogId = "test-" + kind,
+            Kind = kind,
+            Dataset = "Test " + kind,
+            FileName = kind + ".dat",
+            Url = "https://example.invalid/" + kind,
+            Publisher = publisher,
+            License = "CC BY 4.0",
+            ReferenceDate = new DateOnly(2025, 8, 31),
+            Sha256 = new string((char)('0' + id - 300), 64),
+            Bytes = 1,
+            ParserVersion = "test",
+            ImportedAt = DateTimeOffset.UnixEpoch,
+            Report = "{}",
+        };
+
+        database.SourceFiles.AddRange(Source(301, "boundaries-ancpi", "Agenția Națională de Cadastru"), Source(302, "eu-projects-mipe", "Ministerul Investițiilor"),
+            Source(303, "licences-cnas", "Casa Națională de Asigurări de Sănătate"));
+        database.PublishedDatasets.AddRange(
+            new PublishedDataset { Kind = "boundaries-ancpi-1", SourceFileId = 301, PublishedAt = DateTimeOffset.UnixEpoch },
+            new PublishedDataset { Kind = "eu-projects-POR", SourceFileId = 302, PublishedAt = DateTimeOffset.UnixEpoch },
+            new PublishedDataset { Kind = "licences-cnas-contracte-farm", SourceFileId = 303, PublishedAt = DateTimeOffset.UnixEpoch });
+        database.AreaOutlines.AddRange(
+            new BusinessIntelligence.Modules.Registry.Geography.AreaOutline { Code = 1000, Level = 1, Name = "CLUJ", Path = "M300,200L400,200L400,300L300,300Z", SourceFileId = 301 },
+            new BusinessIntelligence.Modules.Registry.Geography.AreaOutline { Code = 4000, Level = 1, Name = "MUNICIPIUL BUCUREŞTI", Path = "M600,500L620,500L620,520L600,520Z", SourceFileId = 301 },
+            new BusinessIntelligence.Modules.Registry.Geography.AreaOutline { Code = ClujNapoca, Level = 2, Name = "CLUJ-NAPOCA", Path = "M340,240L360,240L360,260L340,260Z", SourceFileId = 301 });
+        database.FundProjects.Add(new BusinessIntelligence.Modules.Funds.FundProject
+        {
+            SourceFileId = 302,
+            RowNumber = 1,
+            Programme = "POR",
+            ProjectCode = "123",
+            Title = "Digitalizarea EXEMPLU",
+            BeneficiaryName = "EXEMPLU SOFT SRL",
+            BeneficiaryNameKey = "EXEMPLU SOFT SRL",
+            BeneficiaryCui = ExempluSoft,
+            County = "Cluj",
+            CountyNumber = Cluj,
+            Status = "în implementare",
+            StartDate = new DateOnly(2023, 3, 15),
+            EndDate = new DateOnly(2024, 7, 28),
+            TotalValue = 1_000_000m,
+            PaidValue = 250_000m,
+        });
+        database.RegulatorLicences.Add(new BusinessIntelligence.Modules.Licences.Licence
+        {
+            SourceFileId = 303,
+            RowNumber = 2,
+            Authority = "CNAS",
+            Status = "contract",
+            HolderName = "EXEMPLU SOFT SRL",
+            HolderNameKey = "EXEMPLU SOFT SRL",
+            HolderCui = ExempluSoft,
+            Activity = "Farmacie",
+            Details = "contract 478",
+            Place = "CAS CLUJ",
+        });
+        database.AnafStatuses.Add(new BusinessIntelligence.Modules.Anaf.AnafStatus
+        {
+            Cui = ExempluSoft,
+            CheckedOn = new DateOnly(2025, 1, 1),
+            Found = true,
+            VatPayer = true,
+            EInvoice = true,
+            EInvoiceSince = new DateOnly(2022, 7, 1),
+            Inactive = false,
+            SplitVat = false,
+            CashAccountingVat = false,
+            TaxOffice = "Direcţia Generală de Administrare a Marilor Contribuabili",
+            RegistrationStatus = "INREGISTRAT din data 01.01.2010",
+        });
     }
 
     private static void AddCompany(AppDbContext database, long cui, string number, string name, string lifecycle, short county, int uat, int locality,

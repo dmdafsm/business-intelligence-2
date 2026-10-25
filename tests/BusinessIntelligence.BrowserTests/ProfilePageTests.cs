@@ -39,6 +39,12 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
             await Assertions.Expect(procurement).ToContainTextAsync("2025 (T1)");
             await Assertions.Expect(procurement.GetByRole(AriaRole.Row, new() { Name = "SCOALA GIMNAZIALA TEST" })).ToContainTextAsync("4.999,50");
             await Assertions.Expect(procurement.Locator(".md-source")).ToContainTextAsync("Autoritatea pentru Digitalizarea României");
+            var anaf = page.GetByRole(AriaRole.Region, new() { Name = "Situația la ANAF" });
+            await Assertions.Expect(anaf).ToContainTextAsync("mare contribuabil");
+            await Assertions.Expect(anaf).ToContainTextAsync("Da, din 01.07.2022");
+            await Assertions.Expect(page.GetByRole(AriaRole.Img, new() { Name = "Harta României, cu județul evidențiat" })).ToBeVisibleAsync();
+            await Assertions.Expect(page.GetByRole(AriaRole.Region, new() { Name = "Fonduri europene" })).ToContainTextAsync("Digitalizarea EXEMPLU");
+            await Assertions.Expect(page.GetByRole(AriaRole.Region, new() { Name = "Licențe și contracte cu autorități" })).ToContainTextAsync("Farmacie");
             var history = page.GetByRole(AriaRole.Region, new() { Name = "Istoric" });
             await Assertions.Expect(history).ToContainTextAsync("VECHI NUME S.R.L.");
             await Assertions.Expect(history).ToContainTextAsync("J12/99/2000");

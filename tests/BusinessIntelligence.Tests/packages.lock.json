@@ -181,10 +181,17 @@
       "businessintelligence.modules": {
         "type": "Project",
         "dependencies": {
+          "ExcelDataReader": "[3.9.0, )",
           "Microsoft.EntityFrameworkCore": "[10.0.13, )",
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.13, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"
         }
+      },
+      "ExcelDataReader": {
+        "type": "CentralTransitive",
+        "requested": "[3.9.0, )",
+        "resolved": "3.9.0",
+        "contentHash": "3lEkUzG67UWPYj/xlX5Hua3MeQQktnK0B7WGzDjLpdJpBtct7szX0E4WB3Kl6C/8bNnbkyT2eO0FSPV+9CCemw=="
       },
       "Microsoft.EntityFrameworkCore": {
         "type": "CentralTransitive",
