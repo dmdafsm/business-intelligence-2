@@ -21,6 +21,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Fiscal.TaxpayerPeriod> TaxpayerPeriods => Set<Fiscal.TaxpayerPeriod>();
     public DbSet<Fiscal.FiscalRelease> FiscalReleases => Set<Fiscal.FiscalRelease>();
     public DbSet<Fiscal.TaxpayerKind> TaxpayerKinds => Set<Fiscal.TaxpayerKind>();
+    public DbSet<Procurement.ProcurementAward> ProcurementAwards => Set<Procurement.ProcurementAward>();
     public DbSet<Search.SearchCompany> SearchCompanies => Set<Search.SearchCompany>();
     public DbSet<Search.SearchName> SearchNames => Set<Search.SearchName>();
     public DbSet<Search.SearchRegistration> SearchRegistrations => Set<Search.SearchRegistration>();
@@ -35,6 +36,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         Financials.FinancialsPersistence.Configure(modelBuilder);
         Fiscal.FiscalPersistence.Configure(modelBuilder);
         Search.SearchPersistence.Configure(modelBuilder);
+        Procurement.ProcurementPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }

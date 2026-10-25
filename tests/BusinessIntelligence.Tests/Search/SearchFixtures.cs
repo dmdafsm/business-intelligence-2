@@ -4,6 +4,7 @@ using BusinessIntelligence.Modules.Platform.Persistence;
 using BusinessIntelligence.Modules.Registry;
 using BusinessIntelligence.Modules.Registry.Onrc;
 using BusinessIntelligence.Modules.Search;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessIntelligence.Tests.Search;
 
@@ -156,6 +157,43 @@ public static class SearchFixtures
             });
         await database.SaveChangesAsync();
         AddFinancials(database);
+        database.SourceFiles.Add(new SourceFile
+        {
+            Id = 200,
+            CatalogId = "test-seap",
+            Kind = "seap-direct",
+            Dataset = "Achiziții publice 2025",
+            FileName = "achizitii-directe.xlsx",
+            Url = "https://example.invalid/seap.xlsx",
+            Publisher = "Autoritatea pentru Digitalizarea României (ADR)",
+            License = "CC BY 4.0",
+            ReferenceDate = new DateOnly(2025, 3, 31),
+            Sha256 = new string('f', 64),
+            Bytes = 1,
+            ParserVersion = "test",
+            ImportedAt = DateTimeOffset.UnixEpoch,
+            Report = "{}",
+        });
+        database.PublishedDatasets.Add(new PublishedDataset { Kind = "seap-direct-2025-Q1", SourceFileId = 200, PublishedAt = DateTimeOffset.UnixEpoch });
+        database.ProcurementAwards.Add(new BusinessIntelligence.Modules.Procurement.ProcurementAward
+        {
+            SourceFileId = 200,
+            RowNumber = 2,
+            Kind = "direct",
+            Year = 2025,
+            Quarter = 1,
+            AuthorityName = "SCOALA GIMNAZIALA TEST",
+            AuthorityCui = Cui(430585),
+            Reference = "DA1",
+            Title = "Licente software educationale",
+            CpvCode = "48000000-8",
+            PublishedOn = new DateOnly(2025, 2, 3),
+            ContractDate = new DateOnly(2025, 2, 10),
+            ValueRon = 4999.5m,
+            WinnerName = "EXEMPLU SOFT SRL",
+            WinnerCui = ExempluSoft,
+            WinnerCuiState = "Valid",
+        });
 
         for (var index = 1; index <= Filler; index++)
         {
@@ -163,6 +201,9 @@ public static class SearchFixtures
         }
 
         await database.SaveChangesAsync();
+        // Source files were added with explicit ids; later imports take the next free one.
+        await database.Database.ExecuteSqlRawAsync(
+            "SELECT setval(pg_get_serial_sequence('registry.source_files', 'id'), (SELECT max(id) FROM registry.source_files))");
         if (build)
         {
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);

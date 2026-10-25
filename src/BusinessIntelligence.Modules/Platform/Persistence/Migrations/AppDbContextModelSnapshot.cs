@@ -370,6 +370,125 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("taxpayer_periods", "fiscal");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Procurement.ProcurementAward", b =>
+                {
+                    b.Property<int>("SourceFileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_file_id");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_number");
+
+                    b.Property<long?>("AuthorityCui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("authority_cui");
+
+                    b.Property<string>("AuthorityName")
+                        .HasColumnType("text")
+                        .HasColumnName("authority_name");
+
+                    b.Property<DateOnly?>("ContractDate")
+                        .HasColumnType("date")
+                        .HasColumnName("contract_date");
+
+                    b.Property<string>("ContractNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("contract_number");
+
+                    b.Property<string>("ContractType")
+                        .HasColumnType("text")
+                        .HasColumnName("contract_type");
+
+                    b.Property<string>("CpvCode")
+                        .HasColumnType("text")
+                        .HasColumnName("cpv_code");
+
+                    b.Property<string>("CpvName")
+                        .HasColumnType("text")
+                        .HasColumnName("cpv_name");
+
+                    b.Property<bool?>("EuFunded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("eu_funded");
+
+                    b.Property<bool>("FirstWinner")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("first_winner");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Lot")
+                        .HasColumnType("text")
+                        .HasColumnName("lot");
+
+                    b.Property<string>("Procedure")
+                        .HasColumnType("text")
+                        .HasColumnName("procedure");
+
+                    b.Property<string>("Programme")
+                        .HasColumnType("text")
+                        .HasColumnName("programme");
+
+                    b.Property<DateOnly?>("PublishedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("published_on");
+
+                    b.Property<short>("Quarter")
+                        .HasColumnType("smallint")
+                        .HasColumnName("quarter");
+
+                    b.Property<string>("Reference")
+                        .HasColumnType("text")
+                        .HasColumnName("reference");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<decimal?>("ValueRon")
+                        .HasPrecision(20, 2)
+                        .HasColumnType("numeric(20,2)")
+                        .HasColumnName("value_ron");
+
+                    b.Property<long?>("WinnerCui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("winner_cui");
+
+                    b.Property<string>("WinnerCuiState")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("winner_cui_state");
+
+                    b.Property<string>("WinnerName")
+                        .HasColumnType("text")
+                        .HasColumnName("winner_name");
+
+                    b.Property<short>("Winners")
+                        .HasColumnType("smallint")
+                        .HasColumnName("winners");
+
+                    b.Property<short>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.HasKey("SourceFileId", "RowNumber")
+                        .HasName("pk_awards");
+
+                    b.HasIndex("AuthorityCui")
+                        .HasDatabaseName("ix_awards_authority_cui");
+
+                    b.HasIndex("WinnerCui")
+                        .HasDatabaseName("ix_awards_winner_cui");
+
+                    b.ToTable("awards", "procurement");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CaenEntry", b =>
                 {
                     b.Property<short>("Version")
