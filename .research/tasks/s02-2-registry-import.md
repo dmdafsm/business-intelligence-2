@@ -39,5 +39,5 @@ Local PostgreSQL 18 on macOS, Release build:
 
 - No status or CAEN activity yet (S02.3 needs `OD_STARE_FIRMA.CSV`, 92 MB, and `OD_CAEN_AUTORIZAT.CSV`, 437 MB).
 - Only the latest snapshot; no history (S02.4).
-- Not run in Docker: the raw files are not mounted into the container yet.
+- Not run in Docker at the time; the full import later ran in Docker ([REPO Docker stack](repo-docker-stack.md)).
 - The current registration is the one with the latest registration date; statuses (S02.3) will show whether older ones were struck off.

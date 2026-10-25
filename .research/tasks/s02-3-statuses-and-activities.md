@@ -30,4 +30,4 @@ Lifecycle precedence (8 cases); PostgreSQL: statuses on the fixture snapshot (mo
 - No main CAEN activity in the registry; it comes from the financial statements (S04).
 - Grouping across Rev.2 and Rev.3 needs the ONRC correspondence table (S05).
 - The status import updates 4.2M rows in place and takes about three minutes; fine for a monthly snapshot, worth revisiting if snapshots become frequent.
-- Not run in Docker (raw files are not mounted into the container yet).
+- Not run in Docker at the time; the full import later ran in Docker ([REPO Docker stack](repo-docker-stack.md)).

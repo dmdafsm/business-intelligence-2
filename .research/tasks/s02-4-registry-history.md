@@ -41,4 +41,4 @@ Free-text address splitting and name keys (cases); PostgreSQL: legacy layouts jo
 - Lifecycle in 2025–2026 comes from `OD_STARE_FIRMA`, before that from inline codes; the code lists are the same.
 - Between snapshots the exact change date is unknown: a period starts at the first snapshot that shows it.
 - Gaps (a registry number missing from a year) are not recorded separately; the period just ends at the last snapshot that had it.
-- Not run in Docker (raw files are not mounted into the container yet).
+- Not run in Docker at the time; the full import later ran in Docker ([REPO Docker stack](repo-docker-stack.md)).
