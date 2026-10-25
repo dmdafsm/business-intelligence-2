@@ -18,6 +18,7 @@ public static class PortalApplication
             ?? throw new InvalidOperationException("Set ConnectionStrings__Application explicitly.");
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
         builder.Services.AddScoped<BusinessIntelligence.Modules.Search.CompanySearch>();
+        builder.Services.AddScoped<BusinessIntelligence.Modules.Profile.CompanyProfileQuery>();
         builder.Services.AddRazorPages();
 
         var app = builder.Build();

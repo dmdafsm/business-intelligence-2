@@ -1,0 +1,307 @@
+@page "/firma/{cui:long?}"
+@model FirmaModel
+@{
+    var profile = Model.Profile;
+    var company = profile.Company;
+    var current = profile.CurrentRegistration;
+    var fiscal = profile.LatestFiscal;
+    var ro = FirmaModel.Ro;
+    ViewData["Title"] = company.Name ?? company.RegistrationNumber;
+    var filed = profile.Financials.Where(year => year.Statement is not null).ToList();
+    var latestStatement = filed.LastOrDefault();
+    var fiscalEdition = fiscal is not null && profile.FiscalSource is { } fiscalNote ? fiscalNote with { Period = "ediția " + FirmaModel.Date(fiscal.ValidTo) } : null;
+    var websiteSource = profile.RegistrySource with { Dataset = profile.RegistrySource.Dataset + " (site web)" };
+}
+
+<header class="profile-header">
+    <p class="md-typescale-label-large md-on-surface-variant">@(company.LegalForm ?? "Formă juridică necunoscută")</p>
+    <h1 class="md-typescale-headline-medium profile-header__name">@(company.Name ?? "Fără denumire")</h1>
+    <div class="cluster">
+        <span class="md-status md-status--@company.Lifecycle.ToLowerInvariant()">@Model.Lifecycle(company.Lifecycle)</span>
+        @if (company.Cui is not null) { <span class="md-typescale-body-medium">CUI <span class="md-numeric">@company.Cui</span></span> }
+        <span class="md-typescale-body-medium">@company.RegistrationNumber</span>
+        @if (Model.County(company.CountyNumber) is { } county) { <span class="md-typescale-body-medium md-on-surface-variant">@(Model.Place(company.LocalityCode ?? company.UatCode) is { } place ? $"{place}, " : "")@county</span> }
+    </div>
+</header>
+
+<nav class="md-tabs profile-nav" aria-label="Secțiuni">
+    <a class="md-tab" href="#prezentare">Prezentare</a>
+    <a class="md-tab" href="#contact">Contact</a>
+    <a class="md-tab" href="#activitati">Activități</a>
+    <a class="md-tab" href="#istoric">Istoric</a>
+    <a class="md-tab" href="#financiar">Financiar</a>
+</nav>
+
+<div class="profile-sections">
+<section id="prezentare" class="md-card md-card--outlined profile-section" aria-labelledby="prezentare-title">
+    <h2 id="prezentare-title" class="md-card__title">Prezentare</h2>
+    <dl class="md-facts">
+        <div><dt>CUI</dt><dd>@(company.Cui?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "fără CUI valid în registru")</dd></div>
+        <div><dt>Nr. înregistrare</dt><dd>@company.RegistrationNumber</dd></div>
+        @if (current?.Euid is { } euid) { <div><dt>EUID</dt><dd>@euid</dd></div> }
+        <div><dt>Formă juridică</dt><dd>@(company.LegalForm ?? "—")</dd></div>
+        <div><dt>Înregistrată</dt><dd>@(FirmaModel.Date(company.FirstRegistrationDate ?? company.RegistrationDate) is { Length: > 0 } date ? date : "—")</dd></div>
+        <div><dt>Stare ONRC</dt><dd>@Model.Lifecycle(company.Lifecycle)@if (profile.Statuses.Count > 0) {<span class="md-on-surface-variant"> (@string.Join(", ", profile.Statuses.Where(item => item.RegistrationNumber == company.RegistrationNumber).Select(item => item.Name)))</span>}</dd></div>
+        <div class="md-facts__wide"><dt>Sediu social</dt><dd>@AddressText(current)</dd></div>
+        @if (current?.ParentCountry is { } parent) { <div><dt>Țara firmei-mamă</dt><dd>@parent</dd></div> }
+        @if (fiscal is not null)
+        {
+            <div><dt>Plătitor de TVA</dt><dd>@(fiscal.VatPayer switch { true => "Da" + (fiscal.VatSince is { } since ? $", din {FirmaModel.Date(since)}" : ""), false => "Nu", null => "nedeclarat" })</dd></div>
+            <div><dt>Stare fiscală</dt><dd>@(fiscal.FiscalStatus ?? "—")@if (fiscal.StatusDate is { } statusDate) {<span class="md-on-surface-variant">, @FirmaModel.Date(statusDate)</span>}</dd></div>
+        }
+        @if (profile.Registrations.Count > 1)
+        {
+            var others = profile.Registrations.Skip(1).ToList();
+            var differentNames = others.Where(item => BusinessIntelligence.Modules.Search.SearchKeys.Name(item.Name) != BusinessIntelligence.Modules.Search.SearchKeys.Name(company.Name)).ToList();
+            <div class="md-facts__wide"><dt>Alte înregistrări cu același CUI</dt><dd>@string.Join("; ", others.Select(item => item.RegistrationNumber
+                + (differentNames.Contains(item) ? $" „{item.Name}”" : "") + (item.Lifecycle == company.Lifecycle ? "" : $" ({Model.Lifecycle(item.Lifecycle)})")))</dd></div>
+            @if (differentNames.Count > 0)
+            {
+                <div class="md-facts__wide notice" role="note">Registrul atribuie acest CUI și unei înregistrări cu altă denumire. Legătura poate fi o eroare a sursei; datele fiscale și financiare de mai jos sunt cele ale CUI-ului.</div>
+            }
+        }
+    </dl>
+    <partial name="_SourceNote" model="profile.RegistrySource" />
+    @if (fiscalEdition is not null)
+    {
+        <partial name="_SourceNote" model="fiscalEdition" />
+    }
+</section>
+
+<section id="contact" class="md-card md-card--outlined profile-section" aria-labelledby="contact-title">
+    <h2 id="contact-title" class="md-card__title">Contact</h2>
+    <dl class="md-facts">
+        <div><dt>Telefon</dt><dd>@(fiscal?.Phone ?? (Model.Individual ? "nu se afișează pentru persoane fizice" : "nedeclarat"))</dd></div>
+        <div><dt>Fax</dt><dd>@(fiscal?.Fax ?? (Model.Individual ? "nu se afișează pentru persoane fizice" : "nedeclarat"))</dd></div>
+        <div><dt>Site web</dt><dd>@if (current?.Website is { } website) { if (WebsiteUrl(website) is { } url) { <a href="@url" rel="nofollow noopener">@website</a> } else { @website } } else { <span class="md-missing">nedeclarat</span> }</dd></div>
+        <div class="md-facts__wide"><dt>Domiciliu fiscal</dt><dd>@(fiscal is null ? "nu apare în datele de identificare MF" : FiscalAddress(fiscal))</dd></div>
+    </dl>
+    @if (Model.Individual)
+    {
+        <p class="md-typescale-body-small md-on-surface-variant">Pentru persoane fizice autorizate, întreprinderi individuale și familiale nu se păstrează strada, telefonul și faxul.</p>
+    }
+    @if (fiscalEdition is not null)
+    {
+        <partial name="_SourceNote" model="fiscalEdition" />
+    }
+    <partial name="_SourceNote" model="websiteSource" />
+</section>
+
+<section id="activitati" class="md-card md-card--outlined profile-section" aria-labelledby="activitati-title">
+    <h2 id="activitati-title" class="md-card__title">Activități</h2>
+    @if (latestStatement?.Statement?.CaenCode is { } mainCode)
+    {
+        <p class="md-typescale-body-large">Activitate principală declarată în situațiile financiare @latestStatement.Year:
+            <strong><span class="md-caen-code">@mainCode</span> @(latestStatement.CaenName ?? "")</strong>
+            @if (latestStatement.Statement.CaenVersion is null) { <span class="md-on-surface-variant">(versiunea CAEN nu este precizată în sursă)</span> }
+        </p>
+    }
+    @if (profile.Activities.Count == 0)
+    {
+        <p class="md-typescale-body-medium md-missing">Registrul nu listează activități autorizate.</p>
+    }
+    else
+    {
+        var shown = 12;
+        <h3 class="md-typescale-title-small">@profile.Activities.Count activități autorizate (CAEN Rev.@profile.Activities[0].Version)</h3>
+        <ul class="md-list activity-list">
+            @foreach (var activity in profile.Activities.Take(shown))
+            {
+                <li class="md-list__item md-list__item--dense"><span class="md-list__leading md-caen-code">@activity.Code</span><span class="md-list__text"><span class="md-list__headline">@(activity.Name ?? "cod fără denumire în nomenclator")</span></span></li>
+            }
+        </ul>
+        @if (profile.Activities.Count > shown)
+        {
+            <details class="facet__more">
+                <summary>Toate activitățile (@profile.Activities.Count)</summary>
+                <ul class="md-list activity-list">
+                    @foreach (var activity in profile.Activities.Skip(shown))
+                    {
+                        <li class="md-list__item md-list__item--dense"><span class="md-list__leading md-caen-code">@activity.Code</span><span class="md-list__text"><span class="md-list__headline">@(activity.Name ?? "cod fără denumire în nomenclator")</span></span></li>
+                    }
+                </ul>
+            </details>
+        }
+    }
+    <partial name="_SourceNote" model="profile.RegistrySource" />
+</section>
+
+<section id="istoric" class="md-card md-card--outlined profile-section" aria-labelledby="istoric-title">
+    <h2 id="istoric-title" class="md-card__title">Istoric</h2>
+    <p class="md-typescale-body-small md-on-surface-variant">Fiecare rând este o perioadă în care datele au rămas la fel, între datele publicațiilor. Schimbările dintre două publicații apar la publicația următoare.</p>
+    <h3 class="md-typescale-title-small">Registrul Comerțului</h3>
+    @if (profile.RegistryHistory.Count == 0)
+    {
+        <p class="md-typescale-body-medium md-missing">Nu apare în instantaneele anterioare ale registrului.</p>
+    }
+    else
+    {
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <thead><tr><th scope="col">Perioada</th><th scope="col">Nr. înregistrare</th><th scope="col">Denumire</th><th scope="col">Localitate</th><th scope="col">Stare</th></tr></thead>
+                <tbody>
+                    @foreach (var period in profile.RegistryHistory.Reverse())
+                    {
+                        <tr>
+                            <td class="md-numeric">@FirmaModel.Date(period.ValidFrom) – @FirmaModel.Date(period.ValidTo)</td>
+                            <td>@period.RegistrationNumber</td>
+                            <td>@period.Name</td>
+                            <td>@(Model.Place(period.LocalityCode ?? period.UatCode) ?? period.Locality)@(Model.County(period.CountyNumber) is { } periodCounty ? $", {periodCounty}" : "")</td>
+                            <td>@Model.Lifecycle(period.Lifecycle)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (profile.HistorySource is { } historySource) { <partial name="_SourceNote" model="historySource" /> }
+    }
+
+    <h3 class="md-typescale-title-small">Date fiscale (MF)</h3>
+    @if (profile.FiscalHistory.Count == 0)
+    {
+        <p class="md-typescale-body-medium md-missing">Nu apare în datele de identificare MF.</p>
+    }
+    else
+    {
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <thead><tr><th scope="col">Perioada</th><th scope="col">Denumire</th><th scope="col">Localitate</th><th scope="col">TVA</th><th scope="col">Stare fiscală</th><th scope="col">Obligații declarate</th></tr></thead>
+                <tbody>
+                    @foreach (var period in profile.FiscalHistory.Reverse())
+                    {
+                        <tr>
+                            <td class="md-numeric">@FirmaModel.Date(period.ValidFrom) – @FirmaModel.Date(period.ValidTo)</td>
+                            <td>@period.Name</td>
+                            <td>@string.Join(", ", new[] { period.Locality, period.County }.Where(item => !string.IsNullOrEmpty(item)))</td>
+                            <td>@(period.VatPayer switch { true => "Da", false => "Nu", null => "—" })</td>
+                            <td>@(period.FiscalStatus ?? "—")</td>
+                            <td>@(period.Obligations.Length == 0 ? "—" : string.Join(", ", period.Obligations.Select(code => FirmaModel.Obligations.TryGetValue(code, out var name) ? $"{code} {name}" : code.ToString(System.Globalization.CultureInfo.InvariantCulture))))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (profile.FiscalSource is { } fiscalHistorySource) { <partial name="_SourceNote" model="fiscalHistorySource" /> }
+    }
+</section>
+
+<section id="financiar" class="md-card md-card--outlined profile-section" aria-labelledby="financiar-title">
+    <h2 id="financiar-title" class="md-card__title">Financiar</h2>
+    @if (company.Cui is null)
+    {
+        <p class="md-typescale-body-medium md-missing">Fără CUI valid, situațiile financiare nu pot fi legate de această înregistrare.</p>
+    }
+    else if (filed.Count == 0)
+    {
+        <p class="md-typescale-body-medium md-missing">Nicio situație financiară depusă în @(profile.Financials.FirstOrDefault()?.Year)–@(profile.Financials.LastOrDefault()?.Year).</p>
+    }
+    else
+    {
+        <p class="md-typescale-body-small md-on-surface-variant">Sume în lei, așa cum au fost publicate. „nedepus” = nicio situație pentru acel an; „—” = câmp necompletat în situația depusă; niciuna nu înseamnă zero. În grafice, o liniuță gri marchează anii fără valoare.</p>
+        <div class="chart-grid">
+            @foreach (var chart in Model.Charts())
+            {
+                <partial name="_BarChart" model="chart" />
+            }
+        </div>
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <caption>Indicatori principali</caption>
+                <thead><tr><th scope="col">An</th><th scope="col" class="md-numeric">Cifra de afaceri</th><th scope="col" class="md-numeric">Profit net</th><th scope="col" class="md-numeric">Pierdere netă</th><th scope="col" class="md-numeric">Salariați</th><th scope="col" class="md-numeric">Capitaluri proprii</th><th scope="col" class="md-numeric">Datorii</th><th scope="col">Formular</th></tr></thead>
+                <tbody>
+                    @foreach (var year in profile.Financials.Reverse())
+                    {
+                        <tr>
+                            <th scope="row" class="md-numeric">@year.Year</th>
+                            @if (year.Statement is not { } statement)
+                            {
+                                <td colspan="7" class="md-missing">nedepus</td>
+                            }
+                            else
+                            {
+                                <td class="md-numeric">@Cell(statement.Turnover)</td>
+                                <td class="md-numeric">@Cell(statement.NetProfit)</td>
+                                <td class="md-numeric">@Cell(statement.NetLoss)</td>
+                                <td class="md-numeric">@Cell(statement.Employees)</td>
+                                <td class="md-numeric">@Cell(statement.Equity)</td>
+                                <td class="md-numeric">@Cell(statement.Liabilities)</td>
+                                <td>@statement.Family@if (statement.QualityFlags.Length > 0) {<span class="md-on-surface-variant"> · valoare imposibilă în sursă, lăsată necompletată</span>}</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <details class="facet__more">
+            <summary>Toți indicatorii publicați</summary>
+            <div class="md-table-wrapper">
+                <table class="md-data-table">
+                    <thead><tr><th scope="col">Indicator</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <th scope="col" class="md-numeric">@year.Year</th> }</tr></thead>
+                    <tbody>
+                        @foreach (var (label, value) in FirmaModel.Indicators)
+                        {
+                            <tr><th scope="row">@label</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <td class="md-numeric">@Cell(value(year.Statement!))</td> }</tr>
+                        }
+                        <tr><th scope="row">Număr mediu de salariați</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <td class="md-numeric">@Cell(year.Statement!.Employees)</td> }</tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+        <p class="md-source">Sursa: Ministerul Finanțelor, situațiile financiare anuale publicate pe data.gov.ro; fișierul și licența fiecărui an:</p>
+        <ul class="source-list">
+            @foreach (var year in filed.AsEnumerable().Reverse().Where(item => item.Source is not null))
+            {
+                var source = year.Source!;
+                <li>@year.Year: @source.Publisher, „@source.Dataset”, <a href="@source.Url" rel="noopener">@source.FileName</a>, @source.License</li>
+            }
+        </ul>
+    }
+</section>
+</div>
+
+@functions {
+    private static Microsoft.AspNetCore.Html.IHtmlContent Cell(decimal? value) => value is { } present
+        ? new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(FirmaModel.Amount(present)))
+        : new Microsoft.AspNetCore.Html.HtmlString("<span class=\"md-missing\" title=\"necompletat\">—<span class=\"md-visually-hidden\"> necompletat</span></span>");
+
+    private static Microsoft.AspNetCore.Html.IHtmlContent Cell(int? value) => Cell((decimal?)value);
+
+    private string AddressText(BusinessIntelligence.Modules.Registry.Registration? registration)
+    {
+        if (registration is null)
+        {
+            return "—";
+        }
+
+        var street = string.Join(" ", new[] { registration.Street, registration.StreetNumber is { } number ? "nr. " + number : null }.Where(item => !string.IsNullOrWhiteSpace(item)));
+        var building = string.Join(", ", new[] {
+            registration.Block is { Length: > 0 } block ? "bl. " + block : null, registration.Staircase is { Length: > 0 } stair ? "sc. " + stair : null,
+            registration.Floor is { Length: > 0 } floor ? "et. " + floor : null, registration.Apartment is { Length: > 0 } apartment ? "ap. " + apartment : null }.Where(item => item is not null));
+        var parts = new[] { street, building, registration.AddressDetails, registration.Sector is { Length: > 0 } sector && sector != "0" ? "sector " + sector : null,
+            Model.Place(registration.LocalityCode ?? registration.UatCode) ?? registration.Locality, Model.County(registration.CountyNumber) ?? registration.County,
+            registration.PostalCode is { Length: > 0 } postal ? "cod poștal " + postal : null };
+        return string.Join(", ", parts.Where(item => !string.IsNullOrWhiteSpace(item)));
+    }
+
+    private static string FiscalAddress(BusinessIntelligence.Modules.Fiscal.TaxpayerPeriod period)
+    {
+        var parts = new[] { period.Street is { } street ? street + (period.StreetNumber is { } number ? " nr. " + number : "") : null,
+            period.Block is { Length: > 0 } block ? "bl. " + block : null, period.Apartment is { Length: > 0 } apartment ? "ap. " + apartment : null,
+            period.AddressDetails, period.Sector is { Length: > 0 } sector && sector != "0" ? "sector " + sector : null, period.Locality, period.County,
+            period.PostalCode is { Length: > 0 } postal ? "cod poștal " + postal : null };
+        return string.Join(", ", parts.Where(item => !string.IsNullOrWhiteSpace(item)));
+    }
+
+    /// <summary>Registry websites are free text; only plain host names become links, always over https.</summary>
+    private static string? WebsiteUrl(string website)
+    {
+        var host = website.Trim();
+        foreach (var prefix in new[] { "https://", "http://" })
+        {
+            if (host.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) { host = host[prefix.Length..]; }
+        }
+
+        host = host.TrimEnd('/');
+        return System.Text.RegularExpressions.Regex.IsMatch(host, @"^[A-Za-z0-9.-]+\.[A-Za-z]{2,}(/[A-Za-z0-9._~/-]*)?$") ? "https://" + host : null;
+    }
+}

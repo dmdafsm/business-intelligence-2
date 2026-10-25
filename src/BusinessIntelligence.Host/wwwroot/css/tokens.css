@@ -119,6 +119,11 @@
   --md-sys-spacing-12: 48px;
   --md-sys-layout-margin: 16px;
   --md-sys-layout-max-width: 1200px;
+
+  /* Chart marks (not M3 roles): checked for contrast and color-vision separation against the surface of each scheme.
+     Losses are also drawn below the baseline, so color is never the only cue. */
+  --md-chart-positive: #6750a4;
+  --md-chart-negative: #b3261e;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -155,6 +160,8 @@
     --md-sys-color-inverse-surface: #e6e0e9;
     --md-sys-color-inverse-on-surface: #322f35;
     --md-sys-color-inverse-primary: #6750a4;
+    --md-chart-positive: #8f74e6;
+    --md-chart-negative: #e05a50;
   }
 }
 

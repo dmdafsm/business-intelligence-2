@@ -122,7 +122,7 @@
     {
       "id": "S06",
       "title": "Company profile",
-      "status": "planned",
+      "status": "completed",
       "path": "steps/s06-profile.md",
       "depends_on": [
         "S02",
@@ -130,7 +130,14 @@
         "S04",
         "S05"
       ],
-      "tasks": []
+      "tasks": [
+        {
+          "id": "S06.1",
+          "title": "Company profile with history, financials and sources",
+          "status": "completed",
+          "note": "tasks/s06-1-profile.md"
+        }
+      ]
     }
   ]
 }

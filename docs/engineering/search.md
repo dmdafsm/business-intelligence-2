@@ -15,7 +15,7 @@ Run `search build` after the registry imports (firms, statuses, activities, hist
 | --- | --- |
 | `search.companies` | One row per company of the published snapshot: identifiers, name key, lifecycle, SIRUTA codes and CAEN tokens |
 | `search.names` | Current names and the other names the company's registrations had in earlier snapshots |
-| `search.registration_numbers` | Every registry number of the company's registrations, normalized |
+| `search.registration_numbers` | Every registry number of the company's registrations, and earlier numbers that the registry history ties to its CUI, normalized |
 | `search.counts` | Companies per county × lifecycle × CAEN code, with "any" rows for each dimension |
 | `search.builds` | One row per build with its report |
 
@@ -24,7 +24,8 @@ Run `search build` after the registry imports (firms, statuses, activities, hist
 - **Identifiers first.** A valid CUI (with or without `RO`, spaces ignored) or a registry number matches exactly. Old-form numbers are compared without leading zeros (`J08/0005/2010` = `J8/5/2010`); new-form numbers (`J2024000100123`) as written. A personal numeric code is never a CUI and finds nothing.
 - **Then names, in tiers:** equal to the query, starting with it, a later word starting with it, every query word starting a word of the name. Within a tier, current names come before earlier names and active companies first. Names are folded (case, diacritics, punctuation); `S.R.L.`/`SRL` and similar spellings are unified, a leading `SC`/`S.C.` is ignored, and legal-form words alone (SRL, SA, PFA…) do not narrow a search.
 - **Approximate names** (pg_trgm word similarity ≥ 0.5 of the query words) are added only when the tiers above find fewer than a page, at most the 100 closest. One wrong letter in a word matches; two in a short query usually do not.
-- An earlier name is shown under the result ("Denumire anterioară").
+- An earlier name is shown under the result ("Denumire anterioară"). An earlier registry number (`J04/2621/1992` for a company now at `J1992002621040`) finds the company too.
+- Each result links to the [company profile](company-profile.md).
 - Name queries need two letters or digits. Pages are 20 results; at most 250 pages are served.
 - **Filters combine** and live in the URL (`q`, `judet`, `localitate`, `caen`, `rev`, `stare`, `pagina`), so every state works without JavaScript and can be linked. County and CAEN filters drill down: county → its UATs, section → division → group → class. The lifecycle counts ignore the lifecycle filter so the alternatives stay visible.
 - **CAEN** groups the activities authorized at ONRC, in the CAEN version of each company's registration (Rev.3 from 2025 or Rev.2). A company appears under each of its activities, so group counts do not add up to the total. Companies still on Rev.2 appear only in the Rev.2 tree; there is no Rev.2 ↔ Rev.3 correspondence yet. An unknown code is named on the page and not applied.
@@ -32,7 +33,7 @@ Run `search build` after the registry imports (firms, statuses, activities, hist
 
 ## Measured on the full registry
 
-Build: 196 s, 300 MB peak memory, 4,126,414 companies, 70,410 earlier names, 4,224,673 registry numbers, 456,014 count rows (Apple M-series laptop, local PostgreSQL 18).
+Build: 263 s, 300 MB peak memory, 4,126,414 companies, 70,410 earlier names, 4,862,067 registry numbers (including earlier ones from history), 456,014 count rows (Apple M-series laptop, local PostgreSQL 18).
 
 Warm response times of the whole page (median of three after a first request), through the local portal:
 

@@ -5,7 +5,7 @@ Date: 2026-10-25. Carried over from the original repository in simplified form; 
 ## Shape
 
 - One ASP.NET Core Razor Pages application (`BusinessIntelligence.Host`) with two roles: the web portal and operator commands (`database migrate`, and import commands added per step). There are no background workers in the MVP; imports run as commands.
-- One class library (`BusinessIntelligence.Modules`) holding modules as namespaces: `Platform` (persistence, hosting), and per step `Registry`, `Fiscal`, `Financials`, `Search`. A module writes only its own tables.
+- One class library (`BusinessIntelligence.Modules`) holding modules as namespaces: `Platform` (persistence, hosting), and per step `Registry`, `Fiscal`, `Financials`, `Search`, `Profile`. A module writes only its own tables; `Profile` only reads the others to assemble a company page.
 - PostgreSQL holds everything: staging tables for imports, published tables for reads, and history.
 
 ## Data flow

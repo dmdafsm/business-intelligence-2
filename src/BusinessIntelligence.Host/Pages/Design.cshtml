@@ -84,6 +84,21 @@
             <span class="md-status md-status--struckoff">Radiată</span>
         </div>
 
+        <h2 class="md-typescale-title-large">Date (facts) și sursă</h2>
+        <dl class="md-facts">
+            <div><dt>CUI</dt><dd>12345678</dd></div>
+            <div><dt>Formă juridică</dt><dd>SRL</dd></div>
+            <div><dt>Telefon</dt><dd><span class="md-missing">nedeclarat</span></dd></div>
+        </dl>
+        <p class="md-source">Sursa: Oficiul Național al Registrului Comerțului, „Firme înregistrate”, 19.10.2026. Licență CC BY 4.0.</p>
+
+        <h2 class="md-typescale-title-large">Grafic</h2>
+        <div class="chart-grid">
+            <partial name="_BarChart" model="@(new BarChart("design-chart", "Profit sau pierdere netă (lei)", "Exemplu: profit, un an nedepus, pierdere, zero.", [
+                new ChartPoint(2021, 120_000, "2021: 120.000"), new ChartPoint(2022, null, "2022: nedepus"),
+                new ChartPoint(2023, -45_000, "2023: -45.000"), new ChartPoint(2024, 0, "2024: 0"), new ChartPoint(2025, 80_000, "2025: 80.000")]))" />
+        </div>
+
         <h2 class="md-typescale-title-large">Paginare</h2>
         <nav class="md-pagination" aria-label="Exemplu de paginare">
             <a class="md-button md-button--outlined" href="#"><md-icon name="chevron-left" />Anterioara</a>
