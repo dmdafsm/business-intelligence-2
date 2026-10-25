@@ -4452,6 +4452,32 @@
    "sha256": "c76ac03c8ef5fb2329863b60eb061a3cf63304e51f247e2f262485eacb6d36a6",
    "year": 2026,
    "localPath": "mf-identification/2026/date_identificare_platitori_2026_b__actualizat_iulie.txt"
+  },
+  {
+   "id": "onrc-reprezentanti-legali-2026-10-19",
+   "kind": "onrc-firme-representatives",
+   "dataset": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
+   "fileName": "OD_REPREZENTANTI_LEGALI.CSV",
+   "url": "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/0b399f98-08dc-43c7-a7b0-63977f89c3c4/download/od_reprezentanti_legali.csv",
+   "publisher": "Oficiul Național al Registrului Comerțului (ONRC)",
+   "license": "CC BY 4.0",
+   "referenceDate": "2026-10-19",
+   "bytes": 336565573,
+   "sha256": "bcff823749f736ac548821c22594a43319d58715f13052cc408419a12c534fbb",
+   "localPath": "onrc-2026-10-19/od_reprezentanti_legali.csv"
+  },
+  {
+   "id": "onrc-reprezentanti-if-2026-10-19",
+   "kind": "onrc-firme-family-members",
+   "dataset": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
+   "fileName": "OD_REPREZENTANTI_IF.CSV",
+   "url": "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/6e451c0f-809e-4343-a8a1-8a19905fd349/download/od_reprezentanti_if.csv",
+   "publisher": "Oficiul Național al Registrului Comerțului (ONRC)",
+   "license": "CC BY 4.0",
+   "referenceDate": "2026-10-19",
+   "bytes": 13299278,
+   "sha256": "4485bcda5b7035cb1b87a3e17fbccf66a0e0d48bf29de47199c049401183154e",
+   "localPath": "onrc-2026-10-19/od_reprezentanti_if.csv"
   }
  ]
 }

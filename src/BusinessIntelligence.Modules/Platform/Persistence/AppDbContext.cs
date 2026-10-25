@@ -14,6 +14,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<RegistrationStatus> RegistrationStatuses => Set<RegistrationStatus>();
     public DbSet<CompanyActivity> CompanyActivities => Set<CompanyActivity>();
+    public DbSet<Representative> Representatives => Set<Representative>();
     public DbSet<RegistrationPeriod> RegistrationPeriods => Set<RegistrationPeriod>();
     public DbSet<HistorySnapshot> HistorySnapshots => Set<HistorySnapshot>();
     public DbSet<Financials.FinancialStatement> FinancialStatements => Set<Financials.FinancialStatement>();

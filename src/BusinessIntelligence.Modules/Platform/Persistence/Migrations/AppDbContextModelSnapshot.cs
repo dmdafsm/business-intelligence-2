@@ -821,6 +821,79 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("registration_statuses", "registry");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.Representative", b =>
+                {
+                    b.Property<int>("SnapshotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("snapshot_id");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_number");
+
+                    b.Property<string>("BirthCountry")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_country");
+
+                    b.Property<string>("BirthCounty")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_county");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date")
+                        .HasColumnName("birth_date");
+
+                    b.Property<string>("BirthDateText")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_date_text");
+
+                    b.Property<string>("BirthLocality")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_locality");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text")
+                        .HasColumnName("country");
+
+                    b.Property<string>("County")
+                        .HasColumnType("text")
+                        .HasColumnName("county");
+
+                    b.Property<string>("Locality")
+                        .HasColumnType("text")
+                        .HasColumnName("locality");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PersonKind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("person_kind");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("registration_number");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.HasKey("SnapshotId", "Source", "RowNumber")
+                        .HasName("pk_representatives");
+
+                    b.HasIndex("SnapshotId", "RegistrationNumber")
+                        .HasDatabaseName("ix_representatives_snapshot_id_registration_number");
+
+                    b.ToTable("representatives", "registry");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.SirutaPlace", b =>
                 {
                     b.Property<int>("Code")
