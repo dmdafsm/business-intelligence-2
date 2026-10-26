@@ -66,6 +66,19 @@
    "localPath": "onrc-2026-10-19/N_STARE_FIRMA.CSV"
   },
   {
+   "id": "ins-caen-correspondence-2026-09",
+   "kind": "caen-correspondence",
+   "dataset": "Tabel corespondență CAEN Rev.2 - CAEN Rev.3 (septembrie 2026)",
+   "fileName": "Tabel-Corespondenta-CAEN-Rev.2-CAEN-Rev.3_septembrie-2026.xlsx",
+   "url": "https://insse.ro/cms/files/CAEN/Tabel-Corespondenta-CAEN-Rev.2-CAEN-Rev.3_septembrie-2026.xlsx",
+   "publisher": "Institutul Național de Statistică (INS)",
+   "license": "OGL-ROU-1.0",
+   "referenceDate": "2026-09-01",
+   "bytes": 65800,
+   "sha256": "19a1f2e67e9314efa72f14a8f65af9f45c74d39dcd49661556a76ee219c4b68e",
+   "localPath": "caen-correspondence/Tabel-Corespondenta-CAEN-Rev.2-CAEN-Rev.3_septembrie-2026.xlsx"
+  },
+  {
    "id": "ins-siruta-s1-2024",
    "kind": "siruta",
    "dataset": "SIRUTA S1 2024",

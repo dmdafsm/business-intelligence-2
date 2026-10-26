@@ -17,6 +17,15 @@ public sealed class FinancialStatement
 
     /// <summary>2 (Rev.2) for 2008–2024; null when the year mixes versions (2025).</summary>
     public short? CaenVersion { get; set; }
+
+    /// <summary>
+    /// The CAEN Rev.3 class derived for a statement whose version the source leaves open (2025), with how
+    /// (<see cref="StatementClasses"/>); null when the version is published or no single class follows. The published
+    /// <see cref="CaenCode"/> and <see cref="CaenVersion"/> are never changed.
+    /// </summary>
+    public short? ClassVersion { get; set; }
+    public string? ClassCode { get; set; }
+    public string? ClassMethod { get; set; }
     public int SourceFileId { get; set; }
 
     public decimal? FixedAssets { get; set; }
@@ -61,6 +70,7 @@ public static class FinancialsPersistence
             entity.HasKey(item => new { item.Cui, item.Year });
             entity.HasIndex(item => new { item.Year, item.Family });
             entity.Property(item => item.QualityFlags).HasDefaultValueSql("'{}'::text[]");
+            entity.Property(item => item.ClassMethod).HasMaxLength(16);
             foreach (var property in entity.Metadata.GetProperties().Where(property => property.ClrType == typeof(decimal?)))
             {
                 property.SetPrecision(20);

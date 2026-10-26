@@ -60,7 +60,14 @@ public sealed record BenchmarkRow(IndicatorDefinition Indicator, IndicatorValue 
 /// The latest year whose statement has a known CAEN version, compared with the same class in that year. For each indicator
 /// the company's size band is used when it has percentiles, otherwise all sizes.
 /// </summary>
-public sealed record FinancialComparison(short Year, short CaenVersion, string CaenCode, string? CaenName, string? SizeBand, IReadOnlyList<BenchmarkRow> Rows);
+public sealed record FinancialComparison(short Year, short CaenVersion, string CaenCode, string? CaenName, string? SizeBand, IReadOnlyList<BenchmarkRow> Rows)
+{
+    /// <summary>How the class was derived (<see cref="StatementClasses"/>) when the source left the version open; null when published.</summary>
+    public string? ClassMethod { get; init; }
+
+    /// <summary>The code as declared in the statement, when it differs from the class compared.</summary>
+    public string? DeclaredCode { get; init; }
+}
 
 /// <summary>Everything public about one company, read from the registry, fiscal and financial modules. Nothing is derived beyond labels.</summary>
 public sealed record CompanyProfile
@@ -241,9 +248,9 @@ public sealed class CompanyProfileQuery(AppDbContext database)
 
         var sourceIds = statements.Select(item => item.SourceFileId).Distinct().ToList();
         var sources = await database.SourceFiles.AsNoTracking().Where(item => sourceIds.Contains(item.Id)).ToDictionaryAsync(item => item.Id, cancellationToken);
-        var codes = statements.Where(item => item.CaenCode is not null).Select(item => item.CaenCode!).Distinct().ToList();
-        var caen = await database.Caen.AsNoTracking().Where(item => item.Version == 2 && item.Level == "class" && codes.Contains(item.Code))
-            .ToDictionaryAsync(item => item.Code, item => item.Name, cancellationToken);
+        var codes = statements.Select(StatementClasses.Of).Where(item => item.Code is not null).Select(item => item.Code!).Distinct().ToList();
+        var caen = await database.Caen.AsNoTracking().Where(item => (item.Version == 2 || item.Version == 3) && item.Level == "class" && codes.Contains(item.Code))
+            .ToDictionaryAsync(item => (item.Version, item.Code), item => item.Name, cancellationToken);
 
         var registered = registrations.Select(item => item.RegistrationDate).Append(company.FirstRegistrationDate).OfType<DateOnly>().DefaultIfEmpty().Min();
         var first = (short)Math.Max(publishedYears.Min(), registered == default ? publishedYears.Min() : registered.Year);
@@ -254,22 +261,23 @@ public sealed class CompanyProfileQuery(AppDbContext database)
         {
             var statement = byYear.GetValueOrDefault((short)year);
             return new FinancialYear((short)year, statement, statement is null ? null : sources.GetValueOrDefault(statement.SourceFileId),
-                statement is { CaenCode: { } code, CaenVersion: 2 } ? caen.GetValueOrDefault(code) : null);
+                statement is not null && StatementClasses.Of(statement) is ({ } version, { } code) ? caen.GetValueOrDefault((version, code)) : null);
         })];
     }
 
     private async Task<FinancialComparison?> ComparisonAsync(List<FinancialYear> financials, CancellationToken cancellationToken)
     {
-        var year = financials.LastOrDefault(item => item.Statement is { CaenVersion: not null, CaenCode: not null });
+        var year = financials.LastOrDefault(item => item.Statement is { } filed && StatementClasses.Of(filed).Version is not null);
         if (year?.Statement is not { } statement)
         {
             return null;
         }
 
-        var version = statement.CaenVersion!.Value;
+        var (classVersion, classCode) = StatementClasses.Of(statement);
+        var version = classVersion!.Value;
         var band = FinancialIndicators.SizeBand(statement.Employees);
         var cohorts = await database.FinancialBenchmarks.AsNoTracking()
-            .Where(item => item.Year == year.Year && item.CaenVersion == version && item.CaenCode == statement.CaenCode
+            .Where(item => item.Year == year.Year && item.CaenVersion == version && item.CaenCode == classCode
                 && (item.SizeBand == band || item.SizeBand == FinancialIndicators.AllSizes))
             .ToListAsync(cancellationToken);
         if (cohorts.Count == 0)
@@ -284,7 +292,12 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             var all = cohorts.FirstOrDefault(item => item.Indicator == indicator.Key && item.SizeBand == FinancialIndicators.AllSizes);
             return new BenchmarkRow(indicator, FinancialIndicators.Calculate(indicator, statement, previous), own ?? all);
         }).ToList();
-        return new FinancialComparison(year.Year, version, statement.CaenCode!, year.CaenName, band, rows);
+        var derived = statement.CaenVersion is null;
+        return new FinancialComparison(year.Year, version, classCode!, year.CaenName, band, rows)
+        {
+            ClassMethod = derived ? statement.ClassMethod : null,
+            DeclaredCode = derived && statement.CaenCode != classCode ? statement.CaenCode : null,
+        };
     }
 
     /// <summary>Linked registrations listed per representative; the rest are counted.</summary>
