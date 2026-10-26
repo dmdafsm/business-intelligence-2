@@ -36,7 +36,7 @@ public static class PortalApplication
         builder.Services.AddRazorPages(options =>
         {
             options.Conventions.AuthorizeFolder("/Admin");
-            options.Conventions.AllowAnonymousToPage("/Admin/Intrare");
+            options.Conventions.AllowAnonymousToPage("/Admin/SignIn");
         });
 
         var app = builder.Build();

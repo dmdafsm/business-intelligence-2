@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessIntelligence.Host.Pages.Admin;
 
-public sealed class RulareModel(AppDbContext database, OperatorAccess access, TimeProvider time) : PageModel
+public sealed class RunModel(AppDbContext database, OperatorAccess access, TimeProvider time) : PageModel
 {
     /// <summary>The page shows the end of the log; the full log is a text download.</summary>
     public const int ShownLines = 1000;

@@ -13,7 +13,7 @@ namespace BusinessIntelligence.Modules.Registry.Onrc;
 /// registry number, resolve SIRUTA geography, group registrations into companies by CUI, then switch the published
 /// snapshot and delete the previous one. Readers keep seeing the previous snapshot until the commit.
 /// </summary>
-public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
+public sealed class ImportOnrcCompanies(AppDbContext database, TimeProvider time)
 {
     public const string Kind = "onrc-firme";
 
@@ -25,7 +25,7 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         }
 
         var existing = await database.SourceFiles.AsNoTracking()
-            .FirstOrDefaultAsync(item => item.Sha256 == file.Sha256 && item.ParserVersion == OnrcFirmeReader.ParserVersion, cancellationToken);
+            .FirstOrDefaultAsync(item => item.Sha256 == file.Sha256 && item.ParserVersion == OnrcCompanyReader.ParserVersion, cancellationToken);
         if (existing is not null)
         {
             return new ImportResult(ImportOutcome.AlreadyImported, existing.Id, new Dictionary<string, object>());
@@ -42,15 +42,15 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         var connection = (NpgsqlConnection)database.Database.GetDbConnection();
         await using var transaction = await database.Database.BeginTransactionAsync(cancellationToken);
 
-        var source = RegistryImports.NewSourceFile(file, OnrcFirmeReader.ParserVersion, time, "{}");
+        var source = RegistryImports.NewSourceFile(file, OnrcCompanyReader.ParserVersion, time, "{}");
         database.SourceFiles.Add(source);
         await database.SaveChangesAsync(cancellationToken);
 
         await ExecuteAsync(connection, Sql.CreateStaging, cancellationToken);
-        var counts = new FirmeReadCounts();
+        var counts = new CompanyReadCounts();
         await using (var stream = VerifiedFileStream.Open(path, file))
         {
-            await CopyRowsAsync(connection, OnrcFirmeReader.ReadAsync(stream, counts, cancellationToken), cancellationToken);
+            await CopyRowsAsync(connection, OnrcCompanyReader.ReadAsync(stream, counts, cancellationToken), cancellationToken);
             stream.EnsureComplete();
         }
 
@@ -88,7 +88,7 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         return new ImportResult(ImportOutcome.Published, source.Id, report);
     }
 
-    private static async Task CopyRowsAsync(NpgsqlConnection connection, IAsyncEnumerable<FirmeRow> rows, CancellationToken cancellationToken)
+    private static async Task CopyRowsAsync(NpgsqlConnection connection, IAsyncEnumerable<CompanyRow> rows, CancellationToken cancellationToken)
     {
         await using var writer = await connection.BeginBinaryImportAsync(Sql.CopyStaging, cancellationToken);
         await foreach (var row in rows)

@@ -53,15 +53,15 @@ public sealed class RegistryParsingTests
     }
 
     [Fact]
-    public async Task FirmeRowsAreTrimmedDatesParsedAndPersonalCodesDropped()
+    public async Task CompanyRowsAreTrimmedDatesParsedAndPersonalCodesDropped()
     {
         var csv = "﻿DENUMIRE^CUI^COD_INMATRICULARE^DATA_INMATRICULARE^EUID^FORMA_JURIDICA^ADR_TARA^ADR_JUDET^ADR_LOCALITATE^ADR_DEN_STRADA^ADR_NR_STRADA^ADR_BLOC^ADR_SCARA^ADR_ETAJ^ADR_APARTAMENT^ADR_COD_POSTAL^ADR_SECTOR^ADR_COMPLETARE^WEB^TARA_FIRMA_MAMA\r\n" +
             "EXEMPLU SRL^10960940^J40/1/2000^13/02/2000^ROONRC.J40/1/2000^SRL^România^Cluj^Cluj-Napoca^Str. A^1^^^^^  400001^^^www.exemplu.ro^\r\n" +
             "POPESCU ION PF^1850101123456^F12/2/1995^14/08/2026 09:23:04^ROONRC.F12/2/1995^PF^România^Cluj^Cluj-Napoca^Str. B^2^^^^^^^^^\r\n" +
             "FARA NUMAR SRL^0^ ^99/99/2000^^SRL^România^^^^^^^^^^^^^\r\n";
-        var counts = new FirmeReadCounts();
-        var rows = new List<FirmeRow>();
-        await foreach (var row in OnrcFirmeReader.ReadAsync(new MemoryStream(Encoding.UTF8.GetBytes(csv)), counts, CancellationToken.None))
+        var counts = new CompanyReadCounts();
+        var rows = new List<CompanyRow>();
+        await foreach (var row in OnrcCompanyReader.ReadAsync(new MemoryStream(Encoding.UTF8.GetBytes(csv)), counts, CancellationToken.None))
         {
             rows.Add(row);
         }
@@ -81,10 +81,10 @@ public sealed class RegistryParsingTests
     [Fact]
     public async Task UnexpectedHeaderIsRejected()
     {
-        var counts = new FirmeReadCounts();
+        var counts = new CompanyReadCounts();
         await Assert.ThrowsAsync<InvalidDataException>(async () =>
         {
-            await foreach (var _ in OnrcFirmeReader.ReadAsync(new MemoryStream("A^B\n"u8.ToArray()), counts, CancellationToken.None))
+            await foreach (var _ in OnrcCompanyReader.ReadAsync(new MemoryStream("A^B\n"u8.ToArray()), counts, CancellationToken.None))
             {
             }
         });

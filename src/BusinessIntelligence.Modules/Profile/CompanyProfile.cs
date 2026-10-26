@@ -88,7 +88,7 @@ public sealed class CompanyProfileQuery(AppDbContext database)
 
     public async Task<CompanyProfile?> ExecuteAsync(long? cui, string? registrationNumber, CancellationToken cancellationToken)
     {
-        var firme = await database.PublishedDatasets.AsNoTracking().Where(item => item.Kind == ImportOnrcFirme.Kind)
+        var firme = await database.PublishedDatasets.AsNoTracking().Where(item => item.Kind == ImportOnrcCompanies.Kind)
             .Join(database.SourceFiles, item => item.SourceFileId, file => file.Id, (_, file) => file).FirstOrDefaultAsync(cancellationToken);
         if (firme is null || (cui is null && string.IsNullOrWhiteSpace(registrationNumber)))
         {

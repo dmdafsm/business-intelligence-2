@@ -71,7 +71,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
         database.SourceFiles.Add(source);
         await database.SaveChangesAsync(cancellationToken);
 
-        await ImportOnrcFirme.ExecuteAsync(connection,
+        await ImportOnrcCompanies.ExecuteAsync(connection,
             "CREATE TEMP TABLE award_rows (LIKE procurement.awards INCLUDING DEFAULTS) ON COMMIT DROP", cancellationToken);
         await using (var writer = await connection.BeginBinaryImportAsync(Copy, cancellationToken))
         {
@@ -92,7 +92,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
         const string Contract = "PARTITION BY authority_cui, authority_name, reference, lot, contract_number";
         var winners = contracts ? $"count(*) OVER ({Contract})::smallint, row_number() OVER ({Contract} ORDER BY row_number) = 1" : "winners, true";
         winners += ", coalesce(contract_date, published_on)";
-        await ImportOnrcFirme.ExecuteAsync(connection, $"""
+        await ImportOnrcCompanies.ExecuteAsync(connection, $"""
             INSERT INTO procurement.awards ({Columns}, first_winner, awarded_on)
             SELECT {Columns.Replace("winners", winners, StringComparison.Ordinal)}
             FROM award_rows
@@ -102,7 +102,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
         var previous = await RegistryImports.PublishAsync(database, kind, source.Id, time, cancellationToken);
         if (previous is { } old && old != source.Id)
         {
-            await ImportOnrcFirme.ExecuteAsync(connection, "DELETE FROM procurement.awards WHERE source_file_id = @old", cancellationToken, ("old", old));
+            await ImportOnrcCompanies.ExecuteAsync(connection, "DELETE FROM procurement.awards WHERE source_file_id = @old", cancellationToken, ("old", old));
         }
 
         var report = new Dictionary<string, object>
@@ -192,7 +192,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
         await writer.WriteAsync(winnerState.ToString(), NpgsqlDbType.Text, cancellationToken);
         await writer.WriteAsync((short)1, NpgsqlDbType.Smallint, cancellationToken);
 
-        Task Text(string? text) => ImportOnrcFirme.WriteAsync(writer, text, cancellationToken);
+        Task Text(string? text) => ImportOnrcCompanies.WriteAsync(writer, text, cancellationToken);
 
         async Task Number(long? number)
         {
