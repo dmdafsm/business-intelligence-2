@@ -111,6 +111,24 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
         }, NoScript);
 
     [Fact]
+    public Task RepresentativesLinkToTheirOtherCompaniesWithAWarning() =>
+        portal.WithPageAsync(nameof(RepresentativesLinkToTheirOtherCompaniesWithAWarning), async page =>
+        {
+            await page.GotoAsync(portal.Address + $"/firma/{SearchFixtures.ExempluSoft}");
+            var people = page.GetByRole(AriaRole.Region, new() { Name = "Persoane" });
+            var ana = people.GetByRole(AriaRole.Row).Filter(new() { HasText = "POPESCU ANA" });
+            await ana.GetByText("1 firmă").ClickAsync();
+            await ana.GetByRole(AriaRole.Link, new() { Name = "S.C. ALFA EXEMPLU S.R.L." }).ClickAsync();
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex($"/firma/{SearchFixtures.AlfaExemplu}$"));
+
+            await page.GoBackAsync();
+            await Assertions.Expect(people).ToContainTextAsync("legătura poate uni persoane diferite cu aceleași date");
+            // Only the birth year is shown, never the full date or the place of birth.
+            await Assertions.Expect(people).Not.ToContainTextAsync("05.03.1980");
+            await Assertions.Expect(people).Not.ToContainTextAsync("Turda");
+        }, NoScript);
+
+    [Fact]
     public Task IndividualsWithoutCuiHideContactsAndUnknownCompaniesAreNotFound() =>
         portal.WithPageAsync(nameof(IndividualsWithoutCuiHideContactsAndUnknownCompaniesAreNotFound), async page =>
         {

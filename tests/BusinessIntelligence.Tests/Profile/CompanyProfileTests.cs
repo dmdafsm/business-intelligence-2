@@ -1,5 +1,6 @@
 using BusinessIntelligence.Modules.Financials;
 using BusinessIntelligence.Modules.Profile;
+using BusinessIntelligence.Modules.Registry.Onrc;
 using BusinessIntelligence.Modules.Search;
 using BusinessIntelligence.Tests.Infrastructure;
 using BusinessIntelligence.Tests.Search;
@@ -33,7 +34,14 @@ public sealed class CompanyProfileTests(PostgresFixture postgres) : IClassFixtur
         Assert.Equal(
             [new PersonEntry("J2024000100123", "POPESCU ANA", "administrator", "natural", 1980, null),
              new PersonEntry("J2024000100123", "EXEMPLU INSOLV IPURL", "lichidator judiciar", "legal", null, "Cluj-Napoca, Cluj, România")],
-            profile.People);
+            profile.People.Select(item => item with { Others = [], OtherCount = 0 }));
+
+        // ADR 0004: POPESCU ANA is linked to ALFA EXEMPLU (same name, birth date and place, spelled differently), not to the
+        // namesake born in Arad; the liquidator has no other firm here.
+        var ana = profile.People[0];
+        Assert.Equal(1, ana.OtherCount);
+        Assert.Equal(new LinkedRegistration("J40/3/2005", "S.C. ALFA EXEMPLU S.R.L.", SearchFixtures.AlfaExemplu, Lifecycle.Active, "asociat unic"), Assert.Single(ana.Others));
+        Assert.Equal(0, profile.People[1].OtherCount);
 
         // Every year of the range; years without a statement stay empty, blank cells stay null, zero stays zero.
         Assert.Equal([2010, 2011, 2012, 2013, 2014], profile.Financials.Select(year => (int)year.Year));

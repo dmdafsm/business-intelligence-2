@@ -172,7 +172,7 @@
         <div class="md-table-wrapper">
             <table class="md-data-table">
                 <caption class="md-visually-hidden">Administratori și reprezentanți</caption>
-                <thead><tr><th scope="col">Nume</th><th scope="col">Calitate</th><th scope="col">Născut(ă) / sediu</th>@if (severalRegistrations) {<th scope="col">Nr. înregistrare</th>}</tr></thead>
+                <thead><tr><th scope="col">Nume</th><th scope="col">Calitate</th><th scope="col">Născut(ă) / sediu</th>@if (severalRegistrations) {<th scope="col">Nr. înregistrare</th>}<th scope="col">Alte firme</th></tr></thead>
                 <tbody>
                     @foreach (var person in profile.People)
                     {
@@ -186,13 +186,35 @@
                                 _ => "—",
                             })</td>
                             @if (severalRegistrations) {<td>@person.RegistrationNumber</td>}
+                            <td>
+                                @if (person.OtherCount == 0)
+                                {
+                                    <span class="md-on-surface-variant">—</span>
+                                }
+                                else
+                                {
+                                    <details class="person-links">
+                                        <summary>@(person.OtherCount == 1 ? "1 firmă" : $"{person.OtherCount.ToString("N0", ro)} firme")</summary>
+                                        <ul>
+                                            @foreach (var other in person.Others)
+                                            {
+                                                <li><a href="@(other.Cui is { } otherCui ? Url.Page("/Company", new { cui = otherCui }) : Url.Page("/Company", new { nr = other.RegistrationNumber }))">@(other.Name ?? other.RegistrationNumber)</a>@if (other.Lifecycle is { } state && state != BusinessIntelligence.Modules.Registry.Onrc.Lifecycle.Active) {<span class="md-on-surface-variant"> · @Model.Lifecycle(state).ToLowerInvariant()</span>}@if (!string.IsNullOrEmpty(other.Role)) {<span class="md-on-surface-variant"> · @other.Role</span>}</li>
+                                            }
+                                        </ul>
+                                        @if (person.OtherCount > person.Others.Count)
+                                        {
+                                            <p class="md-typescale-body-small md-on-surface-variant">și încă @((person.OtherCount - person.Others.Count).ToString("N0", ro)); sunt afișate întâi cele active.</p>
+                                        }
+                                    </details>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
     }
-    <p class="md-typescale-body-small md-on-surface-variant">Pentru persoanele fizice se afișează doar numele, calitatea și anul nașterii. Aceeași persoană poate apărea la mai multe firme, iar nume identice pot aparține unor persoane diferite. Asociații și beneficiarii reali nu sunt publicați de ONRC ca date deschise.</p>
+    <p class="md-typescale-body-small md-on-surface-variant">Pentru persoanele fizice se afișează doar numele, calitatea și anul nașterii. „Alte firme” leagă înregistrările unde registrul are același nume, aceeași dată și același loc de naștere (pentru firme: aceeași denumire). Registrul nu are un identificator personal, deci legătura poate uni persoane diferite cu aceleași date sau poate omite aceeași persoană scrisă altfel. Asociații și beneficiarii reali nu sunt publicați de ONRC ca date deschise.</p>
     <partial name="_SourceNote" model="peopleSource" />
 </section>
 

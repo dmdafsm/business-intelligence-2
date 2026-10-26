@@ -154,6 +154,12 @@
           "title": "Import ONRC representatives and show them on the profile",
           "status": "completed",
           "note": "tasks/s07-1-representatives.md"
+        },
+        {
+          "id": "S07.2",
+          "title": "Link representatives across companies on the profile",
+          "status": "completed",
+          "note": "tasks/s07-2-person-links.md"
         }
       ]
     },

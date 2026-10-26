@@ -1,6 +1,6 @@
 # ADR 0001: Representatives: keep every published field, show name, role and birth year
 
-Status: accepted by the maintainer. Date: 2026-10-25. Related tasks: S07.1.
+Status: accepted by the maintainer; the rule against linking people across companies is replaced by [ADR 0004](0004-linking-representatives.md). Date: 2026-10-25. Related tasks: S07.1.
 
 ## Context
 
@@ -12,7 +12,7 @@ The maintainer decided (2026-10-25): **store every published column internally; 
 
 - `registry.representatives` keeps all columns of both files, per snapshot, with a `person_kind`: natural (a birth date is given), legal (no birth date, an address is given) or unknown.
 - Pages read representatives only through `CompanyProfileQuery`, which selects name, role, birth year and, for legal persons only, locality, county and country. Full birth date, place of birth and anything else stay in the database.
-- People are not linked across companies (no person pages, no search by person): name plus birth data does not identify a person, and homonyms exist.
+- People are not linked across companies (no person pages, no search by person): name plus birth data does not identify a person, and homonyms exist. Changed on 2026-10-26 by [ADR 0004](0004-linking-representatives.md): the profile links representatives with identical name, birth date and place of birth, with a warning; there are still no person pages or search by person.
 - A new ONRC snapshot replaces the previous snapshot's representatives, as with the other annexes.
 
 ## Alternatives and consequences

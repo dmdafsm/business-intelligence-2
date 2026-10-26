@@ -145,6 +145,12 @@ public sealed class Representative
     public string? County { get; set; }
     public string? Country { get; set; }
 
+    /// <summary>
+    /// The key that links the same representative across registrations (ADR 0004): folded name, birth date and place of
+    /// birth for natural persons, folded name for firms; null when those are missing. See <see cref="Onrc.RepresentativeKeys"/>.
+    /// </summary>
+    public string? PersonKey { get; set; }
+
     /// <summary>natural (a birth date is given), legal (no birth date, an address is given) or unknown.</summary>
     public required string PersonKind { get; set; }
 }
@@ -290,6 +296,7 @@ public static class RegistryPersistence
             entity.ToTable("representatives", Schema);
             entity.HasKey(item => new { item.SnapshotId, item.Source, item.RowNumber });
             entity.HasIndex(item => new { item.SnapshotId, item.RegistrationNumber });
+            entity.HasIndex(item => new { item.SnapshotId, item.PersonKey });
         });
         builder.Entity<Company>(entity =>
         {

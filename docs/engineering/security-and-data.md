@@ -18,7 +18,7 @@ Do not invent values. A missing filing is not a zero, an absent field is not "no
 
 ## Personal data
 
-Registry and fiscal data are about companies, but some fields identify people (sole traders' names, representatives, phone numbers). Import only the fields a step needs, except where a decision says otherwise: representatives keep every published column internally and pages show natural persons with name, role and birth year only ([ADR 0001](decisions/0001-representatives-personal-data.md)). The database therefore holds birth dates and places of birth: treat dumps and backups as personal data and keep database access operator-only. Do not link people across companies or build person pages without a new decision.
+Registry and fiscal data are about companies, but some fields identify people (sole traders' names, representatives, phone numbers). Import only the fields a step needs, except where a decision says otherwise: representatives keep every published column internally and pages show natural persons with name, role and birth year only ([ADR 0001](decisions/0001-representatives-personal-data.md)). The database therefore holds birth dates and places of birth: treat dumps and backups as personal data and keep database access operator-only. The profile links representatives across companies only by identical name, birth date and place of birth, with a warning ([ADR 0004](decisions/0004-linking-representatives.md)); do not build person pages or search by person without a new decision.
 
 ## CI and reporting
 
