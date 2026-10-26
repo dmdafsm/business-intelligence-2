@@ -23,6 +23,82 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Anaf.AnafStatus", b =>
+                {
+                    b.Property<long>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<DateOnly>("CheckedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("checked_on");
+
+                    b.Property<string>("CaenCode")
+                        .HasColumnType("text")
+                        .HasColumnName("caen_code");
+
+                    b.Property<bool?>("CashAccountingVat")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cash_accounting_vat");
+
+                    b.Property<DateOnly?>("CashAccountingVatSince")
+                        .HasColumnType("date")
+                        .HasColumnName("cash_accounting_vat_since");
+
+                    b.Property<DateOnly?>("DeregisteredOn")
+                        .HasColumnType("date")
+                        .HasColumnName("deregistered_on");
+
+                    b.Property<bool?>("EInvoice")
+                        .HasColumnType("boolean")
+                        .HasColumnName("e_invoice");
+
+                    b.Property<DateOnly?>("EInvoiceSince")
+                        .HasColumnType("date")
+                        .HasColumnName("e_invoice_since");
+
+                    b.Property<bool>("Found")
+                        .HasColumnType("boolean")
+                        .HasColumnName("found");
+
+                    b.Property<bool?>("Inactive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("inactive");
+
+                    b.Property<DateOnly?>("InactiveSince")
+                        .HasColumnType("date")
+                        .HasColumnName("inactive_since");
+
+                    b.Property<DateOnly?>("ReactivatedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("reactivated_on");
+
+                    b.Property<string>("RegistrationStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("registration_status");
+
+                    b.Property<bool?>("SplitVat")
+                        .HasColumnType("boolean")
+                        .HasColumnName("split_vat");
+
+                    b.Property<string>("TaxOffice")
+                        .HasColumnType("text")
+                        .HasColumnName("tax_office");
+
+                    b.Property<bool?>("VatPayer")
+                        .HasColumnType("boolean")
+                        .HasColumnName("vat_payer");
+
+                    b.Property<string>("VatPeriods")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("vat_periods");
+
+                    b.HasKey("Cui", "CheckedOn")
+                        .HasName("pk_statuses");
+
+                    b.ToTable("statuses", "anaf");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Financials.FinancialStatement", b =>
                 {
                     b.Property<long>("Cui")
@@ -370,6 +446,325 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("taxpayer_periods", "fiscal");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Funds.FundProject", b =>
+                {
+                    b.Property<int>("SourceFileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_file_id");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_number");
+
+                    b.Property<long?>("BeneficiaryCui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("beneficiary_cui");
+
+                    b.Property<string>("BeneficiaryName")
+                        .HasColumnType("text")
+                        .HasColumnName("beneficiary_name");
+
+                    b.Property<string>("BeneficiaryNameKey")
+                        .HasColumnType("text")
+                        .HasColumnName("beneficiary_name_key")
+                        .UseCollation("C");
+
+                    b.Property<decimal?>("ContractedValue")
+                        .HasPrecision(20, 2)
+                        .HasColumnType("numeric(20,2)")
+                        .HasColumnName("contracted_value");
+
+                    b.Property<string>("County")
+                        .HasColumnType("text")
+                        .HasColumnName("county");
+
+                    b.Property<short?>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<decimal?>("EligibleValue")
+                        .HasPrecision(20, 2)
+                        .HasColumnType("numeric(20,2)")
+                        .HasColumnName("eligible_value");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("Locality")
+                        .HasColumnType("text")
+                        .HasColumnName("locality");
+
+                    b.Property<decimal?>("PaidValue")
+                        .HasPrecision(20, 2)
+                        .HasColumnType("numeric(20,2)")
+                        .HasColumnName("paid_value");
+
+                    b.Property<string>("Programme")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("programme");
+
+                    b.Property<string>("ProjectCode")
+                        .HasColumnType("text")
+                        .HasColumnName("project_code");
+
+                    b.Property<DateOnly?>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<decimal?>("TotalValue")
+                        .HasPrecision(20, 2)
+                        .HasColumnType("numeric(20,2)")
+                        .HasColumnName("total_value");
+
+                    b.HasKey("SourceFileId", "RowNumber")
+                        .HasName("pk_projects");
+
+                    b.HasIndex("BeneficiaryCui")
+                        .HasDatabaseName("ix_projects_beneficiary_cui");
+
+                    b.HasIndex("BeneficiaryNameKey", "CountyNumber")
+                        .HasDatabaseName("ix_projects_beneficiary_name_key_county_number");
+
+                    b.ToTable("projects", "funds");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Licences.Licence", b =>
+                {
+                    b.Property<int>("SourceFileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_file_id");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_number");
+
+                    b.Property<string>("Activity")
+                        .HasColumnType("text")
+                        .HasColumnName("activity");
+
+                    b.Property<string>("Authority")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("authority");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text")
+                        .HasColumnName("details");
+
+                    b.Property<long?>("HolderCui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("holder_cui");
+
+                    b.Property<string>("HolderName")
+                        .HasColumnType("text")
+                        .HasColumnName("holder_name");
+
+                    b.Property<string>("HolderNameKey")
+                        .HasColumnType("text")
+                        .HasColumnName("holder_name_key")
+                        .UseCollation("C");
+
+                    b.Property<string>("Place")
+                        .HasColumnType("text")
+                        .HasColumnName("place");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.HasKey("SourceFileId", "RowNumber")
+                        .HasName("pk_licences");
+
+                    b.HasIndex("HolderCui")
+                        .HasDatabaseName("ix_licences_holder_cui");
+
+                    b.HasIndex("HolderNameKey")
+                        .HasDatabaseName("ix_licences_holder_name_key");
+
+                    b.ToTable("licences", "licences");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Procurement.ProcurementAward", b =>
+                {
+                    b.Property<int>("SourceFileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_file_id");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_number");
+
+                    b.Property<long?>("AuthorityCui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("authority_cui");
+
+                    b.Property<string>("AuthorityName")
+                        .HasColumnType("text")
+                        .HasColumnName("authority_name");
+
+                    b.Property<DateOnly?>("AwardedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("awarded_on");
+
+                    b.Property<DateOnly?>("ContractDate")
+                        .HasColumnType("date")
+                        .HasColumnName("contract_date");
+
+                    b.Property<string>("ContractNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("contract_number");
+
+                    b.Property<string>("ContractType")
+                        .HasColumnType("text")
+                        .HasColumnName("contract_type");
+
+                    b.Property<string>("CpvCode")
+                        .HasColumnType("text")
+                        .HasColumnName("cpv_code");
+
+                    b.Property<string>("CpvName")
+                        .HasColumnType("text")
+                        .HasColumnName("cpv_name");
+
+                    b.Property<bool?>("EuFunded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("eu_funded");
+
+                    b.Property<bool>("FirstWinner")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("first_winner");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Lot")
+                        .HasColumnType("text")
+                        .HasColumnName("lot");
+
+                    b.Property<string>("Procedure")
+                        .HasColumnType("text")
+                        .HasColumnName("procedure");
+
+                    b.Property<string>("Programme")
+                        .HasColumnType("text")
+                        .HasColumnName("programme");
+
+                    b.Property<DateOnly?>("PublishedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("published_on");
+
+                    b.Property<short>("Quarter")
+                        .HasColumnType("smallint")
+                        .HasColumnName("quarter");
+
+                    b.Property<string>("Reference")
+                        .HasColumnType("text")
+                        .HasColumnName("reference");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<decimal?>("ValueRon")
+                        .HasPrecision(20, 2)
+                        .HasColumnType("numeric(20,2)")
+                        .HasColumnName("value_ron");
+
+                    b.Property<long?>("WinnerCui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("winner_cui");
+
+                    b.Property<string>("WinnerCuiState")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("winner_cui_state");
+
+                    b.Property<string>("WinnerName")
+                        .HasColumnType("text")
+                        .HasColumnName("winner_name");
+
+                    b.Property<short>("Winners")
+                        .HasColumnType("smallint")
+                        .HasColumnName("winners");
+
+                    b.Property<short>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.HasKey("SourceFileId", "RowNumber")
+                        .HasName("pk_awards");
+
+                    b.HasIndex("AuthorityCui")
+                        .HasDatabaseName("ix_awards_authority_cui");
+
+                    b.HasIndex("WinnerCui", "AwardedOn")
+                        .HasDatabaseName("ix_awards_winner_cui_awarded_on");
+
+                    b.ToTable("awards", "procurement");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Procurement.ProcurementYearTotal", b =>
+                {
+                    b.Property<long>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<string>("Role")
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("role");
+
+                    b.Property<short>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.Property<decimal?>("ContractValue")
+                        .HasPrecision(22, 2)
+                        .HasColumnType("numeric(22,2)")
+                        .HasColumnName("contract_value");
+
+                    b.Property<int>("Contracts")
+                        .HasColumnType("integer")
+                        .HasColumnName("contracts");
+
+                    b.Property<int>("ContractsWithoutValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("contracts_without_value");
+
+                    b.Property<int>("DirectPurchases")
+                        .HasColumnType("integer")
+                        .HasColumnName("direct_purchases");
+
+                    b.Property<decimal?>("DirectValue")
+                        .HasPrecision(22, 2)
+                        .HasColumnType("numeric(22,2)")
+                        .HasColumnName("direct_value");
+
+                    b.Property<int>("DirectWithoutValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("direct_without_value");
+
+                    b.HasKey("Cui", "Role", "Year")
+                        .HasName("pk_year_totals");
+
+                    b.ToTable("year_totals", "procurement");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CaenEntry", b =>
                 {
                     b.Property<short>("Version")
@@ -538,6 +933,36 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasName("pk_status_codes");
 
                     b.ToTable("status_codes", "registry");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.Geography.AreaOutline", b =>
+                {
+                    b.Property<short>("Level")
+                        .HasColumnType("smallint")
+                        .HasColumnName("level");
+
+                    b.Property<int>("Code")
+                        .HasColumnType("integer")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("path");
+
+                    b.Property<int>("SourceFileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_file_id");
+
+                    b.HasKey("Level", "Code")
+                        .HasName("pk_area_outlines");
+
+                    b.ToTable("area_outlines", "registry");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.HistorySnapshot", b =>
@@ -819,6 +1244,79 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasName("pk_registration_statuses");
 
                     b.ToTable("registration_statuses", "registry");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.Representative", b =>
+                {
+                    b.Property<int>("SnapshotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("snapshot_id");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_number");
+
+                    b.Property<string>("BirthCountry")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_country");
+
+                    b.Property<string>("BirthCounty")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_county");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date")
+                        .HasColumnName("birth_date");
+
+                    b.Property<string>("BirthDateText")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_date_text");
+
+                    b.Property<string>("BirthLocality")
+                        .HasColumnType("text")
+                        .HasColumnName("birth_locality");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text")
+                        .HasColumnName("country");
+
+                    b.Property<string>("County")
+                        .HasColumnType("text")
+                        .HasColumnName("county");
+
+                    b.Property<string>("Locality")
+                        .HasColumnType("text")
+                        .HasColumnName("locality");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PersonKind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("person_kind");
+
+                    b.Property<string>("RegistrationNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("registration_number");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.HasKey("SnapshotId", "Source", "RowNumber")
+                        .HasName("pk_representatives");
+
+                    b.HasIndex("SnapshotId", "RegistrationNumber")
+                        .HasDatabaseName("ix_representatives_snapshot_id_registration_number");
+
+                    b.ToTable("representatives", "registry");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.SirutaPlace", b =>

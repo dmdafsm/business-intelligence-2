@@ -28,6 +28,12 @@ public sealed class CompanyProfileTests(PostgresFixture postgres) : IClassFixtur
         Assert.Equal(2, profile.FiscalHistory.Count);
         Assert.Equal("Cluj", profile.Counties[SearchFixtures.Cluj]);
 
+        // Only name, role, birth year and a firm's place reach the page (ADR 0001); the birth date and place stay stored.
+        Assert.Equal(
+            [new PersonEntry("J2024000100123", "POPESCU ANA", "administrator", "natural", 1980, null),
+             new PersonEntry("J2024000100123", "EXEMPLU INSOLV IPURL", "lichidator judiciar", "legal", null, "Cluj-Napoca, Cluj, România")],
+            profile.People);
+
         // Every year of the range; years without a statement stay empty, blank cells stay null, zero stays zero.
         Assert.Equal([2010, 2011, 2012, 2013, 2014], profile.Financials.Select(year => (int)year.Year));
         Assert.Null(profile.Financials[1].Statement);

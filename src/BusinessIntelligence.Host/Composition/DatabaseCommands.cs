@@ -33,6 +33,8 @@ internal static class DatabaseCommands
             }
 
             await using var database = OperatorDatabase.Create(connection);
+            // Index builds on the national tables take minutes.
+            database.Database.SetCommandTimeout(TimeSpan.FromMinutes(30));
             await database.Database.OpenConnectionAsync(cancellationToken);
             await database.Database.ExecuteSqlAsync($"SELECT pg_advisory_lock({MigrationLock})", cancellationToken);
             try

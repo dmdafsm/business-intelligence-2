@@ -8,11 +8,13 @@ docker compose up --build --detach --wait
 docker compose ps --all
 ```
 
-The portal is at <http://localhost:8080>, with [liveness](http://localhost:8080/health/live) and [readiness](http://localhost:8080/health/ready) endpoints. Set BI_HTTP_PORT before starting Compose to use another host port; the container still listens on 8080.
+The portal is at <http://localhost:8090>, with [liveness](http://localhost:8090/health/live) and [readiness](http://localhost:8090/health/ready) endpoints. Set BI_HTTP_PORT before starting Compose to use another host port; the container still listens on 8080.
+
+The stack is self-contained: Compose project `business-intelligence-2`, database volume `business-intelligence-2-postgres-data`, network `business-intelligence-2` and host port 8090. It shares nothing with the older `business-intelligence` stack (which uses port 8080 and its own volume), so both can run side by side.
 
 Services:
 
-- postgres: pinned PostgreSQL 18 image with a health check and a persistent named volume. Its port is not published to the host.
+- postgres: pinned PostgreSQL 18 image with a health check and a persistent named volume. Its port is not published to the host. It gets 3 GB of memory, 4 CPUs, 1 GB of shared memory and larger buffers, WAL and maintenance memory, which the national imports and index builds need.
 - migrate: one-off command using the application image; it waits for PostgreSQL and migrates only the configured business_intelligence database. web starts only after it succeeds.
 - web: pinned ASP.NET chiseled runtime, non-root, read-only root filesystem, bounded /tmp, dropped capabilities and a health probe. It binds only to host loopback.
 - verify: optional profile with the SDK, Python and PostgreSQL server binaries; tests create their own disposable clusters.
@@ -33,7 +35,18 @@ docker compose down
 
 The password is generated outside Git and excluded from the build context. Compose mounts it as a file, and the app reads it through Database__PasswordFile. Its host parent directory has mode 0700.
 
-No data is seeded automatically. Import commands are documented with each import step.
+No data is seeded automatically. To load everything from the downloaded files in `.research/raw` (see the import guides):
+
+```sh
+python3 scripts/docker_import_all.py
+```
+
+It runs each import in order through the `import` service, which mounts `.research/raw` read-only at `/data/raw`, then rebuilds the search tables. Every step is idempotent, so rerunning it after a failure continues where it stopped. A single command runs the same way:
+
+```sh
+docker compose --profile import run --rm import registry status
+docker compose --profile import run --rm import fiscal show 2816464
+```
 
 ## Verify everything in Linux
 

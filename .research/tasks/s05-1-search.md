@@ -28,4 +28,4 @@ Found while running it and fixed: the first ranking used substring matches plus 
 - CAEN groups use authorized activities (ONRC marks no main one); a company counts under each of them.
 - Bucharest is one UAT, so its locality filter adds nothing; selecting it is counted live (1.26 s).
 - Two typos in a short query usually find nothing.
-- Not run in Docker.
+- Not run in Docker at the time; the full import later ran in Docker ([REPO Docker stack](repo-docker-stack.md)).

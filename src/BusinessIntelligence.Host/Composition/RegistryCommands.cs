@@ -80,6 +80,9 @@ internal static class RegistryCommands
             ImportOnrcFirme.Kind => await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.StatusKind => await new ImportOnrcAnnexes(database, TimeProvider.System).StatusesAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.ActivitiesKind => await new ImportOnrcAnnexes(database, TimeProvider.System).ActivitiesAsync(path, file, cancellationToken),
+            Modules.Registry.Geography.ImportBoundaries.Kind => await new Modules.Registry.Geography.ImportBoundaries(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
+            ImportOnrcAnnexes.RepresentativesKind => await new ImportOnrcAnnexes(database, TimeProvider.System).RepresentativesAsync(path, file, cancellationToken),
+            ImportOnrcAnnexes.FamilyMembersKind => await new ImportOnrcAnnexes(database, TimeProvider.System).FamilyMembersAsync(path, file, cancellationToken),
             _ => throw new ArgumentException($"No importer for {file.Kind}."),
         };
         await WriteAsync(new
@@ -101,8 +104,21 @@ internal static class RegistryCommands
             await new Modules.Registry.History.ImportRegistryHistory(database, TimeProvider.System).ClearAsync(cancellationToken);
         }
 
+        List<DateOnly> applied;
+        await using (var history = OperatorDatabase.Create(connection))
+        {
+            applied = await history.HistorySnapshots.AsNoTracking().Select(item => item.SnapshotDate).ToListAsync(cancellationToken);
+        }
+
         foreach (var snapshot in Modules.Registry.History.ImportRegistryHistory.AvailableSnapshots())
         {
+            // A rerun skips what is applied; a snapshot older than the history needs --rebuild, so it is reported, not refused.
+            if (applied.Count > 0 && snapshot <= applied.Max())
+            {
+                await WriteAsync(new { snapshot, outcome = applied.Contains(snapshot) ? "AlreadyImported" : "SkippedOlderThanHistory" }, cancellationToken);
+                continue;
+            }
+
             // A fresh context per snapshot keeps each transaction and change tracker separate.
             await using var database = OperatorDatabase.Create(connection);
             var watch = Stopwatch.StartNew();

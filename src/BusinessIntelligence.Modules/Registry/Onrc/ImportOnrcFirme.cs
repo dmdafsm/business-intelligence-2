@@ -61,6 +61,7 @@ public sealed class ImportOnrcFirme(AppDbContext database, TimeProvider time)
         if (previous is { } old && old != source.Id)
         {
             await ExecuteAsync(connection, "DELETE FROM registry.company_activities WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
+            await ExecuteAsync(connection, "DELETE FROM registry.representatives WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
             await ExecuteAsync(connection, "DELETE FROM registry.registration_statuses WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
             await ExecuteAsync(connection, "DELETE FROM registry.companies WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));
             await ExecuteAsync(connection, "DELETE FROM registry.registrations WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", old));

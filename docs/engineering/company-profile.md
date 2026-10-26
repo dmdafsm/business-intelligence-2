@@ -6,8 +6,11 @@
 
 | Section | Contents | Source shown |
 | --- | --- | --- |
-| Prezentare | CUI, registry number, EUID, legal form, first registration date, ONRC lifecycle and status names, registered office, parent company's country, VAT and fiscal status, other registrations with the same CUI | ONRC snapshot; MF identification edition of the latest fiscal period |
+| Prezentare | Map of the county and locality (ANCPI boundaries), CUI, registry number, EUID, legal form, first registration date, ONRC lifecycle and status names, registered office, parent company's country, VAT and fiscal status, other registrations with the same CUI | ONRC snapshot; MF identification edition of the latest fiscal period |
 | Contact | Phone, fax and fiscal address from the latest MF period, website from ONRC | MF edition, ONRC snapshot |
+| Persoane | Administrators, legal representatives, liquidators and family-enterprise members: name, role, birth year for natural persons, locality/county/country for firms | ONRC representatives files of the snapshot |
+| Situația la ANAF | VAT, cash-accounting VAT, split VAT, inactive, e-Factura, tax office and taxpayer size | ANAF web service, date asked |
+| Achiziții publice, Fonduri UE, Licențe | Procurement (2007–2026), EU-funded projects, regulator licences and contracts | See [profile open data](profile-open-data.md) |
 | Activități | Main activity declared in the latest financial statement (Rev.2 label), authorized activities in the registration's CAEN version | ONRC snapshot |
 | Istoric | Registry periods (by registry number and by CUI, so earlier numbers appear) and MF fiscal periods, newest first | ONRC yearly snapshots with their licenses; MF editions |
 | Financiar | Three charts (turnover, net result, employees), a table of key indicators per year, all 21 published indicators, and the file and license of each year | Each year's MF file |
@@ -20,6 +23,7 @@
 - Individuals (PFA, II, IF, PF, AF) have no street, phone or fax: the imports never stored them. The page says so instead of "nedeclarat".
 - Charts are SVG rendered on the server: one series each, one axis, columns from a zero baseline, the latest value labeled, a native tooltip per year. Colours are the `--md-chart-*` tokens (checked for contrast and colour-vision separation in both schemes); losses are also below the axis, so colour is never the only cue. The table holds every value.
 - When the registry gives the CUI to another registration with a different name, the page names it and says the link may be a source error; fiscal and financial data stay those of the CUI.
+- Representatives (ADR 0001): natural persons show name, role and birth year (none when the year is before 1900 or after the snapshot); firms show their place; unknown kinds show name and role. Order: management, then representatives, then insolvency and liquidation roles. People are not linked between companies. The section says shareholders and beneficial owners are not open data.
 - A website link is made only from a plain host name, always over https.
 - Sector "0" in the sources means no sector and is not shown.
 

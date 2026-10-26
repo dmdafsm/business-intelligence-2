@@ -33,4 +33,4 @@ Headerless CSV by position (quoted values, dates, flags with registration dates,
 - Names are compared after folding; a period keeps the latest intact spelling, so it shows how the taxpayer was named at the end of the period.
 - 2018 has no Mureș and 2019 no Maramureș; 2021 covers only 1.03M taxpayers. Missing is never read as a change.
 - The SIRUTA codes of the fiscal address are not resolved; grouping uses the registry geography (S05).
-- Not run in Docker (raw files are not mounted into the container yet).
+- Not run in Docker at the time; the full import later ran in Docker ([REPO Docker stack](repo-docker-stack.md)).

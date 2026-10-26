@@ -1,0 +1,19 @@
+@model IReadOnlyList<BusinessIntelligence.Modules.Profile.ProcurementYear>
+@{ var ro = System.Globalization.CultureInfo.GetCultureInfo("ro-RO"); }
+<div class="md-table-wrapper">
+    <table class="md-data-table">
+        <thead><tr><th scope="col">An</th><th scope="col" class="md-numeric">Contracte</th><th scope="col" class="md-numeric">Valoare contracte (lei)</th><th scope="col" class="md-numeric">Achiziții directe</th><th scope="col" class="md-numeric">Valoare achiziții directe (lei)</th></tr></thead>
+        <tbody>
+            @foreach (var year in Model)
+            {
+                <tr>
+                    <th scope="row" class="md-numeric">@year.Year</th>
+                    <td class="md-numeric">@year.Contracts.ToString("N0", ro)</td>
+                    <td class="md-numeric"><partial name="_ProcurementValue" model="(year.ContractValue, year.ContractsWithoutValue)" /></td>
+                    <td class="md-numeric">@year.DirectPurchases.ToString("N0", ro)</td>
+                    <td class="md-numeric"><partial name="_ProcurementValue" model="(year.DirectValue, year.DirectWithoutValue)" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
