@@ -44,10 +44,11 @@ public sealed class RiskSignalsTests(PostgresFixture postgres) : IClassFixture<P
             new AnafStatus { Cui = SearchFixtures.Zarzavat, CheckedOn = new DateOnly(2025, 1, 1), Found = true, Inactive = false },
             new AnafStatus { Cui = SearchFixtures.Exemplu, CheckedOn = new DateOnly(2025, 1, 1), Found = true, Inactive = true });
         await database.SaveChangesAsync();
-        await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
         var builder = new BuildRiskSignals(database, TimeProvider.System);
         await builder.ExecuteAsync(CancellationToken.None);
         var build = await builder.ExecuteAsync(CancellationToken.None);
+        // The search index carries the signals, so it is built after them.
+        await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
         var signals = await database.RiskSignals.AsNoTracking().ToListAsync();
 
         Assert.Equal(((short?)2013, (short?)2013), (build.FinancialYear, build.BenchmarkYear));

@@ -113,19 +113,41 @@ public sealed partial class SearchPageTests(SearchPortalFixture portal) : IClass
         portal.WithPageAsync(nameof(ResultsDownloadAsCsvWithTheSameFiltersAndOrder), async page =>
         {
             await page.GotoAsync(portal.Address + $"/?judet={SearchFixtures.Cluj}&ordine=salariati");
-            var download = await page.RunAndWaitForDownloadAsync(() => page.GetByRole(AriaRole.Link, new() { Name = "Descarcă CSV" }).ClickAsync());
+            var download = await page.RunAndWaitForDownloadAsync(() => page.GetByRole(AriaRole.Link, new() { Name = "CSV", Exact = true }).ClickAsync());
             Assert.Matches(@"^firme-\d{4}-\d{2}-\d{2}\.csv$", download.SuggestedFilename);
             var text = await File.ReadAllTextAsync(await download.PathAsync());
             var lines = text.Split("\r\n");
-            Assert.StartsWith("CUI;Nr. înregistrare;Denumire", lines[0].TrimStart('\uFEFF'), StringComparison.Ordinal);
+            Assert.StartsWith("CUI,Nr. înregistrare,Denumire", lines[0].TrimStart('\uFEFF'), StringComparison.Ordinal);
             // Ordered by employees, as on the page: EXEMPLU SOFT (3 employees in 2013) first.
-            Assert.StartsWith($"{SearchFixtures.ExempluSoft};J2024000100123;EXEMPLU SOFT SRL;", lines[1], StringComparison.Ordinal);
-            Assert.Contains(";2013;;3;10000;", lines[1], StringComparison.Ordinal);
+            Assert.StartsWith($"{SearchFixtures.ExempluSoft},J2024000100123,EXEMPLU SOFT SRL,", lines[1], StringComparison.Ordinal);
+            Assert.Contains(",2013,,3,10000,", lines[1], StringComparison.Ordinal);
+
+            var workbook = await page.RunAndWaitForDownloadAsync(() => page.GetByRole(AriaRole.Link, new() { Name = "Descarcă Excel" }).ClickAsync());
+            Assert.Matches(@"^firme-\d{4}-\d{2}-\d{2}\.xlsx$", workbook.SuggestedFilename);
+            var sheet = BusinessIntelligence.Modules.Registry.Geography.SimpleXlsx.ReadFirstSheet(await File.ReadAllBytesAsync(await workbook.PathAsync()));
+            Assert.Equal("EXEMPLU SOFT SRL", sheet[1][2]);
             Assert.Contains("Surse: Oficiul Național al Registrului Comerțului", text, StringComparison.Ordinal);
 
             // The bare home page has no list, so nothing to download.
             await page.GotoAsync(portal.Address + "/?handler=Csv");
             await Assertions.Expect(page).ToHaveURLAsync(new Regex(@"/$"));
+        }, NoScript);
+
+    [Fact]
+    public Task LegalFormFilterAndRangeFieldsFitTheirColumn() =>
+        portal.WithPageAsync(nameof(LegalFormFilterAndRangeFieldsFitTheirColumn), async page =>
+        {
+            await page.GotoAsync(portal.Address + $"/?judet={SearchFixtures.Cluj}");
+            await page.GetByRole(AriaRole.Link, new() { Name = "PFA", Exact = true }).ClickAsync();
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(@"forma=PFA"));
+            await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync("1 firmă");
+            await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "POPESCU ION PFA" })).ToBeVisibleAsync();
+
+            // The two bounds of a range sit side by side without overlapping.
+            var range = page.GetByRole(AriaRole.Group, new() { Name = "Număr mediu de salariați" });
+            var from = await range.GetByLabel("De la").BoundingBoxAsync();
+            var to = await range.GetByLabel("Până la").BoundingBoxAsync();
+            Assert.True(from!.X + from.Width <= to!.X, $"{from.X}+{from.Width} > {to.X}");
         }, NoScript);
 
     [Fact]

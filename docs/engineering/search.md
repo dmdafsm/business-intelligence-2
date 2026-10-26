@@ -9,7 +9,7 @@ dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Ho
 dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Host.dll search status
 ```
 
-Run `search build` after the registry imports (firms, statuses, activities, history). It replaces every search table in one transaction, so pages keep the previous build until it commits, then vacuums them. Rerunning it gives the same tables. Until the first build, searches show that no data is imported.
+Run `search build` after the registry imports (firms, statuses, activities, history), after the MF financial import and after `risk build`: the index carries the latest financial year's turnover, employees and net result and each company's warning signals. The import jobs run them in that order. The rows are written in county, locality and name order, so a county filter reads a small part of the table. It replaces every search table in one transaction, so pages keep the previous build until it commits, then vacuums them. Rerunning it gives the same tables. Until the first build, searches show that no data is imported.
 
 | Table | Contents |
 | --- | --- |
@@ -52,3 +52,22 @@ Warm response times of the whole page (median of three after a first request), t
 | Page 250 of active companies | 1,787,181 | 6 ms |
 
 Broad words and very large localities are the slow cases: their counts are computed over every match.
+
+## Filters without a name query
+
+A locality, financial, signal or legal-form filter is counted live, straight on `search.companies`. Three queries run at the same time on their own pooled connections:
+
+- the page, in the requested order, using the name, turnover and employee indexes;
+- one scan for the lifecycle, county and locality counts;
+- one scan for the CAEN counts, which uses the short `caen_upper` array (sections and divisions) at the top two levels.
+
+Signals are a `text[]` column with a GIN index. The web app's connections turn PostgreSQL JIT off, because it only slowed these counts down.
+
+Measured locally after S05.2:
+
+| Filter | Before | After |
+| --- | --- | --- |
+| A county with a legal form or a signal | 0.7–3 s | 0.02–0.06 s |
+| National legal form (SRL, 2.7M), "no signal" or any turnover | 2–6 s | 1.5–2 s |
+
+A name query still collects its matches into a temporary table first.
