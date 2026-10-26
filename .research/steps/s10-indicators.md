@@ -22,7 +22,9 @@ The net result is the published profit, or minus the published loss. Values stay
 
 - Cohort: statements of the same year with the same CAEN class and version, split by size band of average employees (0, 1–9, 10–49, 50–249, 250+) and also for all sizes together.
 - Percentiles P10, P25, P50, P75, P90 (continuous) over the companies where the indicator is calculable. Fewer than 10 such companies: no percentiles, only the count.
-- 2025 is not benchmarked: the source mixes CAEN Rev.2 and Rev.3 codes and two thirds of the 2025 codes exist in both versions, so the class of a statement cannot be known. The profile compares on the latest year with a known version and says so.
+- 2025 states no CAEN version: the source mixes Rev.2 and Rev.3 codes, and two thirds of the codes exist in both. Since S10.2 a 2025 statement is compared in a derived CAEN Rev.3 class, set only when one class follows. The class comes from the Rev.3 nomenclature, the INS correspondence table (September 2026) and the company's authorized activities in the registry, and each derived class records its method.
+  - Statements without a single class (29% of 2025) are left out of the comparison.
+  - The profile says how the class was set, or falls back to 2024.
 - `financials benchmarks` rebuilds the table in one transaction, and `financials import-all` runs it after importing. Readers keep the previous table until the rebuild commits.
 
 ## Acceptance
@@ -35,3 +37,4 @@ The net result is the published profit, or minus the published loss. Values stay
 ## Tasks
 
 - S10.1 Indicators, benchmark table and profile section — [note](../tasks/s10-1-indicators.md).
+- S10.2 CAEN Rev.3 classes for 2025 from the INS correspondence table — [note](../tasks/s10-2-caen-correspondence.md).

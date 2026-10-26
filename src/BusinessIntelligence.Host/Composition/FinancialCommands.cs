@@ -111,8 +111,8 @@ internal static class FinancialCommands
     {
         await using var database = OperatorDatabase.Create(connection);
         var watch = Stopwatch.StartNew();
-        var rows = await new BuildFinancialBenchmarks(database, TimeProvider.System).ExecuteAsync(cancellationToken);
-        await WriteAsync(new { benchmarks = rows, formulaVersion = FinancialIndicators.Version, seconds = Math.Round(watch.Elapsed.TotalSeconds, 1) }, cancellationToken);
+        var result = await new BuildFinancialBenchmarks(database, TimeProvider.System).ExecuteAsync(cancellationToken);
+        await WriteAsync(new { benchmarks = result.Rows, classes = result.Classes, formulaVersion = FinancialIndicators.Version, seconds = Math.Round(watch.Elapsed.TotalSeconds, 1) }, cancellationToken);
     }
 
     private static async Task WriteAsync(object value, CancellationToken cancellationToken)

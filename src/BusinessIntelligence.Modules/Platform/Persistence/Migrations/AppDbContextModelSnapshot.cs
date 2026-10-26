@@ -195,6 +195,19 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("cash");
 
+                    b.Property<string>("ClassCode")
+                        .HasColumnType("text")
+                        .HasColumnName("class_code");
+
+                    b.Property<string>("ClassMethod")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("class_method");
+
+                    b.Property<short?>("ClassVersion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("class_version");
+
                     b.Property<decimal?>("CurrentAssets")
                         .HasPrecision(20)
                         .HasColumnType("numeric(20,0)")
@@ -1135,6 +1148,26 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasName("pk_year_totals");
 
                     b.ToTable("year_totals", "procurement");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CaenCorrespondence", b =>
+                {
+                    b.Property<string>("Rev2Code")
+                        .HasColumnType("text")
+                        .HasColumnName("rev2_code");
+
+                    b.Property<string>("Rev3Code")
+                        .HasColumnType("text")
+                        .HasColumnName("rev3_code");
+
+                    b.Property<bool>("Intermediate")
+                        .HasColumnType("boolean")
+                        .HasColumnName("intermediate");
+
+                    b.HasKey("Rev2Code", "Rev3Code")
+                        .HasName("pk_caen_correspondence");
+
+                    b.ToTable("caen_correspondence", "registry");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CaenEntry", b =>
