@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BusinessIntelligence.Host.Pages;
 
-public sealed class FirmaModel(CompanyProfileQuery query) : PageModel
+public sealed class CompanyModel(CompanyProfileQuery query) : PageModel
 {
     public static readonly CultureInfo Ro = CultureInfo.GetCultureInfo("ro-RO");
 

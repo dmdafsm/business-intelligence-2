@@ -20,7 +20,7 @@ public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
     public async Task<SearchBuild> ExecuteAsync(CancellationToken cancellationToken)
     {
         var snapshot = await database.PublishedDatasets.AsNoTracking()
-            .Where(item => item.Kind == ImportOnrcFirme.Kind)
+            .Where(item => item.Kind == ImportOnrcCompanies.Kind)
             .Select(item => (int?)item.SourceFileId)
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw new InvalidOperationException("No published ONRC snapshot; import the registry first.");
@@ -124,7 +124,7 @@ public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
             max(k.valid_to) OVER (PARTITION BY k.company_key, k.name_key)
         FROM (
             SELECT CASE WHEN r.cui IS NOT NULL THEN 'C' || r.cui ELSE 'R' || r.registration_number END AS company_key,
-                {SearchKeys.StripSocietateSql("p.name_key")} AS name_key, p.name, p.valid_to
+                {SearchKeys.StripCompanyPrefixSql("p.name_key")} AS name_key, p.name, p.valid_to
             FROM registry.registration_periods p
             JOIN registry.registrations r ON r.snapshot_id = @snapshot AND r.registration_number = p.registration_number
             WHERE p.name IS NOT NULL AND p.name_key IS NOT NULL

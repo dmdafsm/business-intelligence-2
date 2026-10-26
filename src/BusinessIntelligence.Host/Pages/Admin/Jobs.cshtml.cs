@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BusinessIntelligence.Host.Pages.Admin;
 
-public sealed class JoburiModel(AppDbContext database, OperatorAccess access, TimeProvider time) : PageModel
+public sealed class JobsModel(AppDbContext database, OperatorAccess access, TimeProvider time) : PageModel
 {
     public JobOverview? Overview { get; private set; }
 
@@ -41,20 +41,20 @@ public sealed class JoburiModel(AppDbContext database, OperatorAccess access, Ti
 
         var (run, created) = await JobRuns.EnqueueAsync(database, job, RunTrigger.Page, force, time, cancellationToken);
         Notice = created ? null : "Jobul are deja o rulare în coadă sau în desfășurare.";
-        return RedirectToPage("/Admin/Rulare", new { id = run.Id });
+        return RedirectToPage("/Admin/Run", new { id = run.Id });
     }
 
     public async Task<IActionResult> OnPostCancelAsync(long run, CancellationToken cancellationToken)
     {
         Notice = await JobRuns.CancelAsync(database, run, time, cancellationToken)
             ? "Anularea a fost cerută." : "Rularea nu mai poate fi anulată.";
-        return RedirectToPage("/Admin/Rulare", new { id = run });
+        return RedirectToPage("/Admin/Run", new { id = run });
     }
 
     public async Task<IActionResult> OnPostSignOutAsync()
     {
         await HttpContext.SignOutAsync(OperatorAccess.Scheme);
-        return RedirectToPage("/Admin/Intrare");
+        return RedirectToPage("/Admin/SignIn");
     }
 
     private async Task<JobDefinitions?> LoadDefinitionsAsync(CancellationToken cancellationToken)

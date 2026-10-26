@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BusinessIntelligence.Host.Pages.Eroare;
+namespace BusinessIntelligence.Host.Pages.Errors;
 
 public sealed class IndexModel : PageModel
 {

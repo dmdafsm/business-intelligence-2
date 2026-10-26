@@ -73,7 +73,7 @@ internal static class RegistryFixtures
         "J99/1/1999^0111^2",
     ];
 
-    public static (string Path, CatalogFile File) WriteFirme(string directory, string id, IEnumerable<string> rows) =>
+    public static (string Path, CatalogFile File) WriteCompanies(string directory, string id, IEnumerable<string> rows) =>
         WriteFile(directory, id, "onrc-firme", Header, rows, new DateOnly(2026, 10, 19));
 
     public static (string Path, CatalogFile File) WriteFile(

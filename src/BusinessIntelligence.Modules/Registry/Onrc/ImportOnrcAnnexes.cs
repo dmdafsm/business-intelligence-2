@@ -68,7 +68,7 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
         }
 
         var snapshot = await database.PublishedDatasets.AsNoTracking()
-            .Where(item => item.Kind == ImportOnrcFirme.Kind)
+            .Where(item => item.Kind == ImportOnrcCompanies.Kind)
             .Join(database.SourceFiles, item => item.SourceFileId, source => source.Id, (_, source) => new { source.Id, source.ReferenceDate })
             .FirstOrDefaultAsync(cancellationToken);
         if (snapshot is null || snapshot.ReferenceDate != file.ReferenceDate)
@@ -81,7 +81,7 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
         await database.Database.OpenConnectionAsync(cancellationToken);
         var connection = (NpgsqlConnection)database.Database.GetDbConnection();
         await using var transaction = await database.Database.BeginTransactionAsync(cancellationToken);
-        await ImportOnrcFirme.ExecuteAsync(connection, createStaging, cancellationToken);
+        await ImportOnrcCompanies.ExecuteAsync(connection, createStaging, cancellationToken);
         var counts = new AnnexCounts();
         await using (var stream = VerifiedFileStream.Open(path, file))
         {
@@ -166,9 +166,9 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
 
         await writer.StartRowAsync(cancellationToken);
         await writer.WriteAsync(counts.Rows, NpgsqlDbType.Integer, cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, values[0], cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, Blank(values[1]), cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, Blank(values[2]), cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, values[0], cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, Blank(values[1]), cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, Blank(values[2]), cancellationToken);
         if (date is { } value)
         {
             await writer.WriteAsync(value, NpgsqlDbType.Date, cancellationToken);
@@ -178,10 +178,10 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
             await writer.WriteNullAsync(cancellationToken);
         }
 
-        await ImportOnrcFirme.WriteAsync(writer, date is null ? Blank(birth) : null, cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, date is null ? Blank(birth) : null, cancellationToken);
         for (var index = 4; index < 10; index++)
         {
-            await ImportOnrcFirme.WriteAsync(writer, Blank(values[index]), cancellationToken);
+            await ImportOnrcCompanies.WriteAsync(writer, Blank(values[index]), cancellationToken);
         }
 
         static string? Blank(string value) => value.Length == 0 ? null : value;
@@ -189,9 +189,9 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
 
     private static async Task ApplyRepresentativesAsync(NpgsqlConnection connection, int snapshot, string source, Dictionary<string, object> report, CancellationToken cancellationToken)
     {
-        await ImportOnrcFirme.ExecuteAsync(connection, "DELETE FROM registry.representatives WHERE snapshot_id = @snapshot AND source = @source",
+        await ImportOnrcCompanies.ExecuteAsync(connection, "DELETE FROM registry.representatives WHERE snapshot_id = @snapshot AND source = @source",
             cancellationToken, ("snapshot", snapshot), ("source", source));
-        report["representatives"] = await ImportOnrcFirme.ExecuteAsync(connection, Sql.InsertRepresentatives, cancellationToken, ("snapshot", snapshot), ("source", source));
+        report["representatives"] = await ImportOnrcCompanies.ExecuteAsync(connection, Sql.InsertRepresentatives, cancellationToken, ("snapshot", snapshot), ("source", source));
         report["rowsForUnknownRegistrations"] = await ScalarAsync(connection, Sql.UnknownRepresentativeRegistrations, snapshot, cancellationToken);
         report["unreadableBirthDates"] = report["rowsWithInvalidValues"];
         await using var command = new NpgsqlCommand(
@@ -213,26 +213,26 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
 
     private static async Task ApplyStatusesAsync(NpgsqlConnection connection, int snapshot, Dictionary<string, object> report, CancellationToken cancellationToken)
     {
-        await ImportOnrcFirme.ExecuteAsync(connection, "DELETE FROM registry.registration_statuses WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", snapshot));
-        report["statuses"] = await ImportOnrcFirme.ExecuteAsync(connection, Sql.InsertStatuses, cancellationToken, ("snapshot", snapshot));
+        await ImportOnrcCompanies.ExecuteAsync(connection, "DELETE FROM registry.registration_statuses WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", snapshot));
+        report["statuses"] = await ImportOnrcCompanies.ExecuteAsync(connection, Sql.InsertStatuses, cancellationToken, ("snapshot", snapshot));
         report["rowsForUnknownRegistrations"] = await ScalarAsync(connection, Sql.UnknownStatusRegistrations, snapshot, cancellationToken);
         report["unknownStatusCodes"] = await ScalarAsync(connection,
             "SELECT count(DISTINCT code) FROM status_rows s WHERE NOT EXISTS (SELECT 1 FROM registry.status_codes c WHERE c.code = s.code)", snapshot, cancellationToken);
-        await ImportOnrcFirme.ExecuteAsync(connection,
+        await ImportOnrcCompanies.ExecuteAsync(connection,
             "UPDATE registry.registrations SET lifecycle = 'Unknown' WHERE snapshot_id = @snapshot AND lifecycle <> 'Unknown'", cancellationToken, ("snapshot", snapshot));
-        await ImportOnrcFirme.ExecuteAsync(connection, Sql.UpdateRegistrationLifecycle, cancellationToken, ("snapshot", snapshot));
-        await ImportOnrcFirme.ExecuteAsync(connection, Sql.UpdateCompanyLifecycle, cancellationToken, ("snapshot", snapshot));
+        await ImportOnrcCompanies.ExecuteAsync(connection, Sql.UpdateRegistrationLifecycle, cancellationToken, ("snapshot", snapshot));
+        await ImportOnrcCompanies.ExecuteAsync(connection, Sql.UpdateCompanyLifecycle, cancellationToken, ("snapshot", snapshot));
         report["companiesByLifecycle"] = await GroupCountsAsync(connection,
             "SELECT lifecycle, count(*) FROM registry.companies WHERE snapshot_id = @snapshot GROUP BY lifecycle", snapshot, cancellationToken);
     }
 
     private static async Task ApplyActivitiesAsync(NpgsqlConnection connection, int snapshot, Dictionary<string, object> report, CancellationToken cancellationToken)
     {
-        await ImportOnrcFirme.ExecuteAsync(connection, "DELETE FROM registry.company_activities WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", snapshot));
-        report["companyActivities"] = await ImportOnrcFirme.ExecuteAsync(connection, Sql.InsertActivities, cancellationToken, ("snapshot", snapshot));
-        await ImportOnrcFirme.ExecuteAsync(connection,
+        await ImportOnrcCompanies.ExecuteAsync(connection, "DELETE FROM registry.company_activities WHERE snapshot_id = @snapshot", cancellationToken, ("snapshot", snapshot));
+        report["companyActivities"] = await ImportOnrcCompanies.ExecuteAsync(connection, Sql.InsertActivities, cancellationToken, ("snapshot", snapshot));
+        await ImportOnrcCompanies.ExecuteAsync(connection,
             "UPDATE registry.companies SET caen_version = NULL WHERE snapshot_id = @snapshot AND caen_version IS NOT NULL", cancellationToken, ("snapshot", snapshot));
-        await ImportOnrcFirme.ExecuteAsync(connection, Sql.UpdateCompanyCaenVersion, cancellationToken, ("snapshot", snapshot));
+        await ImportOnrcCompanies.ExecuteAsync(connection, Sql.UpdateCompanyCaenVersion, cancellationToken, ("snapshot", snapshot));
         report["rowsForUnknownRegistrations"] = await ScalarAsync(connection, Sql.UnknownActivityRegistrations, snapshot, cancellationToken);
         report["companiesByCaenVersion"] = await GroupCountsAsync(connection,
             "SELECT coalesce(caen_version::text, 'none'), count(*) FROM registry.companies WHERE snapshot_id = @snapshot GROUP BY 1", snapshot, cancellationToken);
