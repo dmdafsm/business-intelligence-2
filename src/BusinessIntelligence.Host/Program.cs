@@ -1,6 +1,11 @@
 using BusinessIntelligence.Host.Composition;
 using BusinessIntelligence.Modules.Platform.Hosting;
 
+if (args is ["healthcheck", "worker"])
+{
+    return JobsCommands.WorkerAlive() ? 0 : 1;
+}
+
 if (args is ["healthcheck"])
 {
     using var handler = new HttpClientHandler { AllowAutoRedirect = false };

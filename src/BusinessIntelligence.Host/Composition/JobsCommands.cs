@@ -35,6 +35,13 @@ internal static class JobsCommands
 
     private static string RawRoot => Environment.GetEnvironmentVariable("Jobs__RawRoot") ?? ".research/raw";
 
+    /// <summary>Touched by the worker every 20 s, also during a long run; the container healthcheck reads its age.</summary>
+    private static string Heartbeat => Path.Combine(Path.GetTempPath(), "bi-worker-heartbeat");
+
+    /// <summary>The worker's healthcheck: its heartbeat is less than 90 s old.</summary>
+    public static bool WorkerAlive() =>
+        File.Exists(Heartbeat) && DateTime.UtcNow - File.GetLastWriteTimeUtc(Heartbeat) < TimeSpan.FromSeconds(90);
+
     public static async Task<int> ExecuteAsync(string[] arguments, CancellationToken cancellationToken)
     {
         if (arguments is not (["jobs", "check" or "list" or "worker"] or ["jobs", "discover" or "cancel" or "log", _] or ["jobs", "runs", ..]
@@ -183,6 +190,7 @@ internal static class JobsCommands
     /// </summary>
     private static async Task<int> WorkerAsync(string connection, CancellationToken cancellationToken)
     {
+        var heartbeat = BeatAsync(cancellationToken);
         JobLock? jobLock;
         while ((jobLock = await JobLock.TryAcquireAsync(connection, cancellationToken)) is null)
         {
@@ -243,7 +251,24 @@ internal static class JobsCommands
             }
         }
 
+        await heartbeat;
         return 0;
+    }
+
+    private static async Task BeatAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(20));
+        try
+        {
+            do
+            {
+                await File.WriteAllTextAsync(Heartbeat, DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture), CancellationToken.None);
+            }
+            while (await timer.WaitForNextTickAsync(cancellationToken));
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
     }
 
     private static HttpClient CreateHttpClient()
