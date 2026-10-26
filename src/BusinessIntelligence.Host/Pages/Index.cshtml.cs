@@ -1,3 +1,4 @@
+using BusinessIntelligence.Host.Components;
 using BusinessIntelligence.Modules.Search;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -70,6 +71,38 @@ public sealed class IndexModel(CompanySearch search) : PageModel
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
+        Result = await search.ExecuteAsync(Prepare(), cancellationToken);
+        if (Result.Ready && Caen is not null && Result.CaenPath.Count == 0)
+        {
+            // An unknown code is dropped from the filters and named on the page, never silently matched against nothing.
+            UnknownCaen = Caen;
+            Caen = null;
+        }
+    }
+
+    /// <summary>The current results as CSV (<see cref="CompanySearch.MaxExport"/> rows at most); the bare home page has none.</summary>
+    public async Task<IActionResult> OnGetCsvAsync(CancellationToken cancellationToken)
+    {
+        var request = Prepare();
+        if (!Searching)
+        {
+            return RedirectToPage();
+        }
+
+        var (result, signals) = await search.ExportAsync(request, cancellationToken);
+        if (!result.Ready)
+        {
+            return RedirectToPage();
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        return File(CompanyCsv.Write(result, signals, LifecycleLabel, today), "text/csv; charset=utf-8",
+            $"firme-{today.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)}.csv");
+    }
+
+    /// <summary>Normalizes the URL values (dropping unknown ones) and builds the search request.</summary>
+    private SearchRequest Prepare()
+    {
         Query = string.IsNullOrWhiteSpace(Query) ? null : Query.Trim();
         if (CaenVersion is { } version && !CompanySearch.CaenVersions.Contains(version))
         {
@@ -95,14 +128,7 @@ public sealed class IndexModel(CompanySearch search) : PageModel
         var financials = new FinancialFilter(Amount(TurnoverMin), Amount(TurnoverMax), (int?)Amount(EmployeesMin), (int?)Amount(EmployeesMax), sort);
 
         Searching = Query is not null || County is not null || Caen is not null || Lifecycle is not null || CaenVersion is not null || !financials.IsEmpty || signal is not null;
-        Result = await search.ExecuteAsync(
-            new SearchRequest(Query, County, Uat, Caen, Version, lifecycle, PageNumber ?? 1, IncludeHits: Searching, Financials: financials, Signal: signal), cancellationToken);
-        if (Result.Ready && Caen is not null && Result.CaenPath.Count == 0)
-        {
-            // An unknown code is dropped from the filters and named on the page, never silently matched against nothing.
-            UnknownCaen = Caen;
-            Caen = null;
-        }
+        return new SearchRequest(Query, County, Uat, Caen, Version, lifecycle, PageNumber ?? 1, IncludeHits: Searching, Financials: financials, Signal: signal);
     }
 
     /// <summary>The digits of a bound, or null when it has none; at most 15 digits (employees: 7), so it fits the column.</summary>

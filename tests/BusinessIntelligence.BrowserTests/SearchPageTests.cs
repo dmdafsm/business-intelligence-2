@@ -109,6 +109,26 @@ public sealed partial class SearchPageTests(SearchPortalFixture portal) : IClass
         }, NoScript);
 
     [Fact]
+    public Task ResultsDownloadAsCsvWithTheSameFiltersAndOrder() =>
+        portal.WithPageAsync(nameof(ResultsDownloadAsCsvWithTheSameFiltersAndOrder), async page =>
+        {
+            await page.GotoAsync(portal.Address + $"/?judet={SearchFixtures.Cluj}&ordine=salariati");
+            var download = await page.RunAndWaitForDownloadAsync(() => page.GetByRole(AriaRole.Link, new() { Name = "Descarcă CSV" }).ClickAsync());
+            Assert.Matches(@"^firme-\d{4}-\d{2}-\d{2}\.csv$", download.SuggestedFilename);
+            var text = await File.ReadAllTextAsync(await download.PathAsync());
+            var lines = text.Split("\r\n");
+            Assert.StartsWith("CUI;Nr. înregistrare;Denumire", lines[0].TrimStart('\uFEFF'), StringComparison.Ordinal);
+            // Ordered by employees, as on the page: EXEMPLU SOFT (3 employees in 2013) first.
+            Assert.StartsWith($"{SearchFixtures.ExempluSoft};J2024000100123;EXEMPLU SOFT SRL;", lines[1], StringComparison.Ordinal);
+            Assert.Contains(";2013;;3;10000;", lines[1], StringComparison.Ordinal);
+            Assert.Contains("Surse: Oficiul Național al Registrului Comerțului", text, StringComparison.Ordinal);
+
+            // The bare home page has no list, so nothing to download.
+            await page.GotoAsync(portal.Address + "/?handler=Csv");
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(@"/$"));
+        }, NoScript);
+
+    [Fact]
     public Task PhoneShowsResultsFirstWithoutHorizontalScroll() =>
         portal.WithPageAsync(nameof(PhoneShowsResultsFirstWithoutHorizontalScroll), async page =>
         {
