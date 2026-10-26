@@ -22,6 +22,10 @@ Services:
 
 The web process never applies migrations itself. This is local setup, not a production deployment procedure.
 
+## Behind an HTTPS proxy
+
+When the portal is published through a proxy that terminates TLS (for example a Cloudflare Tunnel to `web:8080`), set `Proxy__TrustForwardedProto=true` on web, in an untracked `compose.override.yaml`. The app then takes the scheme from X-Forwarded-Proto: redirects stay on https and the operator cookie is Secure. Only the scheme is trusted, and only enable it when the port is reachable solely through that proxy, since any client that reaches it directly can set the header. Put `/admin` behind the proxy's own access control as well.
+
 ## Commands and data
 
 ```sh

@@ -1,4 +1,5 @@
 using BusinessIntelligence.Modules.Platform.Persistence;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessIntelligence.Host.Composition;
@@ -44,6 +45,17 @@ public static class PortalApplication
         });
 
         var app = builder.Build();
+        // Behind a TLS-terminating proxy (a Cloudflare Tunnel, say) the request scheme comes from X-Forwarded-Proto, so
+        // redirects stay on https and the operator cookie is Secure. Only the scheme is taken from the header; turn this on
+        // only when the port is reachable solely through that proxy.
+        if (builder.Configuration.GetValue<bool>("Proxy:TrustForwardedProto"))
+        {
+            var forwarded = new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedProto };
+            forwarded.KnownIPNetworks.Clear();
+            forwarded.KnownProxies.Clear();
+            app.UseForwardedHeaders(forwarded);
+        }
+
         // Never render a Development exception page; it can contain request details.
         app.UseExceptionHandler(errors => errors.Run(async context =>
         {
