@@ -8,6 +8,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<SourceFile> SourceFiles => Set<SourceFile>();
     public DbSet<PublishedDataset> PublishedDatasets => Set<PublishedDataset>();
     public DbSet<CaenEntry> Caen => Set<CaenEntry>();
+    public DbSet<CaenCorrespondence> CaenCorrespondence => Set<CaenCorrespondence>();
     public DbSet<CompanyStatusCode> StatusCodes => Set<CompanyStatusCode>();
     public DbSet<SirutaPlace> Siruta => Set<SirutaPlace>();
     public DbSet<Registration> Registrations => Set<Registration>();

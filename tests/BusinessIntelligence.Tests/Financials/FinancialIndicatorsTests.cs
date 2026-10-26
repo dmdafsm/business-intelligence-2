@@ -81,7 +81,7 @@ public sealed class FinancialIndicatorsTests(PostgresFixture postgres) : IClassF
 
         var builder = new BuildFinancialBenchmarks(database, TimeProvider.System);
         await builder.ExecuteAsync(CancellationToken.None);
-        var rows = await builder.ExecuteAsync(CancellationToken.None);
+        var rows = (await builder.ExecuteAsync(CancellationToken.None)).Rows;
         var stored = await database.FinancialBenchmarks.AsNoTracking().ToListAsync();
 
         // Rebuilding replaces the table: 2023 and 2024, each with all sizes plus the bands present; never 2025.

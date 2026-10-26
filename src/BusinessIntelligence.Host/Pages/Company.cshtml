@@ -223,8 +223,20 @@
     @if (latestStatement?.Statement?.CaenCode is { } mainCode)
     {
         <p class="md-typescale-body-large">Activitate principală declarată în situațiile financiare @latestStatement.Year:
-            <strong><span class="md-caen-code">@mainCode</span> @(latestStatement.CaenName ?? "")</strong>
-            @if (latestStatement.Statement.CaenVersion is null) { <span class="md-on-surface-variant">(versiunea CAEN nu este precizată în sursă)</span> }
+            @if (latestStatement.Statement.CaenVersion is not null)
+            {
+                <strong><span class="md-caen-code">@mainCode</span> @(latestStatement.CaenName ?? "")</strong>
+            }
+            else if (latestStatement.Statement.ClassCode is { } classCode)
+            {
+                <strong><span class="md-caen-code">@mainCode</span></strong>
+                <span class="md-on-surface-variant">(versiunea CAEN nu este precizată în sursă; clasa CAEN Rev.3 corespunzătoare: <span class="md-caen-code">@classCode</span> @(latestStatement.CaenName ?? ""), @CompanyModel.ClassMethodText(latestStatement.Statement.ClassMethod))</span>
+            }
+            else
+            {
+                <strong><span class="md-caen-code">@mainCode</span></strong>
+                <span class="md-on-surface-variant">(versiunea CAEN nu este precizată în sursă și codul nu duce la o singură clasă CAEN Rev.3)</span>
+            }
         </p>
     }
     @if (profile.Activities.Count == 0)
@@ -515,9 +527,13 @@
             <h3 id="comparatie-title" class="md-typescale-title-small">Comparație cu firmele din aceeași clasă CAEN, @comparison.Year</h3>
             <p class="md-typescale-body-medium">
                 CAEN Rev.@comparison.CaenVersion @comparison.CaenCode@(comparison.CaenName is { } caenName ? " – " + caenName : "")@(comparison.SizeBand is { } band ? $"; mărimea firmei: {CompanyModel.SizeLabel(band)}" : "").
+                @if (comparison.ClassMethod is { } method)
+                {
+                    <span class="md-on-surface-variant">Pentru @comparison.Year sursa nu precizează versiunea CAEN; clasa Rev.3 @(comparison.DeclaredCode is { } declared ? $"(codul declarat: {declared}) " : "")a fost stabilită @CompanyModel.ClassMethodText(method). Firmele cărora nu li se poate stabili o singură clasă nu intră în comparație.</span>
+                }
                 @if (filed[^1].Year > comparison.Year)
                 {
-                    <span class="md-on-surface-variant">Pentru @filed[^1].Year sursa amestecă coduri CAEN Rev.2 și Rev.3, așa că nu se poate stabili clasa fiecărei firme; comparația folosește @comparison.Year.</span>
+                    <span class="md-on-surface-variant">Pentru @filed[^1].Year codul CAEN declarat nu duce la o singură clasă Rev.3, așa că comparația folosește @comparison.Year.</span>
                 }
             </p>
             <div class="md-table-wrapper">

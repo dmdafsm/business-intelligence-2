@@ -31,6 +31,18 @@ public sealed class PublishedDataset
     public DateTimeOffset PublishedAt { get; set; }
 }
 
+/// <summary>
+/// One pair of the INS CAEN Rev.2 to Rev.3 correspondence table: a Rev.2 class and a Rev.3 class it maps to. A Rev.2
+/// class split in several Rev.3 classes has several pairs. <see cref="Intermediate"/> marks Rev.3 classes INS created
+/// as intermediaries, associated with the Rev.2 class without resulting from its detailing.
+/// </summary>
+public sealed class CaenCorrespondence
+{
+    public required string Rev2Code { get; set; }
+    public required string Rev3Code { get; set; }
+    public bool Intermediate { get; set; }
+}
+
 public sealed class CaenEntry
 {
     public short Version { get; set; }
@@ -290,6 +302,11 @@ public static class RegistryPersistence
             entity.ToTable("area_outlines", Schema);
             entity.HasKey(item => new { item.Level, item.Code });
             entity.Property(item => item.Code).ValueGeneratedNever();
+        });
+        builder.Entity<CaenCorrespondence>(entity =>
+        {
+            entity.ToTable("caen_correspondence", Schema);
+            entity.HasKey(item => new { item.Rev2Code, item.Rev3Code });
         });
         builder.Entity<Representative>(entity =>
         {

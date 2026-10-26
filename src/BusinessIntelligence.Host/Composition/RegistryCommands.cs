@@ -77,6 +77,7 @@ internal static class RegistryCommands
             "onrc-caen" => await reference.CaenAsync(path, file, cancellationToken),
             "onrc-status" => await reference.StatusCodesAsync(path, file, cancellationToken),
             "siruta" => await reference.SirutaAsync(path, file, cancellationToken),
+            ImportReferenceData.CorrespondenceKind => await reference.CaenCorrespondenceAsync(path, file, cancellationToken),
             ImportOnrcCompanies.Kind => await new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.StatusKind => await new ImportOnrcAnnexes(database, TimeProvider.System).StatusesAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.ActivitiesKind => await new ImportOnrcAnnexes(database, TimeProvider.System).ActivitiesAsync(path, file, cancellationToken),
