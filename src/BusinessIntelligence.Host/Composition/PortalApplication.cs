@@ -19,7 +19,25 @@ public static class PortalApplication
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
         builder.Services.AddScoped<BusinessIntelligence.Modules.Search.CompanySearch>();
         builder.Services.AddScoped<BusinessIntelligence.Modules.Profile.CompanyProfileQuery>();
-        builder.Services.AddRazorPages();
+        var operatorAccess = await OperatorAccess.CreateAsync(builder.Configuration);
+        builder.Services.AddSingleton(operatorAccess);
+        builder.Services.AddAuthentication(OperatorAccess.Scheme).AddCookie(OperatorAccess.Scheme, options =>
+        {
+            options.LoginPath = OperatorAccess.PathPrefix + "/intrare";
+            options.Cookie.Name = "bi_operator";
+            options.Cookie.Path = OperatorAccess.PathPrefix;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.ExpireTimeSpan = TimeSpan.FromHours(8);
+            options.SlidingExpiration = true;
+        });
+        builder.Services.AddAuthorization();
+        builder.Services.AddRazorPages(options =>
+        {
+            options.Conventions.AuthorizeFolder("/Admin");
+            options.Conventions.AllowAnonymousToPage("/Admin/Intrare");
+        });
 
         var app = builder.Build();
         // Never render a Development exception page; it can contain request details.
@@ -45,8 +63,26 @@ public static class PortalApplication
             await next(context);
         });
         app.UseStatusCodePagesWithReExecute("/Eroare/{0}");
+        // Operator pages exist only with a configured token, and are never cached.
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments(OperatorAccess.PathPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                if (!operatorAccess.Enabled)
+                {
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    return;
+                }
+
+                context.Response.Headers.CacheControl = "no-store";
+            }
+
+            await next(context);
+        });
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.MapRazorPages();
         app.MapGet("/health/live", () => Results.Ok(new { status = "alive" }));
         app.MapGet("/health/ready", async (AppDbContext database, CancellationToken cancellationToken) =>

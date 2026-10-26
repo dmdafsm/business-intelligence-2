@@ -9,6 +9,9 @@ x-application: &application
     ASPNETCORE_ENVIRONMENT: Development
     ConnectionStrings__Application: Host=postgres;Database=business_intelligence;Username=bi_local;Timeout=5;CommandTimeout=30;GSS Encryption Mode=Disable
     Database__PasswordFile: /run/secrets/postgres_password
+    Jobs__File: /config/import-jobs.json
+    Jobs__RawRoot: /data/raw
+    Admin__TokenFile: /run/secrets/admin_token
   secrets:
     - postgres_password
   read_only: true
@@ -72,6 +75,12 @@ services:
     <<: *application
     ports:
       - "127.0.0.1:${BI_HTTP_PORT:-8090}:8080"
+    # The operator pages (/admin) exist only with the admin token; only the web service gets it.
+    secrets:
+      - postgres_password
+      - admin_token
+    volumes:
+      - ./config:/config:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,6 +90,31 @@ services:
     mem_limit: 512m
     cpus: 1
 
+  # Import jobs (config/import-jobs.json): checks data.gov.ro on schedule, downloads new files into .research/raw and
+  # runs the imports, one run at a time. Runs queued from /admin/joburi or `jobs queue` start here.
+  worker:
+    <<: *application
+    command: [jobs, worker]
+    volumes:
+      - ./.research/raw:/data/raw
+      - ./config:/config:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    # The worker touches a heartbeat file every 20 s, also while an import runs.
+    healthcheck:
+      test: [CMD, dotnet, BusinessIntelligence.Host.dll, healthcheck, worker]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    # Each import runs as a child process; the SEAP history peaks at 2.5 GB.
+    mem_limit: 3g
+    cpus: 2
+
   # Operator imports: `docker compose --profile import run --rm import <command> ...`. The downloaded source files are
   # mounted read-only at /data/raw; the catalog pins each one by size and SHA-256.
   import:
@@ -88,6 +122,7 @@ services:
     profiles: [import]
     volumes:
       - ./.research/raw:/data/raw:ro
+      - ./config:/config:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -117,6 +152,8 @@ services:
 secrets:
   postgres_password:
     file: ./.artifacts/docker/postgres-password
+  admin_token:
+    file: ./.artifacts/docker/admin-token
 
 volumes:
   postgres-data:
