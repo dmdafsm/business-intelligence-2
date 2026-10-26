@@ -10,7 +10,7 @@ docker compose ps --all
 
 The portal is at <http://localhost:8090>, with [liveness](http://localhost:8090/health/live) and [readiness](http://localhost:8090/health/ready) endpoints. Set BI_HTTP_PORT before starting Compose to use another host port; the container still listens on 8080.
 
-The stack is self-contained: Compose project `business-intelligence-2`, database volume `business-intelligence-2-postgres-data`, network `business-intelligence-2` and host port 8090. It shares nothing with the older `business-intelligence` stack (which uses port 8080 and its own volume), so both can run side by side.
+The stack is self-contained: Compose project `business-intelligence-2`, database volume `business-intelligence-2-postgres-data`, network `business-intelligence-2` and host port 8090.
 
 Services:
 

@@ -11,12 +11,12 @@ python3 scripts/prepare_docker.py
 docker compose up --build --detach --wait
 ```
 
-Portalul rulează la <http://localhost:8080>. Detalii în [ghidul Docker](docs/engineering/docker-local.md).
+Portalul rulează la <http://localhost:8090>. Detalii în [ghidul Docker](docs/engineering/docker-local.md).
 
 ## Dezvoltare
 
 - [Instrucțiuni pentru agenți](AGENTS.md) și [ghidul contribuțiilor](CONTRIBUTING.md).
-- [Arhitectura](.research/architecture.md) și [design system-ul Material 3](docs/engineering/design-system.md).
+- [Arhitectura](docs/architecture.md) și [design system-ul Material 3](docs/engineering/design-system.md).
 - [Standarde de cod](docs/engineering/coding-standards.md), [testare](docs/engineering/testing-and-verification.md), [securitate și date](docs/engineering/security-and-data.md), [browser](docs/engineering/browser-testing.md), [code review](docs/engineering/code-review.md).
 - [Branch-uri și PR-uri](docs/engineering/branch-policy.md). Instalare hooks: `python3 scripts/install_hooks.py`.
 
