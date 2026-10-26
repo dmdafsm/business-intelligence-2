@@ -11,8 +11,8 @@
 
 ## Product and architecture baseline
 
-- The product is the MVP in [.research/mvp-plan.md](.research/mvp-plan.md): find Romanian companies by name, CUI or registry number, group them by CAEN, county and city, and show a company profile with general, contact and full historical financial data. Reports, statistics, numeric filters, administration/updates, accounts, exports and AI are out of scope until a new plan is agreed.
-- Data is imported in bulk from local files with operator commands. Pages never call a remote source.
+- The product is the MVP in [.research/mvp-plan.md](.research/mvp-plan.md): find Romanian companies by name, CUI or registry number, group them by CAEN, county and city, and show a company profile with general, contact and full historical financial data. Keeping the data current through import jobs and their operator page is in scope (S09). Reports, statistics, numeric filters, other administration, accounts, exports and AI are out of scope until a new plan is agreed.
+- Data is imported in bulk from local files with operator commands; the import-jobs worker downloads new editions and runs those commands. Pages never call a remote source.
 - Use C#/.NET 10 Razor Pages and PostgreSQL in a modular monolith with vertical slices. Keep module ownership explicit. See [.research/architecture.md](.research/architecture.md).
 - The UI follows Material 3, implemented in-house as CSS tokens and Razor partials. No frontend package, no TypeScript, and every page works without JavaScript. See the [design system](docs/engineering/design-system.md).
 - Keep things simple: no HTTP calls between local modules, generic repository layer, Event Sourcing or new service infrastructure by default. A justified departure needs a short decision record.

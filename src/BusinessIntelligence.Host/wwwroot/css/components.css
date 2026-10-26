@@ -438,6 +438,27 @@ a.md-list__item[aria-current="true"] { background: var(--md-sys-color-secondary-
 
 .md-status--active { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
 .md-status--suspended, .md-status--dissolution, .md-status--insolvency { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+/* Operator pages only: a failed import run. Company states never use it. */
+.md-status--error { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+
+/* ---------- Log (operator pages) ---------- */
+
+.md-log {
+  margin: 0;
+  padding: var(--md-sys-spacing-3) var(--md-sys-spacing-4);
+  max-height: 70vh;
+  overflow: auto;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-small);
+  font-family: var(--md-ref-typeface-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.md-log__err { color: var(--md-sys-color-error); }
+.md-log__job { color: var(--md-sys-color-primary); }
 
 /* ---------- Pagination ---------- */
 

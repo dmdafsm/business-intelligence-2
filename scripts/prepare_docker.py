@@ -9,26 +9,31 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def ensure_secret(path):
+    """Create a random secret once; an existing one is kept (and checked), never replaced."""
+    if path.is_symlink():
+        raise ValueError(f"Docker secret input {path.name} must not be a symlink")
+    try:
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o444)
+    except FileExistsError:
+        if not path.is_file() or not 1 <= path.stat().st_size <= 1024:
+            raise ValueError(f"Existing Docker secret input {path.name} is invalid; it was not replaced") from None
+    else:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write(secrets.token_urlsafe(48) + "\n")
+    # Bind-mounted secrets must be readable by the non-root container UID.
+    # The enclosing host directory is private (0700), so other host users cannot traverse it.
+    path.chmod(0o444)
+
+
 def prepare(root):
     directory = root / ".artifacts/docker"
     if directory.is_symlink():
         raise ValueError("Docker input directory must not be a symlink")
     directory.mkdir(parents=True, exist_ok=True, mode=0o700)
     directory.chmod(0o700)
-    password = directory / "postgres-password"
-    if password.is_symlink():
-        raise ValueError("Docker password input must not be a symlink")
-    try:
-        descriptor = os.open(password, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o444)
-    except FileExistsError:
-        if not password.is_file() or not 1 <= password.stat().st_size <= 1024:
-            raise ValueError("Existing Docker password input is invalid; it was not replaced") from None
-    else:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
-            stream.write(secrets.token_urlsafe(48) + "\n")
-    # Bind-mounted secrets must be readable by the non-root container UID.
-    # The enclosing host directory is private (0700), so other host users cannot traverse it.
-    password.chmod(0o444)
+    for name in ("postgres-password", "admin-token"):
+        ensure_secret(directory / name)
     reports = directory / "verification"
     if reports.is_symlink():
         raise ValueError("Docker reports directory must not be a symlink")

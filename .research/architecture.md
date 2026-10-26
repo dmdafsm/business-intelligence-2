@@ -4,13 +4,13 @@ Date: 2026-10-25. Carried over from the original repository in simplified form; 
 
 ## Shape
 
-- One ASP.NET Core Razor Pages application (`BusinessIntelligence.Host`) with two roles: the web portal and operator commands (`database migrate`, and import commands added per step). There are no background workers in the MVP; imports run as commands.
+- One ASP.NET Core Razor Pages application (`BusinessIntelligence.Host`) with two roles: the web portal and operator commands (`database migrate`, and import commands added per step). Imports run as commands. Since S09 one background process exists: the import-jobs worker (`jobs worker`, [ADR 0003](../docs/engineering/decisions/0003-import-jobs.md)), which discovers new source files on schedule and runs those same commands as child processes.
 - One class library (`BusinessIntelligence.Modules`) holding modules as namespaces: `Platform` (persistence, hosting), and per step `Registry`, `Fiscal`, `Financials`, `Search`, `Profile`. A module writes only its own tables; `Profile` only reads the others to assemble a company page.
 - PostgreSQL holds everything: staging tables for imports, published tables for reads, and history.
 
 ## Data flow
 
-1. A raw file is downloaded once into ignored `.research/raw/` and recorded in the source catalog (URL, license, hash).
+1. A raw file is downloaded once into ignored `.research/raw/` and recorded in the source catalog (URL, license, hash): the embedded catalog for the first load, `jobs.catalog_files` for files the import jobs found later.
 2. An import command streams it into staging with COPY in bounded batches, validates it, and publishes atomically. Rerunning the same file is a no-op.
 3. Pages read published tables and projections only. They never call a remote source.
 
