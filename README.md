@@ -2,7 +2,7 @@
 
 Portal pentru găsirea firmelor din România și consultarea datelor publice despre ele: date generale, contact, activitate și istoricul financiar complet. Datele provin din surse oficiale deschise (ONRC, Ministerul Finanțelor, INS), importate local; paginile nu apelează sursele la afișare.
 
-Scopul curent este [MVP-ul](.research/mvp-plan.md): căutare după denumire, CUI sau număr de înregistrare, grupare după CAEN, județ și localitate, și profilul firmei. Progresul pe pași este în [harta implementării](.research/implementation-map.json).
+Scopul curent: căutare după denumire, CUI sau număr de înregistrare, grupare după CAEN, județ și localitate, și profilul firmei.
 
 ## Pornire
 
