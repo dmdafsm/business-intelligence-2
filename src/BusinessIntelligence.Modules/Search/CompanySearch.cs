@@ -19,7 +19,8 @@ public sealed record SearchRequest(
     bool IncludeHits = true,
     FinancialFilter? Financials = null,
     string? Signal = null,
-    int? Limit = null);
+    int? Limit = null,
+    string? LegalForm = null);
 
 /// <summary>
 /// Ranges on the latest published financial year (bounds inclusive, any may be null) and an order of the results. A
@@ -103,6 +104,14 @@ public sealed class CompanySearch(AppDbContext database)
 
     public static readonly IReadOnlyList<short> CaenVersions = [3, 2];
 
+    /// <summary>Legal forms offered as filters, most common first, with their names; others can still be asked for by URL.</summary>
+    public static readonly IReadOnlyList<(string Code, string Name)> LegalForms =
+    [
+        ("SRL", "societate cu răspundere limitată"), ("SA", "societate pe acțiuni"), ("SNC", "societate în nume colectiv"),
+        ("SCS", "societate în comandită simplă"), ("PFA", "persoană fizică autorizată"), ("II", "întreprindere individuală"),
+        ("IF", "întreprindere familială"), ("AF", "asociație familială"), ("PF", "persoană fizică"),
+    ];
+
     /// <summary>The <see cref="SearchRequest.Signal"/> for companies that were checked and have no warning signal.</summary>
     public const string NoSignal = "none";
 
@@ -152,15 +161,20 @@ public sealed class CompanySearch(AppDbContext database)
 
         var financials = request.Financials ?? new FinancialFilter();
         var signal = request.Signal is { } chosen && (chosen == NoSignal || Risk.RiskSignals.All.Any(item => item.Key == chosen)) ? chosen : null;
-        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle, financials, signal);
+        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle, financials, signal, request.LegalForm);
         var children = await CaenChildrenAsync(connection, request.CaenVersion, path.Count > 0 ? path[^1] : null, cancellationToken);
         List<HitRow> rows;
         long total;
         Dictionary<string, Dictionary<string, long>> facets;
-        // The stored counts cover county, lifecycle and CAEN only; a locality or a financial filter is counted live.
-        if (hasQuery || request.Uat is not null || !financials.IsEmpty || signal is not null)
+        // The stored counts cover county, lifecycle and CAEN only; a locality, a financial, signal or legal-form filter is
+        // counted live: a name query through a table of its matches, other filters straight on the search table.
+        if (hasQuery)
         {
             (rows, total, facets) = await LiveAsync(connection, filter, hasQuery, page, size, request.CaenVersion, children.Keys, cancellationToken);
+        }
+        else if (request.Uat is not null || !financials.IsEmpty || signal is not null || request.LegalForm is not null)
+        {
+            (rows, total, facets) = await FilteredAsync(database.Database.GetConnectionString()!, filter, page, size, request.CaenVersion, children.Keys, upper: path.Count <= 1, cancellationToken);
         }
         else
         {
@@ -223,7 +237,8 @@ public sealed class CompanySearch(AppDbContext database)
         counts is null ? [] : [.. counts.Where(item => item.Value > 0).Select(item => new FacetItem(item.Key, label(item.Key) ?? item.Key, item.Value))];
 
     /// <summary>The WHERE clauses and parameters for one request, shared by the result list and the live counts.</summary>
-    private sealed class SqlFilter(SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle, FinancialFilter financials, string? signal)
+    private sealed class SqlFilter(
+        SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle, FinancialFilter financials, string? signal, string? legalForm)
     {
         public SearchQuery Query { get; } = query;
         public string? Lifecycle { get; } = lifecycle;
@@ -244,6 +259,7 @@ public sealed class CompanySearch(AppDbContext database)
             if (county is not null) { clauses.Add("c.county_number = @county"); }
             if (uat is not null) { clauses.Add("c.uat_code = @uat"); }
             if (caenToken is not null) { clauses.Add("c.caen @> ARRAY[@caen]"); }
+            if (legalForm is not null) { clauses.Add("c.legal_form = @legalForm"); }
             if (Financials.TurnoverMin is not null) { clauses.Add("c.turnover >= @turnoverMin"); }
             if (Financials.TurnoverMax is not null) { clauses.Add("c.turnover <= @turnoverMax"); }
             if (Financials.EmployeesMin is not null) { clauses.Add("c.employees >= @employeesMin"); }
@@ -251,11 +267,11 @@ public sealed class CompanySearch(AppDbContext database)
             // "No signal" covers only companies the signals are built for: with a CUI and not struck off.
             if (signal == NoSignal)
             {
-                clauses.Add("c.cui IS NOT NULL AND c.lifecycle <> 'StruckOff' AND NOT EXISTS (SELECT 1 FROM risk.signals r WHERE r.company_key = c.company_key)");
+                clauses.Add("c.cui IS NOT NULL AND c.lifecycle <> 'StruckOff' AND c.signals = '{}'");
             }
             else if (signal is not null)
             {
-                clauses.Add("EXISTS (SELECT 1 FROM risk.signals r WHERE r.company_key = c.company_key AND r.signal = @signal)");
+                clauses.Add("c.signals @> ARRAY[@signal]");
             }
             return string.Join(" AND ", clauses);
         }
@@ -335,6 +351,7 @@ public sealed class CompanySearch(AppDbContext database)
             Add("employeesMin", Financials.EmployeesMin);
             Add("employeesMax", Financials.EmployeesMax);
             Add("signal", signal == NoSignal ? null : signal);
+            Add("legalForm", legalForm);
             if (Query.NameKey is { } key)
             {
                 command.Parameters.AddWithValue("key", key);
@@ -454,6 +471,101 @@ public sealed class CompanySearch(AppDbContext database)
 
         await transaction.CommitAsync(cancellationToken);
         return (rows, facets.GetValueOrDefault("total")?.GetValueOrDefault("") ?? 0, facets);
+    }
+
+    /// <summary>
+    /// Filters without a name query: the page reads <c>search.companies</c> in the requested order (indexes on name,
+    /// turnover and employees) while the counts run at the same time on their own pooled connections. The CAEN counts for
+    /// sections and divisions read the short <c>caen_upper</c> array instead of every activity code.
+    /// </summary>
+    private static async Task<(List<HitRow> Rows, long Total, Dictionary<string, Dictionary<string, long>> Facets)> FilteredAsync(
+        string connectionString, SqlFilter filter, int page, int size, short caenVersion, IEnumerable<string> children, bool upper,
+        CancellationToken cancellationToken)
+    {
+        var where = filter.Where().Replace("c.", "d.", StringComparison.Ordinal);
+        var lifecycle = filter.LifecycleClause.Replace("c.", "d.", StringComparison.Ordinal);
+        var order = (filter.SortOrder ?? "c.name_key, c.company_key").Replace("c.", "d.", StringComparison.Ordinal);
+        var tokens = children.Select(code => $"{caenVersion}:{code}").ToArray();
+
+        var pageTask = OnOwnConnectionAsync(connectionString, async connection =>
+        {
+            var rows = new List<HitRow>();
+            await using var command = new NpgsqlCommand($"""
+                SELECT {HitColumns}, false, NULL::text
+                FROM search.companies d
+                WHERE {where} AND {lifecycle}
+                ORDER BY {order}
+                LIMIT @limit OFFSET @offset
+                """, connection);
+            filter.Bind(command);
+            command.Parameters.AddWithValue("limit", size);
+            command.Parameters.AddWithValue("offset", (page - 1) * size);
+            await ReadHitsAsync(command, rows, cancellationToken);
+            return rows;
+        }, cancellationToken);
+
+        // Every count by lifecycle, so the lifecycle facet ignores the chosen lifecycle and the others apply it here.
+        var countsTask = OnOwnConnectionAsync(connectionString, async connection =>
+        {
+            var facets = new Dictionary<string, Dictionary<string, long>> { ["lifecycle"] = [], ["county"] = [], ["uat"] = [] };
+            long total = 0;
+            await using var command = new NpgsqlCommand($"""
+                SELECT d.lifecycle, d.county_number, d.uat_code, GROUPING(d.county_number, d.uat_code), count(*)
+                FROM search.companies d
+                WHERE {where}
+                GROUP BY GROUPING SETS ((d.lifecycle), (d.lifecycle, d.county_number), (d.lifecycle, d.uat_code))
+                """, connection);
+            filter.Bind(command);
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                var state = reader.GetString(0);
+                var count = reader.GetInt64(4);
+                var counted = filter.Lifecycle is null || filter.Lifecycle == state;
+                switch (reader.GetInt32(3))
+                {
+                    case 3:
+                        facets["lifecycle"][state] = count;
+                        total += counted ? count : 0;
+                        break;
+                    case 1 when counted && !reader.IsDBNull(1):
+                        Add(facets["county"], reader.GetInt16(1).ToString(CultureInfo.InvariantCulture), count);
+                        break;
+                    case 2 when counted && !reader.IsDBNull(2):
+                        Add(facets["uat"], reader.GetInt32(2).ToString(CultureInfo.InvariantCulture), count);
+                        break;
+                }
+            }
+
+            return (total, facets);
+        }, cancellationToken);
+
+        var caenTask = OnOwnConnectionAsync(connectionString, async connection =>
+        {
+            await using var command = new NpgsqlCommand($"""
+                SELECT 'caen', t, count(*)
+                FROM search.companies d CROSS JOIN LATERAL unnest(d.{(upper ? "caen_upper" : "caen")}) t
+                WHERE {where} AND {lifecycle} AND t = ANY(@tokens)
+                GROUP BY t
+                """, connection);
+            filter.Bind(command);
+            command.Parameters.AddWithValue("tokens", tokens);
+            return (await ReadFacetsAsync(command, cancellationToken)).GetValueOrDefault("caen") ?? [];
+        }, cancellationToken);
+
+        await Task.WhenAll(pageTask, countsTask, caenTask);
+        var (total, facets) = await countsTask;
+        facets["caen"] = await caenTask;
+        return (await pageTask, total, facets);
+
+        static void Add(Dictionary<string, long> counts, string key, long count) => counts[key] = counts.GetValueOrDefault(key) + count;
+    }
+
+    private static async Task<T> OnOwnConnectionAsync<T>(string connectionString, Func<NpgsqlConnection, Task<T>> work, CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(cancellationToken);
+        return await work(connection);
     }
 
     private static async Task<long> CountMatchedAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, CancellationToken cancellationToken)

@@ -44,9 +44,9 @@
         ["registry", "import", "{latest-id:onrc-firme-representatives}", "{latest-path:onrc-firme-representatives}"],
         ["registry", "import", "{latest-id:onrc-firme-family-members}", "{latest-path:onrc-firme-family-members}"],
         ["registry", "history", "{raw}"],
+        ["risk", "build"],
         ["search", "build"],
-        ["market", "build"],
-        ["risk", "build"]
+        ["market", "build"]
       ]
     },
     {
@@ -88,7 +88,7 @@
           ]
         }
       ],
-      "commands": [["financials", "import-all", "{raw}"], ["risk", "build"]]
+      "commands": [["financials", "import-all", "{raw}"], ["risk", "build"], ["search", "build"]]
     },
     {
       "id": "seap",
@@ -166,7 +166,7 @@
       "title": "Starea fiscală ANAF (serviciul web)",
       "schedule": "0 1 3 * *",
       "timeoutHours": 14,
-      "commands": [["anaf", "harvest"], ["risk", "build"]]
+      "commands": [["anaf", "harvest"], ["risk", "build"], ["search", "build"]]
     }
   ]
 }
