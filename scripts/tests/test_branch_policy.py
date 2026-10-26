@@ -51,7 +51,7 @@ class BranchGuardTests(unittest.TestCase):
 
     def test_task_branch_commit_succeeds(self):
         install_hooks.install(self.root)
-        self.git("switch", "-c", "codex/test")
+        self.git("switch", "-c", "feat/test")
         self.git("commit", "--allow-empty", "-m", "Allowed task commit")
         self.assertNotEqual(self.base, self.git("rev-parse", "HEAD").stdout.strip())
 
@@ -70,11 +70,11 @@ class BranchGuardTests(unittest.TestCase):
         self.assertIn("named task branch", result.stderr)
 
     def test_merge_commit_on_main_is_blocked(self):
-        self.git("switch", "-c", "codex/test")
+        self.git("switch", "-c", "feat/test")
         self.git("commit", "--allow-empty", "-m", "Task change")
         self.git("switch", "main")
         install_hooks.install(self.root)
-        result = self.git("merge", "--no-ff", "codex/test", "-m", "Must fail", check=False)
+        result = self.git("merge", "--no-ff", "feat/test", "-m", "Must fail", check=False)
         self.assertNotEqual(0, result.returncode)
         self.assertIn("BLOCKED", result.stderr)
         self.assertEqual(self.base, self.git("rev-parse", "HEAD").stdout.strip())
@@ -90,9 +90,9 @@ class BranchGuardTests(unittest.TestCase):
         remote = Path(self.directory.name) / "origin.git"
         subprocess.run(["git", "init", "--bare", str(remote)], check=True, capture_output=True)
         self.git("remote", "add", "origin", str(remote))
-        self.git("switch", "-c", "codex/test")
+        self.git("switch", "-c", "feat/test")
         install_hooks.install(self.root)
-        self.git("push", "origin", "HEAD:refs/heads/codex/test")
+        self.git("push", "origin", "HEAD:refs/heads/feat/test")
         for branch in ("main", "master"):
             with self.subTest(branch=branch):
                 result = self.git("push", "origin", "HEAD:refs/heads/" + branch, check=False)
@@ -132,7 +132,7 @@ class BranchGuardTests(unittest.TestCase):
 
 
 class PullRequestPolicyTests(unittest.TestCase):
-    def event(self, head="codex/test", base="main", default="main"):
+    def event(self, head="feat/test", base="main", default="main"):
         return {"repository": {"default_branch": default},
                 "pull_request": {"head": {"ref": head}, "base": {"ref": base}}}
 
