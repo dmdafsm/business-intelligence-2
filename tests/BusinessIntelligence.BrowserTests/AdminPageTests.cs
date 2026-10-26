@@ -6,7 +6,7 @@ using Xunit;
 namespace BusinessIntelligence.BrowserTests;
 
 /// <summary>A portal with an operator token, a small job file and one finished run.</summary>
-public sealed class AdminPortalFixture : PortalFixture
+public class AdminPortalFixture : PortalFixture
 {
     public const string Token = "synthetic-operator-token-for-browser-tests";
     private readonly DirectoryInfo _directory = Directory.CreateTempSubdirectory("bi-admin-");
@@ -145,6 +145,18 @@ public sealed class AdminPageTests(AdminPortalFixture portal) : IClassFixture<Ad
             var download = await page.RunAndWaitForDownloadAsync(() => page.GetByRole(AriaRole.Link, new() { Name = "Descarcă tot jurnalul" }).ClickAsync());
             Assert.Equal("rulare-1.txt", download.SuggestedFilename);
         });
+
+    [Fact]
+    public async Task AForwardedSchemeIsIgnoredByDefault()
+    {
+        using var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
+        using var request = new HttpRequestMessage(HttpMethod.Get, portal.Address + "/admin/joburi");
+        request.Headers.Add("X-Forwarded-Proto", "https");
+        using var response = await client.SendAsync(request);
+
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("http", response.Headers.Location!.Scheme);
+    }
 
     [Fact]
     public Task OperatorPagesFitAPhone() =>
