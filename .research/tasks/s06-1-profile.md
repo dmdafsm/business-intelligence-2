@@ -26,4 +26,4 @@ Profiles of DEDEMAN SRL (18 filed years, 120 activities, renumbered in 2025), RO
 - Registry periods are bounded by snapshot dates; a change between two snapshots appears at the later one.
 - When the registry gives one CUI to registrations with different names (ROUTIER above), the page flags it and names the other registration; nothing decides which is right. Not covered by an automated test.
 - Tax obligation codes other than 100, 120 and 602 are shown as codes.
-- Not run in Docker.
+- Not run in Docker at the time; the full import later ran in Docker ([REPO Docker stack](repo-docker-stack.md)).

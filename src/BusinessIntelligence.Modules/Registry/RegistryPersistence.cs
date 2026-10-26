@@ -116,6 +116,39 @@ public sealed class CompanyActivity
     public required string CaenCode { get; set; }
 }
 
+/// <summary>
+/// A person or firm that runs or represents a registration, as listed in the ONRC representatives files of a snapshot.
+/// Every published column is kept (see ADR 0001); pages show natural persons with name, role and birth year only.
+/// </summary>
+public sealed class Representative
+{
+    public int SnapshotId { get; set; }
+
+    /// <summary>"legal" (OD_REPREZENTANTI_LEGALI) or "family" (OD_REPREZENTANTI_IF).</summary>
+    public required string Source { get; set; }
+
+    /// <summary>The first line of the file with these values; identical rows are stored once.</summary>
+    public int RowNumber { get; set; }
+    public required string RegistrationNumber { get; set; }
+    public string? Name { get; set; }
+    public string? Role { get; set; }
+    public DateOnly? BirthDate { get; set; }
+
+    /// <summary>The published birth date when it could not be read as a date.</summary>
+    public string? BirthDateText { get; set; }
+    public string? BirthLocality { get; set; }
+    public string? BirthCounty { get; set; }
+    public string? BirthCountry { get; set; }
+
+    /// <summary>Address columns; in practice given for firms acting as representatives.</summary>
+    public string? Locality { get; set; }
+    public string? County { get; set; }
+    public string? Country { get; set; }
+
+    /// <summary>natural (a birth date is given), legal (no birth date, an address is given) or unknown.</summary>
+    public required string PersonKind { get; set; }
+}
+
 /// <summary>A company in a snapshot: all registrations with the same valid CUI, or a single registration without one.</summary>
 public sealed class Company
 {
@@ -245,6 +278,18 @@ public static class RegistryPersistence
             entity.ToTable("history_snapshots", Schema);
             entity.HasKey(item => item.SnapshotDate);
             entity.Property(item => item.Report).HasColumnType("jsonb");
+        });
+        builder.Entity<Geography.AreaOutline>(entity =>
+        {
+            entity.ToTable("area_outlines", Schema);
+            entity.HasKey(item => new { item.Level, item.Code });
+            entity.Property(item => item.Code).ValueGeneratedNever();
+        });
+        builder.Entity<Representative>(entity =>
+        {
+            entity.ToTable("representatives", Schema);
+            entity.HasKey(item => new { item.SnapshotId, item.Source, item.RowNumber });
+            entity.HasIndex(item => new { item.SnapshotId, item.RegistrationNumber });
         });
         builder.Entity<Company>(entity =>
         {

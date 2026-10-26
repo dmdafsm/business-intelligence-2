@@ -1,0 +1,11 @@
+[
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/13ac6d68-de39-4d57-b87d-11b95a47ac64/download/datagov-raport-contracte-publicate-t-i-2024.xls",
+  "path": "seap-history/2024/datagov-raport-contracte-publicate-t-i-2024.xls",
+  "dataset": "Achizitii publice 2024",
+  "name": "Contracte publicate T I 2024",
+  "listedBytes": 63525888,
+  "bytes": 63525888,
+  "sha256": "6813d65c93880a3b14d8aba5bcca6adab2eb1d985984dc29e062cd30de179962"
+ }
+]

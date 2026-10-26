@@ -18,6 +18,8 @@ x-application: &application
   security_opt: [no-new-privileges:true]
   init: true
 
+# Everything here belongs to this repository alone: its own project, database volume, network and port. Nothing is
+# shared with the older business-intelligence stack, which may run on the same machine.
 services:
   postgres:
     image: postgres:18.6-alpine3.24@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873
@@ -27,6 +29,22 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     secrets:
       - postgres_password
+    # Sized for the national imports (millions of rows per transaction, trigram and GIN index builds).
+    command:
+      - postgres
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=2GB
+      - -c
+      - work_mem=64MB
+      - -c
+      - maintenance_work_mem=512MB
+      - -c
+      - max_wal_size=8GB
+      - -c
+      - checkpoint_timeout=15min
+    shm_size: 1g
     volumes:
       - postgres-data:/var/lib/postgresql
     healthcheck:
@@ -36,8 +54,8 @@ services:
       retries: 12
       start_period: 10s
     restart: unless-stopped
-    mem_limit: 512m
-    cpus: 1
+    mem_limit: 3g
+    cpus: ${BI_POSTGRES_CPUS:-4}
 
   migrate:
     <<: *application
@@ -53,7 +71,7 @@ services:
   web:
     <<: *application
     ports:
-      - "127.0.0.1:${BI_HTTP_PORT:-8080}:8080"
+      - "127.0.0.1:${BI_HTTP_PORT:-8090}:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,6 +80,25 @@ services:
     restart: unless-stopped
     mem_limit: 512m
     cpus: 1
+
+  # Operator imports: `docker compose --profile import run --rm import <command> ...`. The downloaded source files are
+  # mounted read-only at /data/raw; the catalog pins each one by size and SHA-256.
+  import:
+    <<: *application
+    profiles: [import]
+    volumes:
+      - ./.research/raw:/data/raw:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      disable: true
+    restart: "no"
+    # SEAP workbooks keep about a million distinct strings in memory while a sheet is read (2.5 GB peak on the history).
+    mem_limit: 3g
+    cpus: 2
 
   verify:
     profiles: [verify]
@@ -83,3 +120,8 @@ secrets:
 
 volumes:
   postgres-data:
+    name: business-intelligence-2-postgres-data
+
+networks:
+  default:
+    name: business-intelligence-2

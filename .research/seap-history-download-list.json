@@ -1,0 +1,994 @@
+[
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/c6abc0ef-3efb-4aef-bc0a-411f8cab2a28/download/contracte-2007.csv",
+  "path": "seap-history/2007/contracte-2007.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2007",
+  "listedBytes": 38141939
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T13%3A52%3A03.977Z/contracte-2008.csv",
+  "path": "seap-history/2008/contracte-2008.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2008",
+  "listedBytes": 65696447
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T13%3A52%3A44.691Z/contracte-2009.csv",
+  "path": "seap-history/2009/contracte-2009.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2009",
+  "listedBytes": 69762407
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T13%3A53%3A25.333Z/contracte-2010.csv",
+  "path": "seap-history/2010/contracte-2010.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2010",
+  "listedBytes": 73722855
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T13%3A55%3A01.609Z/contracte-2011.csv",
+  "path": "seap-history/2011/contracte-2011.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2011",
+  "listedBytes": 67174208
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/432b8b75-eced-44d8-b32f-3dcb4f368be7/download/contrace-2012-s1.csv",
+  "path": "seap-history/2012/contrace-2012-s1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2012-s1",
+  "listedBytes": 48523319
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T13%3A57%3A12.022Z/contracte-2012-s2.csv",
+  "path": "seap-history/2012/contracte-2012-s2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2012-s2",
+  "listedBytes": 91319044
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2015-04-09T12%3A48%3A03.236Z/contracte-2013-s1.csv",
+  "path": "seap-history/2013/contracte-2013-s1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2013-s1",
+  "listedBytes": 40773320
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2015-04-09T12%3A48%3A35.117Z/contracte-2013-s2.csv",
+  "path": "seap-history/2013/contracte-2013-s2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2013-s2",
+  "listedBytes": 72333371
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2015-04-09T12%3A39%3A18.714Z/contracte-2014-s1.csv",
+  "path": "seap-history/2014/contracte-2014-s1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2014-s1",
+  "listedBytes": 64555704
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2015-04-09T12%3A42%3A40.841Z/contracte-2014-s2.csv",
+  "path": "seap-history/2014/contracte-2014-s2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2014-s2",
+  "listedBytes": 78409765
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/53673c9f-04b7-4b54-bf40-9db868afdaa5/download/contracte-2015-s1.csv",
+  "path": "seap-history/2015/contracte-2015-s1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2015-s1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/fa5d8e71-8f87-4775-a8a8-fe0bb23f7b1c/download/contracte-2015-s2.csv",
+  "path": "seap-history/2015/contracte-2015-s2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2015-s2",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/65558337-f46f-44c1-9c8b-4063f6ec437f/download/contracte-2016-s1.csv",
+  "path": "seap-history/2016/contracte-2016-s1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "contracte",
+  "name": "contracte-2016-s1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2014-02-26T14%3A41%3A41.862Z/cumparari-directe-2013-t4-part1.csv",
+  "path": "seap-history/2013/cumparari-directe-2013-t4-part1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2013 t4 part1",
+  "listedBytes": 38477271
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2014-02-26T14%3A44%3A16.255Z/cumparari-directe-2013-t4-part2.csv",
+  "path": "seap-history/2013/cumparari-directe-2013-t4-part2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2013 t4 part2",
+  "listedBytes": 40628141
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2014-02-26T14%3A46%3A49.583Z/cumparari-directe-2013-t4-part3.csv",
+  "path": "seap-history/2013/cumparari-directe-2013-t4-part3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2013 t4 part3",
+  "listedBytes": 35616195
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2015-01-28T14%3A11%3A42.624Z/cumparari-directe-2014-t3.csv",
+  "path": "seap-history/2014/cumparari-directe-2014-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2014 t3",
+  "listedBytes": 95750820
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2015-01-28T14%3A12%3A30.221Z/cumparari-directe-2014-t4-part1.csv",
+  "path": "seap-history/2014/cumparari-directe-2014-t4-part1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2014 t4 part1",
+  "listedBytes": 95453955
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2015-01-28T14%3A13%3A21.798Z/cumparari-directe-2014-t4-part2.csv",
+  "path": "seap-history/2014/cumparari-directe-2014-t4-part2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2014 t4 part2",
+  "listedBytes": 45869369
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/bf16d4b4-33ad-41da-8648-e662641c6fd4/download/cumparari-directe-2015-t1.csv",
+  "path": "seap-history/2015/cumparari-directe-2015-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2015 t1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/8785931b-adb6-4d2f-bf35-97f1fe594bad/download/cumparari-directe-2015-t2-part-1.csv",
+  "path": "seap-history/2015/cumparari-directe-2015-t2-part-1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2015 t2 part 1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/8dd3ab99-5c2d-49e7-b825-9122f6affcc9/download/cumparari-directe-2015-t2-part-2.csv",
+  "path": "seap-history/2015/cumparari-directe-2015-t2-part-2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2015 t2 part 2",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/edcce95d-693b-489a-a4d5-e364cd457fb9/download/cumparari-directe-2015-t3.csv",
+  "path": "seap-history/2015/cumparari-directe-2015-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2015 t3",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/82f1aef9-c807-413e-81b8-f1de54abf8ee/download/cumparari-directe-2015-t4.csv",
+  "path": "seap-history/2015/cumparari-directe-2015-t4.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2015 t4",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/91009a1f-806f-4ef8-bc03-e506473e28bd/download/cumparari-directe-2016-t1.csv",
+  "path": "seap-history/2016/cumparari-directe-2016-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2016 t1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/de28b721-ded1-47b1-8e6b-54e9356f7951/download/cumparari-directe-2016-t2.csv",
+  "path": "seap-history/2016/cumparari-directe-2016-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2016 t2",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4a4903c4-b1e3-46d1-82a5-238287f9496c/resource/d91947e9-4006-43fd-bac4-47396c0053b3/download/cumparari-directe-2016-t3.csv",
+  "path": "seap-history/2016/cumparari-directe-2016-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari directe 2016 t3",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A01%3A04.223Z/cumparari-directe-2007-t1.csv",
+  "path": "seap-history/2007/cumparari-directe-2007-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2007-t1",
+  "listedBytes": 1665073
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A01%3A58.681Z/cumparari-directe-2007-t2.csv",
+  "path": "seap-history/2007/cumparari-directe-2007-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2007-t2",
+  "listedBytes": 3801213
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A03%3A59.099Z/cumparari-directe-2007-t3.csv",
+  "path": "seap-history/2007/cumparari-directe-2007-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2007-t3",
+  "listedBytes": 3204012
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A05%3A34.268Z/cumparari-directe-2007-t4.csv",
+  "path": "seap-history/2007/cumparari-directe-2007-t4.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2007-t4",
+  "listedBytes": 3503439
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A07%3A21.609Z/cumparari-directe-2008-t1.csv",
+  "path": "seap-history/2008/cumparari-directe-2008-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2008-t1",
+  "listedBytes": 4984660
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A08%3A15.447Z/cumparari-directe-2008-t2.csv",
+  "path": "seap-history/2008/cumparari-directe-2008-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2008-t2",
+  "listedBytes": 9151473
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A10%3A58.813Z/cumparari-directe-2008-t3.csv",
+  "path": "seap-history/2008/cumparari-directe-2008-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2008-t3",
+  "listedBytes": 10428244
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A11%3A39.543Z/cumparari-directe-2008-t4.csv",
+  "path": "seap-history/2008/cumparari-directe-2008-t4.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2008-t4",
+  "listedBytes": 14267258
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A12%3A13.929Z/cumparari-directe-2009-t1.csv",
+  "path": "seap-history/2009/cumparari-directe-2009-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2009-t1",
+  "listedBytes": 13616081
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A12%3A47.854Z/cumparari-directe-2009-t2.csv",
+  "path": "seap-history/2009/cumparari-directe-2009-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2009-t2",
+  "listedBytes": 27866548
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A13%3A22.716Z/cumparari-directe-2009-t3.csv",
+  "path": "seap-history/2009/cumparari-directe-2009-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2009-t3",
+  "listedBytes": 35023940
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A13%3A53.800Z/cumparari-directe-2009-t4.csv",
+  "path": "seap-history/2009/cumparari-directe-2009-t4.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2009-t4",
+  "listedBytes": 53688687
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A14%3A33.178Z/cumparari-directe-2010-t1.csv",
+  "path": "seap-history/2010/cumparari-directe-2010-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2010-t1",
+  "listedBytes": 46101710
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A15%3A04.500Z/cumparari-directe-2010-t2.csv",
+  "path": "seap-history/2010/cumparari-directe-2010-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2010-t2",
+  "listedBytes": 66300390
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A15%3A39.904Z/cumparari-directe-2010-t3.csv",
+  "path": "seap-history/2010/cumparari-directe-2010-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2010-t3",
+  "listedBytes": 56321163
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A16%3A45.151Z/cumparari-directe-2010-t4.csv",
+  "path": "seap-history/2010/cumparari-directe-2010-t4.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2010-t4",
+  "listedBytes": 81634423
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A17%3A30.434Z/cumparari-directe-2011-t1.csv",
+  "path": "seap-history/2011/cumparari-directe-2011-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2011-t1",
+  "listedBytes": 64805767
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A18%3A52.079Z/cumparari-directe-2011-t2.csv",
+  "path": "seap-history/2011/cumparari-directe-2011-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2011-t2",
+  "listedBytes": 77654795
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A19%3A33.289Z/cumparari-directe-2011-t3.csv",
+  "path": "seap-history/2011/cumparari-directe-2011-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2011-t3",
+  "listedBytes": 69218438
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A20%3A23.339Z/cumparari-directe-2011-t4.csv",
+  "path": "seap-history/2011/cumparari-directe-2011-t4.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2011-t4",
+  "listedBytes": 96417542
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A21%3A40.142Z/cumparari-directe-2012-t1.csv",
+  "path": "seap-history/2012/cumparari-directe-2012-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2012-t1",
+  "listedBytes": 70740022
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A23%3A30.276Z/cumparari-directe-2012-t2.csv",
+  "path": "seap-history/2012/cumparari-directe-2012-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2012-t2",
+  "listedBytes": 84930851
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A24%3A22.022Z/cumparari-directe-2012-t3.csv",
+  "path": "seap-history/2012/cumparari-directe-2012-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2012-t3",
+  "listedBytes": 72756901
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A28%3A08.165Z/cumparari-directe-2012-t4-part1.csv",
+  "path": "seap-history/2012/cumparari-directe-2012-t4-part1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2012-t4-part1",
+  "listedBytes": 93226695
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A29%3A17.024Z/cumparari-directe-2012-t4-part2.csv",
+  "path": "seap-history/2012/cumparari-directe-2012-t4-part2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2012-t4-part2",
+  "listedBytes": 19517338
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A25%3A00.001Z/cumparari-directe-2013-t1.csv",
+  "path": "seap-history/2013/cumparari-directe-2013-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2013-t1",
+  "listedBytes": 70377342
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A25%3A55.847Z/cumparari-directe-2013-t2.csv",
+  "path": "seap-history/2013/cumparari-directe-2013-t2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2013-t2",
+  "listedBytes": 88930447
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2013-11-01T14%3A26%3A38.280Z/cumparari-directe-2013-t3.csv",
+  "path": "seap-history/2013/cumparari-directe-2013-t3.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2013-t3",
+  "listedBytes": 85230607
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2014-09-09T10%3A32%3A22.948Z/cumparari-directe-2014-t1.csv",
+  "path": "seap-history/2014/cumparari-directe-2014-t1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2014-t1",
+  "listedBytes": 91039761
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2014-09-09T10%3A47%3A11.797Z/cumparari-directe-2014-t2-part1.csv",
+  "path": "seap-history/2014/cumparari-directe-2014-t2-part1.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2014-t2-part1",
+  "listedBytes": 75401720
+ },
+ {
+  "url": "https://data.gov.ro/storage/f/2014-09-09T10%3A48%3A48.541Z/cumparari-directe-2014-t2-part2.csv",
+  "path": "seap-history/2014/cumparari-directe-2014-t2-part2.csv",
+  "dataset": "achizitii-publice-2007-2016-contracte6",
+  "kind": "direct",
+  "name": "cumparari-directe-2014-t2-part2",
+  "listedBytes": 34612118
+ },
+ {
+  "url": "https://data.gov.ro/dataset/498d5b80-c681-4719-9a1a-c76f7d862461/resource/9a15e52f-f06d-4e35-aa5b-9e5c6a33a0c2/download/contracte-2016-s2.csv",
+  "path": "seap-history/2016/contracte-2016-s2.csv",
+  "dataset": "achizitii-publice-2016",
+  "kind": "contracte",
+  "name": "contracte-2016-s2",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/498d5b80-c681-4719-9a1a-c76f7d862461/resource/f0251a90-4454-46e0-a9e7-544463581fe6/download/cumparari-directe-2016-t4.csv",
+  "path": "seap-history/2016/cumparari-directe-2016-t4.csv",
+  "dataset": "achizitii-publice-2016",
+  "kind": "direct",
+  "name": "cumparari directe 2016 t4",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/b5557679-0331-46e4-b275-e91cb00c4f9c/download/contracte-2017-t1.csv",
+  "path": "seap-history/2017/contracte-2017-t1.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "contracte",
+  "name": "contracte 2017 - t1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/33d0caec-dc1b-41af-8cea-4f7018edf7d3/download/contracte-2017-t2.csv",
+  "path": "seap-history/2017/contracte-2017-t2.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "contracte",
+  "name": "contracte 2017 - t2",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/9c8bf3c6-8193-4b3c-88a0-4398ca9132c1/download/contracte-2017-t3.csv",
+  "path": "seap-history/2017/contracte-2017-t3.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "contracte",
+  "name": "contracte 2017 - t3",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/207bb4ae-fd4e-46f7-aee7-a670dcf36057/download/contracte-2017-t4.csv",
+  "path": "seap-history/2017/contracte-2017-t4.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "contracte",
+  "name": "contracte 2017 - t4",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/1fc9d6e9-1829-42f6-86ca-44ba2ad0ee4e/download/achizitii-directe-2017-t1.csv",
+  "path": "seap-history/2017/achizitii-directe-2017-t1.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "direct",
+  "name": "cumparari directe 2017 - t1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/4a84b5b4-aa03-44c0-82e4-b1e1cb0904dc/download/achizitii-directe-2017-t2.csv",
+  "path": "seap-history/2017/achizitii-directe-2017-t2.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "direct",
+  "name": "cumparari directe 2017 - t2",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/74124f7a-92d3-42bd-8677-7abd282105c3/download/achizitii-directe-2017-t3.csv",
+  "path": "seap-history/2017/achizitii-directe-2017-t3.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "direct",
+  "name": "cumparari directe 2017 - t3",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e589cd36-373b-4dd1-b549-4b24dc05c04d/resource/1304faf8-45d1-4756-b62b-c5c4dfd8e19c/download/achizitii-directe-2017-t4.csv",
+  "path": "seap-history/2017/achizitii-directe-2017-t4.csv",
+  "dataset": "achizitii-publice-2017",
+  "kind": "direct",
+  "name": "cumparari directe 2017 - t4",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/f80fedce-a6b2-4804-9aa8-ad709835bc37/download/contracte-2018-t1.csv",
+  "path": "seap-history/2018/contracte-2018-t1.csv",
+  "dataset": "achizitii-publice-2018",
+  "kind": "contracte",
+  "name": "contracte 2018 - t1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/0512843f-f82e-44ee-b2c3-000348414adf/download/raport-t-2-2018.xls",
+  "path": "seap-history/2018/raport-t-2-2018.xls",
+  "dataset": "achizitii-publice-2018",
+  "kind": "contracte",
+  "name": "contracte 2018 - t2",
+  "listedBytes": 5133824
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/71db8c52-2540-4faf-932c-41f94654b48c/download/raport-t-3-2018.xls",
+  "path": "seap-history/2018/raport-t-3-2018.xls",
+  "dataset": "achizitii-publice-2018",
+  "kind": "contracte",
+  "name": "contracte 2018 - t3",
+  "listedBytes": 19045376
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/0b2a099f-5ab7-4ebf-89e6-ad8f70b4a637/download/raport-t-4-2018.xls",
+  "path": "seap-history/2018/raport-t-4-2018.xls",
+  "dataset": "achizitii-publice-2018",
+  "kind": "contracte",
+  "name": "contracte 2018 - t4",
+  "listedBytes": 23515648
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/4b88642f-c72d-460b-ab39-f789d92536a5/download/achiziiidirecte-2018-t1.csv",
+  "path": "seap-history/2018/achiziiidirecte-2018-t1.csv",
+  "dataset": "achizitii-publice-2018",
+  "kind": "direct",
+  "name": "cumparari directe 2018 - t1",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/b1288e55-59af-4c35-a1fe-14c99c32527f/download/achizitiidirecte2018t2.xlsx",
+  "path": "seap-history/2018/achizitiidirecte2018t2.xlsx",
+  "dataset": "achizitii-publice-2018",
+  "kind": "direct",
+  "name": "cumparari directe 2018 - t2",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/d2cf4a41-a955-456f-bb9b-638c178e1922/download/achizitiidirecte2018t3.xlsx",
+  "path": "seap-history/2018/achizitiidirecte2018t3.xlsx",
+  "dataset": "achizitii-publice-2018",
+  "kind": "direct",
+  "name": "cumparari directe 2018 - t3",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/d5a2b325-df17-496c-8664-d6515485b941/resource/bb5e5dfa-1ce4-46b7-ba85-f7cf61ad07c6/download/achizitiidirecte2018t4.xlsx",
+  "path": "seap-history/2018/achizitiidirecte2018t4.xlsx",
+  "dataset": "achizitii-publice-2018",
+  "kind": "direct",
+  "name": "cumparari directe 2018 - t4",
+  "listedBytes": 0
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/f0767534-258d-4bf7-aad9-ed4f23de3fae/download/raport-t-1-2020.xls",
+  "path": "seap-history/2020/raport-t-1-2020.xls",
+  "dataset": "achizitii-publice-2020",
+  "kind": "contracte",
+  "name": "contracte 2020 - t1",
+  "listedBytes": 26421248
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/c1428d5c-4fd1-4130-9560-0f1e0acd430d/download/raport-t-2-2020.xls",
+  "path": "seap-history/2020/raport-t-2-2020.xls",
+  "dataset": "achizitii-publice-2020",
+  "kind": "contracte",
+  "name": "contracte 2020 - t2",
+  "listedBytes": 28487680
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/f08dd716-f8c8-4096-aa98-87dfe883af5d/download/raport-t-3-2020.xls",
+  "path": "seap-history/2020/raport-t-3-2020.xls",
+  "dataset": "achizitii-publice-2020",
+  "kind": "contracte",
+  "name": "contracte 2020 - t3",
+  "listedBytes": 33652224
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/accfe438-329f-40cd-848f-9f9d6ffe0515/download/raport-t-4-2020.xls",
+  "path": "seap-history/2020/raport-t-4-2020.xls",
+  "dataset": "achizitii-publice-2020",
+  "kind": "contracte",
+  "name": "contracte 2020 - t4",
+  "listedBytes": 37353984
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/3e827637-6aba-4b47-85c9-e09f05c71057/download/achizitii_directe_2020_t1.xlsx",
+  "path": "seap-history/2020/achizitii_directe_2020_t1.xlsx",
+  "dataset": "achizitii-publice-2020",
+  "kind": "direct",
+  "name": "achiziții directe 2020 - t1",
+  "listedBytes": 160138735
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/5d1f6b75-24c5-4413-8403-b34a10db2312/download/achizitii_directe_2020_t2.xlsx",
+  "path": "seap-history/2020/achizitii_directe_2020_t2.xlsx",
+  "dataset": "achizitii-publice-2020",
+  "kind": "direct",
+  "name": "achiziții directe 2020 - t2",
+  "listedBytes": 135007631
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/4a800a9f-dfe9-4f6b-9bff-d418148e2514/download/achizitii_directe_2020_t3.xlsx",
+  "path": "seap-history/2020/achizitii_directe_2020_t3.xlsx",
+  "dataset": "achizitii-publice-2020",
+  "kind": "direct",
+  "name": "achiziții directe 2020 - t3",
+  "listedBytes": 170135964
+ },
+ {
+  "url": "https://data.gov.ro/dataset/4c89be6f-50b5-4b83-8d8f-5bbf96b396df/resource/c7b416e5-3d59-4426-a09e-15f5acc33005/download/achizitii_directe_2020_t4.xlsx",
+  "path": "seap-history/2020/achizitii_directe_2020_t4.xlsx",
+  "dataset": "achizitii-publice-2020",
+  "kind": "direct",
+  "name": "achiziții directe 2020 - t4",
+  "listedBytes": 209400815
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/c923a70c-d7b7-4bf8-a1ff-eb025b5cdac0/download/raport-t-1-2021.xls",
+  "path": "seap-history/2021/raport-t-1-2021.xls",
+  "dataset": "achizitii-publice-2021",
+  "kind": "contracte",
+  "name": "contracte 2021 - t1",
+  "listedBytes": 48630784
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/dea44c88-5a0a-4ac9-9fed-3575623ef136/download/raport-t-2-2021.xls",
+  "path": "seap-history/2021/raport-t-2-2021.xls",
+  "dataset": "achizitii-publice-2021",
+  "kind": "contracte",
+  "name": "contracte 2021 - t2",
+  "listedBytes": 75728896
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/e5f2680d-6be9-4db2-a9ba-b3a8c3a1e5ed/download/raport-contracte-t3.csv",
+  "path": "seap-history/2021/raport-contracte-t3.csv",
+  "dataset": "achizitii-publice-2021",
+  "kind": "contracte",
+  "name": "contracte 2021 - t3",
+  "listedBytes": 256568455
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/cd750e45-7e3a-424c-b3be-b0387bddc89d/download/raport-contracte-t4.csv",
+  "path": "seap-history/2021/raport-contracte-t4.csv",
+  "dataset": "achizitii-publice-2021",
+  "kind": "contracte",
+  "name": "contracte 2021 - t4",
+  "listedBytes": 280569178
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/e5b14dd8-2dc0-432d-9e11-820c9549aed5/download/achizitii-directe-2021-t2.csv",
+  "path": "seap-history/2021/achizitii-directe-2021-t2.csv",
+  "dataset": "achizitii-publice-2021",
+  "kind": "direct",
+  "name": "achizitii directe 2021 - t2",
+  "listedBytes": 309673208
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/5f439f08-4187-441c-9220-47c7f3109826/download/raport-da-t3.csv",
+  "path": "seap-history/2021/raport-da-t3.csv",
+  "dataset": "achizitii-publice-2021",
+  "kind": "direct",
+  "name": "achizitii directe 2021 - t3",
+  "listedBytes": 297648503
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/a94329f1-471a-4ffe-ba4a-c40033853795/download/raport-achizitii-directe-t4.csv",
+  "path": "seap-history/2021/raport-achizitii-directe-t4.csv",
+  "dataset": "achizitii-publice-2021",
+  "kind": "direct",
+  "name": "achizitii directe 2021 - t4",
+  "listedBytes": 185230450
+ },
+ {
+  "url": "https://data.gov.ro/dataset/2aa96526-5b6a-4da9-bb51-b1fc7267c39c/resource/5fb48214-0818-4024-b13e-2eebe6b1a73d/download/achizitii_directe_2021_t1.xlsx",
+  "path": "seap-history/2021/achizitii_directe_2021_t1.xlsx",
+  "dataset": "achizitii-publice-2021",
+  "kind": "direct",
+  "name": "achiziții directe 2021 - t1",
+  "listedBytes": 95953216
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/40d2ac89-80d9-4ced-9692-cc7f4fbc5be4/download/raport-contracte-t1-2022.csv",
+  "path": "seap-history/2022/raport-contracte-t1-2022.csv",
+  "dataset": "achizitii-publice-2022",
+  "kind": "contracte",
+  "name": "contracte 2022 - t1",
+  "listedBytes": 68592284
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/4ea3ccd1-a543-4e29-be7c-774aaa040912/download/raport-contracte-t2-2022.xls",
+  "path": "seap-history/2022/raport-contracte-t2-2022.xls",
+  "dataset": "achizitii-publice-2022",
+  "kind": "contracte",
+  "name": "contracte 2022 t2",
+  "listedBytes": 60365312
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/9f8f9dc1-16da-4686-a2eb-c47f1c7d25f3/download/raport-datagov-contracte-t3-2022.xls",
+  "path": "seap-history/2022/raport-datagov-contracte-t3-2022.xls",
+  "dataset": "achizitii-publice-2022",
+  "kind": "contracte",
+  "name": "contracte 2022 t3",
+  "listedBytes": 93576192
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/07490d6d-b45b-4e85-aa6b-c4a6126e5267/download/raport-datagov-contracte-t4-2022.xls",
+  "path": "seap-history/2022/raport-datagov-contracte-t4-2022.xls",
+  "dataset": "achizitii-publice-2022",
+  "kind": "contracte",
+  "name": "contracte 2022 t4",
+  "listedBytes": 115184128
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/b4e53488-facd-4bf3-9030-234c8c6fea8c/download/raport-datagov-achizitii-directe-t3-2022.csv",
+  "path": "seap-history/2022/raport-datagov-achizitii-directe-t3-2022.csv",
+  "dataset": "achizitii-publice-2022",
+  "kind": "direct",
+  "name": "achizitii directe  2022 - t3",
+  "listedBytes": 133249100
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/9f541d85-c102-4dfc-a6f2-4ad012f375ee/download/raport-achizitii-directe-t2-2022.csv",
+  "path": "seap-history/2022/raport-achizitii-directe-t2-2022.csv",
+  "dataset": "achizitii-publice-2022",
+  "kind": "direct",
+  "name": "achizitii directe 2022 t2",
+  "listedBytes": 126496996
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/76fc47a5-69aa-425f-b3e4-67ecd2f41f46/download/raport-achizitii-directe-t1-2022.csv",
+  "path": "seap-history/2022/raport-achizitii-directe-t1-2022.csv",
+  "dataset": "achizitii-publice-2022",
+  "kind": "direct",
+  "name": "achiziții directe 2022 - t1",
+  "listedBytes": 130887520
+ },
+ {
+  "url": "https://data.gov.ro/dataset/51fca83b-02a5-46da-b894-5d9cac565fa2/resource/1bc1453a-5335-40c0-ae1c-303f9ad1eef0/download/raport-datagov-achizitii-directe-t4-2022.csv",
+  "path": "seap-history/2022/raport-datagov-achizitii-directe-t4-2022.csv",
+  "dataset": "achizitii-publice-2022",
+  "kind": "direct",
+  "name": "achiziții directe 2022 - t4",
+  "listedBytes": 182288460
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/acca52ff-50e6-4668-9fa7-c8b1c9201334/download/raport-contracte-publicate-t1-2023.xls",
+  "path": "seap-history/2023/raport-contracte-publicate-t1-2023.xls",
+  "dataset": "achizitii-publice-2023",
+  "kind": "contracte",
+  "name": "contracte publicate t 1 - 2023",
+  "listedBytes": 94382080
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/6ccf50f4-2862-4d32-b616-39e05faa0ee6/download/datagov-raport-contracte-publicate-t-iii-2023.csv",
+  "path": "seap-history/2023/datagov-raport-contracte-publicate-t-iii-2023.csv",
+  "dataset": "achizitii-publice-2023",
+  "kind": "contracte",
+  "name": "contracte publicate t iii 2023",
+  "listedBytes": 100444921
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/1a2d1fff-caec-4e9d-aad8-05a6ef8b954e/download/datagov-raport-contracte-publicate-t-iv-2023.csv",
+  "path": "seap-history/2023/datagov-raport-contracte-publicate-t-iv-2023.csv",
+  "dataset": "achizitii-publice-2023",
+  "kind": "contracte",
+  "name": "contracte publicate t iv 2023",
+  "listedBytes": 72061704
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/a9ca9109-6016-47ab-bfd1-8ee9fa0b0868/download/datagov-raport-contracte-publicate-tii-2023.xls",
+  "path": "seap-history/2023/datagov-raport-contracte-publicate-tii-2023.xls",
+  "dataset": "achizitii-publice-2023",
+  "kind": "contracte",
+  "name": "contracte publicate tii 2023",
+  "listedBytes": 78383113
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/28f536d5-fa32-4e9f-80a1-07454a1e488c/download/raport-achizitii-directe-t1-2023.xls",
+  "path": "seap-history/2023/raport-achizitii-directe-t1-2023.xls",
+  "dataset": "achizitii-publice-2023",
+  "kind": "direct",
+  "name": "achizitii directe t 1 - 2023",
+  "listedBytes": 174949888
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/b21a319f-514b-4e15-98a4-5a992caf3813/download/datagov-raport-achizitii-directe-t-iii-2023.csv",
+  "path": "seap-history/2023/datagov-raport-achizitii-directe-t-iii-2023.csv",
+  "dataset": "achizitii-publice-2023",
+  "kind": "direct",
+  "name": "achizitii directe t iii 2023",
+  "listedBytes": 148411160
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/5acf3253-4ea9-4d00-a6c3-3d220b9e9145/download/datagov-raport-achizitii-directe-t-iv-2023.csv",
+  "path": "seap-history/2023/datagov-raport-achizitii-directe-t-iv-2023.csv",
+  "dataset": "achizitii-publice-2023",
+  "kind": "direct",
+  "name": "achizitii directe t iv 2023",
+  "listedBytes": 147430962
+ },
+ {
+  "url": "https://data.gov.ro/dataset/07234a4a-8315-4ad5-b761-813a9671a851/resource/3a8ab998-2a0e-4e42-81b4-7f089e04dfb8/download/datagov-raport-achizitii-directe-tii-2023.xls",
+  "path": "seap-history/2023/datagov-raport-achizitii-directe-tii-2023.xls",
+  "dataset": "achizitii-publice-2023",
+  "kind": "direct",
+  "name": "achizitii directe tii 2023",
+  "listedBytes": 178819584
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/24acca3c-2993-41a3-966b-ebb574df48c4/download/datagov-raport-contracte-publicate-t-i-2024.csv",
+  "path": "seap-history/2024/datagov-raport-contracte-publicate-t-i-2024.csv",
+  "dataset": "achizitii-publice-2024",
+  "kind": "contracte",
+  "name": "contracte publicate t i 2024",
+  "listedBytes": 9620532
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/9844ef50-42f2-4e53-affb-402dad0044a0/download/datagov-raport-contracte-tiii.xls",
+  "path": "seap-history/2024/datagov-raport-contracte-tiii.xls",
+  "dataset": "achizitii-publice-2024",
+  "kind": "contracte",
+  "name": "contracte publicate t iii 2024",
+  "listedBytes": 57863168
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/429bccb5-055c-42d0-891d-922dc5197ca7/download/datagov-raport-contracte-t-iv_2024.xlsx",
+  "path": "seap-history/2024/datagov-raport-contracte-t-iv_2024.xlsx",
+  "dataset": "achizitii-publice-2024",
+  "kind": "contracte",
+  "name": "contracte t iv",
+  "listedBytes": 9617308
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/c5f1fefc-7940-47ff-ac08-8783ea6484cf/download/datagov-raport-contracte-publicate-t-ii-2024.csv",
+  "path": "seap-history/2024/datagov-raport-contracte-publicate-t-ii-2024.csv",
+  "dataset": "achizitii-publice-2024",
+  "kind": "contracte",
+  "name": "raport contracte publicate t ii 2024",
+  "listedBytes": 72522249
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/b3c28fec-da52-4d95-b6c7-0a034315b190/download/datagov-raport-achizitii-directe-t-i-2024.xls",
+  "path": "seap-history/2024/datagov-raport-achizitii-directe-t-i-2024.xls",
+  "dataset": "achizitii-publice-2024",
+  "kind": "direct",
+  "name": "achizitii directe t i 2024",
+  "listedBytes": 156786688
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/83552692-ac36-45e0-9e5b-5c6bded5f001/download/datagov-raport-achizitii-directe-t-i-2024.csv",
+  "path": "seap-history/2024/datagov-raport-achizitii-directe-t-i-2024.csv",
+  "dataset": "achizitii-publice-2024",
+  "kind": "direct",
+  "name": "achiziții directe t i 2024",
+  "listedBytes": 139948894
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/90972e66-d526-4c54-94b5-cf33330a8e7c/download/datagov-raport-achizitii-directe-t-ii-2024.csv",
+  "path": "seap-history/2024/datagov-raport-achizitii-directe-t-ii-2024.csv",
+  "dataset": "achizitii-publice-2024",
+  "kind": "direct",
+  "name": "achiziții directe t ii 2024",
+  "listedBytes": 150005213
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/66232a37-9585-4561-a8f9-a97735b0c1f1/download/datagov-raport-achizitii-directe-tiii.xls",
+  "path": "seap-history/2024/datagov-raport-achizitii-directe-tiii.xls",
+  "dataset": "achizitii-publice-2024",
+  "kind": "direct",
+  "name": "achiziții directe t iii 2024",
+  "listedBytes": 148235264
+ },
+ {
+  "url": "https://data.gov.ro/dataset/ed84773a-06c6-4016-ad59-8f1d06b8ec1d/resource/dd109516-aaa9-421b-bd4a-7b6ae4f3da43/download/datagov-raport-achizitii-directe-t-iv_2024.xlsx",
+  "path": "seap-history/2024/datagov-raport-achizitii-directe-t-iv_2024.xlsx",
+  "dataset": "achizitii-publice-2024",
+  "kind": "direct",
+  "name": "achiziții directe t iv",
+  "listedBytes": 72239816
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e8d22de4-f8ce-4b42-8561-98d2481ddef9/resource/f78b2b07-8f7c-4367-9a96-cd7318572f20/download/raport-contracte-ti-2026.xlsx",
+  "path": "seap-history/2026/raport-contracte-ti-2026.xlsx",
+  "dataset": "achizitii-publice-2026",
+  "kind": "contracte",
+  "name": "contracte ti 2026",
+  "listedBytes": 22485729
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e8d22de4-f8ce-4b42-8561-98d2481ddef9/resource/2c9237d1-b9c0-4fc3-ad8a-959a7973cc2c/download/datagov-raport-contracte_tii.ods",
+  "path": "seap-history/2026/datagov-raport-contracte_tii.ods",
+  "dataset": "achizitii-publice-2026",
+  "kind": "contracte",
+  "name": "contracte tii 2026",
+  "listedBytes": 15678291
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e8d22de4-f8ce-4b42-8561-98d2481ddef9/resource/a71cec4f-eb69-4e25-9a96-8a85be7d0564/download/raport-contracte-tiii.xlsx",
+  "path": "seap-history/2026/raport-contracte-tiii.xlsx",
+  "dataset": "achizitii-publice-2026",
+  "kind": "contracte",
+  "name": "contracte tiii 2026",
+  "listedBytes": 22202917
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e8d22de4-f8ce-4b42-8561-98d2481ddef9/resource/5bcff70e-a97d-494d-a028-ac031b431dae/download/raport-achizitii-directe-ti-2026.xlsx",
+  "path": "seap-history/2026/raport-achizitii-directe-ti-2026.xlsx",
+  "dataset": "achizitii-publice-2026",
+  "kind": "direct",
+  "name": "achizitii directe ti 2026",
+  "listedBytes": 59905170
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e8d22de4-f8ce-4b42-8561-98d2481ddef9/resource/5ea63810-6fbd-489c-aa41-0b0852a2902e/download/datagov-raport-achizitii-directe_tii.ods",
+  "path": "seap-history/2026/datagov-raport-achizitii-directe_tii.ods",
+  "dataset": "achizitii-publice-2026",
+  "kind": "direct",
+  "name": "achizitii directe tii 2026",
+  "listedBytes": 102690825
+ },
+ {
+  "url": "https://data.gov.ro/dataset/e8d22de4-f8ce-4b42-8561-98d2481ddef9/resource/57dc5b3c-137e-4566-ac7f-ab0fa5f38280/download/raport-achizitii-directe-tiii.xlsx",
+  "path": "seap-history/2026/raport-achizitii-directe-tiii.xlsx",
+  "dataset": "achizitii-publice-2026",
+  "kind": "direct",
+  "name": "achizitii directe tiii 2026",
+  "listedBytes": 107397067
+ }
+]

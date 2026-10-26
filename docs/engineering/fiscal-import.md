@@ -47,4 +47,4 @@ All nine releases in 621 s on an Apple M-series laptop with local PostgreSQL 18 
 
 ## Not covered yet
 
-The MF releases are not linked to registry periods (S05/S06 read both by CUI). In Docker the raw files are not mounted yet.
+The MF releases are not linked to registry periods (the profile reads both by CUI). In Docker, `scripts/docker_import_all.py` runs this import with the raw files mounted read-only (see [the Docker guide](docker-local.md)).

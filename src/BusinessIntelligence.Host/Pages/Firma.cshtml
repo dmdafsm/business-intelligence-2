@@ -10,6 +10,7 @@
     var filed = profile.Financials.Where(year => year.Statement is not null).ToList();
     var latestStatement = filed.LastOrDefault();
     var fiscalEdition = fiscal is not null && profile.FiscalSource is { } fiscalNote ? fiscalNote with { Period = "ediția " + FirmaModel.Date(fiscal.ValidTo) } : null;
+    var peopleSource = profile.RegistrySource with { Dataset = profile.RegistrySource.Dataset + " (reprezentanți)" };
     var websiteSource = profile.RegistrySource with { Dataset = profile.RegistrySource.Dataset + " (site web)" };
 }
 
@@ -27,7 +28,12 @@
 <nav class="md-tabs profile-nav" aria-label="Secțiuni">
     <a class="md-tab" href="#prezentare">Prezentare</a>
     <a class="md-tab" href="#contact">Contact</a>
+    @if (profile.Anaf is not null) { <a class="md-tab" href="#anaf">ANAF</a> }
+    <a class="md-tab" href="#persoane">Persoane</a>
     <a class="md-tab" href="#activitati">Activități</a>
+    @if (profile.Procurement is not null) { <a class="md-tab" href="#achizitii">Achiziții publice</a> }
+    @if (profile.FundSources.Count > 0) { <a class="md-tab" href="#fonduri">Fonduri UE</a> }
+    @if (profile.Licences.Count > 0) { <a class="md-tab" href="#licente">Licențe</a> }
     <a class="md-tab" href="#istoric">Istoric</a>
     <a class="md-tab" href="#financiar">Financiar</a>
 </nav>
@@ -61,12 +67,45 @@
             }
         }
     </dl>
+    @if (profile.Map is { } map)
+    {
+        <partial name="_LocationMap" model="map" />
+    }
     <partial name="_SourceNote" model="profile.RegistrySource" />
     @if (fiscalEdition is not null)
     {
         <partial name="_SourceNote" model="fiscalEdition" />
     }
+    @if (profile.Map is { } mapSource)
+    {
+        <partial name="_SourceNote" model="mapSource.Source" />
+    }
 </section>
+
+@if (profile.Anaf is { } anaf)
+{
+    <section id="anaf" class="md-card md-card--outlined profile-section" aria-labelledby="anaf-title">
+        <h2 id="anaf-title" class="md-card__title">Situația la ANAF</h2>
+        @if (!anaf.Found)
+        {
+            <p class="md-typescale-body-medium md-missing">ANAF nu a găsit acest CUI la @FirmaModel.Date(anaf.CheckedOn).</p>
+        }
+        else
+        {
+            <dl class="md-facts">
+                <div><dt>Plătitor de TVA</dt><dd>@FirmaModel.YesNo(anaf.VatPayer)</dd></div>
+                <div><dt>TVA la încasare</dt><dd>@FirmaModel.YesNo(anaf.CashAccountingVat, anaf.CashAccountingVatSince)</dd></div>
+                <div><dt>Plată defalcată a TVA</dt><dd>@FirmaModel.YesNo(anaf.SplitVat)</dd></div>
+                <div><dt>Contribuabil inactiv</dt><dd>@FirmaModel.YesNo(anaf.Inactive, anaf.InactiveSince)@if (anaf.ReactivatedOn is { } reactivated) {<span class="md-on-surface-variant">, reactivat la @FirmaModel.Date(reactivated)</span>}</dd></div>
+                <div><dt>Înregistrat în RO e-Factura</dt><dd>@FirmaModel.YesNo(anaf.EInvoice, anaf.EInvoiceSince)</dd></div>
+                <div><dt>Stare la ANAF</dt><dd>@(anaf.RegistrationStatus ?? "—")</dd></div>
+                <div class="md-facts__wide"><dt>Organ fiscal competent</dt><dd>@(anaf.TaxOffice ?? "—")@if (FirmaModel.TaxpayerCategory(anaf.TaxOffice) is { } category) {<span class="md-status md-status--active md-facts__badge">@category</span>}</dd></div>
+                @if (anaf.DeregisteredOn is { } deregistered) { <div><dt>Radiat la ANAF</dt><dd>@FirmaModel.Date(deregistered)</dd></div> }
+            </dl>
+        }
+        <p class="md-source">Sursa: Agenția Națională de Administrare Fiscală, serviciul web „PlatitorTvaRest” v9, interogat pentru data de @FirmaModel.Date(anaf.CheckedOn). Se păstrează doar stările fiscale, nu adresa, telefonul sau contul bancar.</p>
+    </section>
+}
 
 <section id="contact" class="md-card md-card--outlined profile-section" aria-labelledby="contact-title">
     <h2 id="contact-title" class="md-card__title">Contact</h2>
@@ -85,6 +124,42 @@
         <partial name="_SourceNote" model="fiscalEdition" />
     }
     <partial name="_SourceNote" model="websiteSource" />
+</section>
+
+<section id="persoane" class="md-card md-card--outlined profile-section" aria-labelledby="persoane-title">
+    <h2 id="persoane-title" class="md-card__title">Persoane</h2>
+    @if (profile.People.Count == 0)
+    {
+        <p class="md-typescale-body-medium md-missing">Registrul nu listează administratori sau reprezentanți pentru această înregistrare.</p>
+    }
+    else
+    {
+        var severalRegistrations = profile.People.Select(item => item.RegistrationNumber).Distinct().Count() > 1;
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <caption class="md-visually-hidden">Administratori și reprezentanți</caption>
+                <thead><tr><th scope="col">Nume</th><th scope="col">Calitate</th><th scope="col">Născut(ă) / sediu</th>@if (severalRegistrations) {<th scope="col">Nr. înregistrare</th>}</tr></thead>
+                <tbody>
+                    @foreach (var person in profile.People)
+                    {
+                        <tr>
+                            <td>@(person.Name ?? "—")</td>
+                            <td>@(person.Role ?? "—")</td>
+                            <td class="md-numeric">@(person.Kind switch
+                            {
+                                "natural" => person.BirthYear?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "—",
+                                "legal" => string.IsNullOrEmpty(person.Place) ? "persoană juridică" : person.Place,
+                                _ => "—",
+                            })</td>
+                            @if (severalRegistrations) {<td>@person.RegistrationNumber</td>}
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <p class="md-typescale-body-small md-on-surface-variant">Pentru persoanele fizice se afișează doar numele, calitatea și anul nașterii. Aceeași persoană poate apărea la mai multe firme, iar nume identice pot aparține unor persoane diferite. Asociații și beneficiarii reali nu sunt publicați de ONRC ca date deschise.</p>
+    <partial name="_SourceNote" model="peopleSource" />
 </section>
 
 <section id="activitati" class="md-card md-card--outlined profile-section" aria-labelledby="activitati-title">
@@ -125,6 +200,124 @@
     }
     <partial name="_SourceNote" model="profile.RegistrySource" />
 </section>
+
+@if (profile.Procurement is { } procurement)
+{
+    <section id="achizitii" class="md-card md-card--outlined profile-section" aria-labelledby="achizitii-title">
+        <h2 id="achizitii-title" class="md-card__title">Achiziții publice</h2>
+        <p class="md-typescale-body-small md-on-surface-variant">Contracte și achiziții directe publicate în SEAP; perioade importate: @procurement.Coverage. Lipsa unei firme din listă nu înseamnă că nu a avut contracte în afara acestor perioade.</p>
+        <h3 class="md-typescale-title-small">Ca furnizor câștigător</h3>
+        @if (procurement.Won.Count == 0)
+        {
+            <p class="md-typescale-body-medium md-missing">Niciun contract sau achiziție directă câștigată în perioadele importate.</p>
+        }
+        else
+        {
+            <partial name="_ProcurementYears" model="procurement.Won" />
+            <p class="md-typescale-body-small md-on-surface-variant">Valorile sunt cele publicate în SEAP, fără corecții; câteva contracte au în sursă valori vădit eronate. Valoarea unui contract cu mai mulți câștigători este cea totală a contractului: sursa nu arată partea fiecăruia. Un contract publicat în mai multe trimestre este numărat o singură dată.</p>
+            <div class="md-table-wrapper">
+                <table class="md-data-table">
+                    <caption>Cele mai recente @procurement.RecentWins.Count</caption>
+                    <thead><tr><th scope="col">Data</th><th scope="col">Autoritate contractantă</th><th scope="col">Obiect</th><th scope="col">Tip</th><th scope="col" class="md-numeric">Valoare (lei)</th></tr></thead>
+                    <tbody>
+                        @foreach (var award in procurement.RecentWins)
+                        {
+                            <tr>
+                                <td class="md-numeric">@FirmaModel.Date(award.ContractDate ?? award.PublishedOn)</td>
+                                <td>@(award.AuthorityName ?? "—")</td>
+                                <td>@(award.Title ?? award.CpvName ?? "—")@if (award.CpvCode is { } cpv) {<span class="md-on-surface-variant"> · CPV @cpv</span>}</td>
+                                <td>@(award.Kind == "direct" ? "achiziție directă" : "contract")@if (award.Winners > 1) {<span class="md-on-surface-variant"> · @award.Winners câștigători</span>}</td>
+                                <td class="md-numeric">@(award.ValueRon is { } value ? value.ToString("N2", FirmaModel.Ro) : "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        @if (procurement.Bought.Count > 0)
+        {
+            <h3 class="md-typescale-title-small">Ca autoritate contractantă</h3>
+            <partial name="_ProcurementYears" model="procurement.Bought" />
+        }
+        @foreach (var source in procurement.Sources)
+        {
+            <partial name="_SourceNote" model="source" />
+        }
+    </section>
+}
+
+@if (profile.FundSources.Count > 0)
+{
+    <section id="fonduri" class="md-card md-card--outlined profile-section" aria-labelledby="fonduri-title">
+        <h2 id="fonduri-title" class="md-card__title">Fonduri europene</h2>
+        @if (profile.Funds.Count == 0)
+        {
+            <p class="md-typescale-body-medium md-missing">Niciun proiect în listele importate.</p>
+        }
+        else
+        {
+            <div class="md-table-wrapper">
+                <table class="md-data-table">
+                    <caption class="md-visually-hidden">Proiecte cu finanțare europeană</caption>
+                    <thead><tr><th scope="col">Program</th><th scope="col">Proiect</th><th scope="col">Stare</th><th scope="col">Perioada</th><th scope="col" class="md-numeric">Valoare (lei)</th><th scope="col" class="md-numeric">Plătit (lei)</th><th scope="col">Legătură</th></tr></thead>
+                    <tbody>
+                        @foreach (var entry in profile.Funds)
+                        {
+                            var project = entry.Project;
+                            var value = project.TotalValue ?? project.EligibleValue ?? project.ContractedValue;
+                            <tr>
+                                <td>@project.Programme</td>
+                                <td>@(project.Title ?? "—")@if (project.ProjectCode is { } code) {<span class="md-on-surface-variant"> · @code</span>}</td>
+                                <td>@(project.Status ?? "—")</td>
+                                <td class="md-numeric">@(project.StartDate is null && project.EndDate is null ? "—" : $"{FirmaModel.Date(project.StartDate)} – {FirmaModel.Date(project.EndDate)}")</td>
+                                <td class="md-numeric">@(value is { } amount ? amount.ToString("N2", FirmaModel.Ro) : "—")</td>
+                                <td class="md-numeric">@(project.PaidValue is { } paid ? paid.ToString("N2", FirmaModel.Ro) : "—")</td>
+                                <td>@(entry.ByName ? "după denumire și județ" : "după CUI")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <p class="md-typescale-body-small md-on-surface-variant">Listele ministerului și lista AFIR 2014–2020 nu dau codul fiscal al beneficiarului: un proiect este atribuit firmei când denumirea este identică și nicio altă firmă din același județ nu are această denumire. Proiectele în parteneriat (POCU) nu pot fi atribuite așa. Valoarea este totalul proiectului, valoarea eligibilă sau cea contractată, după ce publică fiecare listă.</p>
+        @foreach (var source in profile.FundSources)
+        {
+            <partial name="_SourceNote" model="source" />
+        }
+    </section>
+}
+
+@if (profile.Licences.Count > 0)
+{
+    <section id="licente" class="md-card md-card--outlined profile-section" aria-labelledby="licente-title">
+        <h2 id="licente-title" class="md-card__title">Licențe și contracte cu autorități</h2>
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <caption class="md-visually-hidden">Licențe, autorizații și contracte</caption>
+                <thead><tr><th scope="col">Autoritate</th><th scope="col">Stare</th><th scope="col">Activitate</th><th scope="col">Detalii</th><th scope="col">Loc</th><th scope="col">Sursa</th></tr></thead>
+                <tbody>
+                    @foreach (var entry in profile.Licences)
+                    {
+                        var licence = entry.Licence;
+                        <tr>
+                            <td>@licence.Authority</td>
+                            <td>@licence.Status</td>
+                            <td>@(licence.Activity ?? "—")</td>
+                            <td>@(licence.Details ?? "—")</td>
+                            <td>@(licence.Place ?? "—")</td>
+                            <td>@entry.Source@if (entry.ByName) {<span class="md-on-surface-variant"> · legat după denumire</span>}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="md-typescale-body-small md-on-surface-variant">ANRSC: licențe pentru servicii de utilități publice (valabile, retrase, respinse). ANRM: licențe miniere active, legate de firmă numai când denumirea titularului este identică și unică. CNAS: contracte cu furnizori de servicii medicale și farmacii.</p>
+        @foreach (var source in profile.LicenceSources)
+        {
+            <partial name="_SourceNote" model="source" />
+        }
+    </section>
+}
 
 <section id="istoric" class="md-card md-card--outlined profile-section" aria-labelledby="istoric-title">
     <h2 id="istoric-title" class="md-card__title">Istoric</h2>
