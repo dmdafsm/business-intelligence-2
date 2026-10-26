@@ -26,4 +26,4 @@ PR workflows use read-only tokens and pinned actions; never run PR code through 
 
 Built-in checks catch contract drift, credential files and private-key markers, and package audit issues. They are not a security assessment or secret scanner.
 
-Report vulnerabilities privately to the maintainer, never in a public issue.
+Report vulnerabilities privately as described in the [security policy](../../SECURITY.md), never in a public issue.
