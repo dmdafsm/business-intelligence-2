@@ -1,5 +1,5 @@
 @page "/admin/joburi"
-@model BusinessIntelligence.Host.Pages.Admin.JoburiModel
+@model BusinessIntelligence.Host.Pages.Admin.JobsModel
 @{
     ViewData["Title"] = "Joburi de import";
 }
@@ -43,7 +43,7 @@ else if (Model.Overview is { } overview)
                             <td>
                                 @if (job.LastRun is { } last)
                                 {
-                                    <a asp-page="/Admin/Rulare" asp-route-id="@last.Id"><span class="@RunLabels.StatusClass(last.Status)">@RunLabels.Status(last.Status)</span></a>
+                                    <a asp-page="/Admin/Run" asp-route-id="@last.Id"><span class="@RunLabels.StatusClass(last.Status)">@RunLabels.Status(last.Status)</span></a>
                                     <span class="md-typescale-body-small md-on-surface-variant">@RunLabels.Time(last.QueuedAt, Model.Zone)</span>
                                 }
                                 else
@@ -85,7 +85,7 @@ else if (Model.Overview is { } overview)
                         @foreach (var run in overview.RecentRuns)
                         {
                             <tr>
-                                <td data-numeric><a asp-page="/Admin/Rulare" asp-route-id="@run.Id">@run.Id</a></td>
+                                <td data-numeric><a asp-page="/Admin/Run" asp-route-id="@run.Id">@run.Id</a></td>
                                 <td>@run.JobId <span class="md-typescale-body-small md-on-surface-variant">@RunLabels.Trigger(run.Trigger)</span></td>
                                 <td><span class="@RunLabels.StatusClass(run.Status)">@RunLabels.Status(run.Status)</span></td>
                                 <td>@RunLabels.Time(run.StartedAt ?? run.QueuedAt, Model.Zone)</td>

@@ -133,7 +133,7 @@
                 @foreach (var hit in result.Hits)
                 {
                     <li class="result">
-                        <a class="md-list__item result__link" href="@(hit.Cui is { } cui ? Url.Page("/Firma", new { cui }) : Url.Page("/Firma", new { nr = hit.RegistrationNumber }))">
+                        <a class="md-list__item result__link" href="@(hit.Cui is { } cui ? Url.Page("/Company", new { cui }) : Url.Page("/Company", new { nr = hit.RegistrationNumber }))">
                         <span class="md-list__text">
                             <span class="md-list__headline result__name">@(hit.Name ?? "Fără denumire")</span>
                             @if (hit.EarlierName is not null)

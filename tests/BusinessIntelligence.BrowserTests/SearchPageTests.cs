@@ -32,7 +32,7 @@ public sealed partial class SearchPageTests(SearchPortalFixture portal) : IClass
 
             var filters = page.GetByRole(AriaRole.Complementary, new() { Name = "Filtre" });
             await filters.GetByRole(AriaRole.Link, new() { Name = "Cluj" }).ClickAsync();
-            await Assertions.Expect(page).ToHaveURLAsync(JudetCluj());
+            await Assertions.Expect(page).ToHaveURLAsync(CountyClujUrl());
             await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync("3 firme");
             await Assertions.Expect(filters.GetByRole(AriaRole.Heading, new() { Name = "Localitate" })).ToBeVisibleAsync();
 
@@ -104,5 +104,5 @@ public sealed partial class SearchPageTests(SearchPortalFixture portal) : IClass
         }, Phone);
 
     [GeneratedRegex("judet=12")]
-    private static partial Regex JudetCluj();
+    private static partial Regex CountyClujUrl();
 }

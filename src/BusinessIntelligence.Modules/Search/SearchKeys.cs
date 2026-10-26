@@ -31,14 +31,14 @@ public static partial class SearchKeys
             return null;
         }
 
-        key = StripSocietate(key);
+        key = StripCompanyPrefix(key);
         return key.Length == 0 ? null : key;
     }
 
-    /// <summary><see cref="StripSocietate(string)"/> as SQL over an existing name key column.</summary>
-    public static string StripSocietateSql(string column) => $"regexp_replace({column}, '^S ?C ', '')";
+    /// <summary><see cref="StripCompanyPrefix(string)"/> as SQL over an existing name key column.</summary>
+    public static string StripCompanyPrefixSql(string column) => $"regexp_replace({column}, '^S ?C ', '')";
 
-    public static string StripSocietate(string key) =>
+    public static string StripCompanyPrefix(string key) =>
         key.StartsWith("SC ", StringComparison.Ordinal) ? key[3..]
         : key.StartsWith("S C ", StringComparison.Ordinal) ? key[4..]
         : key;

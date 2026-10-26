@@ -12,6 +12,7 @@ Use explicit mapping and ordinary dependency injection. Introduce abstractions f
 
 ## C# and .NET
 
+- Write code in English: file, folder, type, member, variable, test and CSS class names, comments and commit messages. Romanian is for what users see (page text, labels, messages) and for URLs, which a Razor page sets with an explicit `@page` route (`Pages/Company.cshtml` serves `/firma/{cui}`). Source field and file names stay as published (`OD_FIRME`, `DENUMIRE`) in strings and constants.
 - Enable nullable references, SDK analyzers and warnings as errors. Follow .editorconfig and dotnet format. Use file-scoped namespaces, PascalCase types/methods, camelCase locals/parameters and `_camelCase` private instance fields.
 - Prefer small, explicit types and immutable DTOs. Do not expose EF entities as public API contracts. Avoid reflection, dynamic, clever metaprogramming and new inheritance frameworks without a demonstrated need.
 - Use async I/O and pass CancellationToken through database, HTTP and storage calls. Do not block with `.Result`, `.Wait()` or unnecessary Task.Run around I/O.
