@@ -256,6 +256,24 @@
           "note": "tasks/s11-1-market-statistics.md"
         }
       ]
+    },
+    {
+      "id": "S12",
+      "title": "Prospecting filters",
+      "status": "completed",
+      "path": "steps/s12-prospecting.md",
+      "depends_on": [
+        "S04",
+        "S05"
+      ],
+      "tasks": [
+        {
+          "id": "S12.1",
+          "title": "Turnover and employee filters and ordering in search",
+          "status": "completed",
+          "note": "tasks/s12-1-prospecting-filters.md"
+        }
+      ]
     }
   ]
 }
