@@ -10,7 +10,6 @@ namespace BusinessIntelligence.Modules.Registry.Geography;
 /// </summary>
 public sealed record SeatGeographyMatch(string State, string Method, short? CountyNumber, int? UatCode, int? LocalityCode);
 
-// Ported from the original repository (D03.6), where it resolved 99.89% of registry seats.
 // Deterministic, explainable matching of the registry's county and locality text to SIRUTA codes.
 // A code is assigned only when exactly one place has the folded name in its scope; several candidates give an Ambiguous state, none gives Unmatched.
 // Folding removes diacritics, case and punctuation. The orthographic pass additionally treats the old i-circumflex spelling as a-circumflex

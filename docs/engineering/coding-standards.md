@@ -2,7 +2,7 @@
 
 ## Architecture and organization
 
-The baseline is a .NET modular monolith with vertical slices: one Host (web and operator commands) and one Modules project. Module namespaces are conventions, not compiler-enforced boundaries. See the [architecture](../../.research/architecture.md).
+The baseline is a .NET modular monolith with vertical slices: one Host (web and operator commands) and one Modules project. Module namespaces are conventions, not compiler-enforced boundaries. See the [architecture](../architecture.md).
 
 Keep each use case's input, result, validation and handler close together. Small slices may use one file. Domain rules shared by several slices belong to the owning module; source adapters stay near the domain that understands their data. Shared contains mechanisms used in common, not a universal business model.
 

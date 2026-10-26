@@ -4,7 +4,7 @@ Loads the Ministry of Finance annual statements (data.gov.ro, 2008–2025) into 
 
 ## Files and command
 
-The 94 files (data and dictionary for each year and family) are pinned in [catalog.json](../../src/BusinessIntelligence.Modules/Registry/Sources/catalog.json) with their size, SHA-256 and `localPath` under the raw-data folder. They were downloaded with [download_manifest.py](../../.research/tools/download_manifest.py) from the list in [the download plan](../../.research/tasks/download-plan.md).
+The 94 files (data and dictionary for each year and family) are pinned in [catalog.json](../../src/BusinessIntelligence.Modules/Registry/Sources/catalog.json) with their size, SHA-256 and `localPath` under the raw-data folder. Each entry also has its download URL.
 
 ```sh
 dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Host.dll financials import-all .research/raw

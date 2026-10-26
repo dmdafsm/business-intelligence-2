@@ -4,7 +4,7 @@ Loads the Ministry of Finance taxpayer identification releases (data.gov.ro, "da
 
 ## Files and command
 
-The 135 files of the nine releases are pinned in [catalog.json](../../src/BusinessIntelligence.Modules/Registry/Sources/catalog.json) (kind `mf-identification`) with size, SHA-256, release date and `localPath`. Formats, coverage and source defects per release are in the [inspection note](../../.research/tasks/s03-1-fiscal-inspection.md).
+The 135 files of the nine releases are pinned in [catalog.json](../../src/BusinessIntelligence.Modules/Registry/Sources/catalog.json) (kind `mf-identification`) with size, SHA-256, release date and `localPath`.
 
 ```sh
 dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Host.dll fiscal import-all .research/raw [--rebuild]
