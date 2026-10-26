@@ -252,3 +252,6 @@
 .swatch--inverse-surface { background: var(--md-sys-color-inverse-surface); color: var(--md-sys-color-inverse-on-surface); }
 .swatch--outline { background: var(--md-sys-color-outline); color: var(--md-sys-color-surface); }
 .page-section--after-tabs { margin-top: var(--md-sys-spacing-6); }
+
+.admin-form { max-width: 480px; }
+.admin-form__error { color: var(--md-sys-color-error); }

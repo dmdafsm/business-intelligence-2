@@ -1,0 +1,132 @@
+@page "/admin/joburi"
+@model BusinessIntelligence.Host.Pages.Admin.JoburiModel
+@{
+    ViewData["Title"] = "Joburi de import";
+}
+<header class="page-header">
+    <partial name="_AdminBar" />
+    <h1 class="md-typescale-headline-medium">Joburi de import</h1>
+    <p class="md-typescale-body-medium md-on-surface-variant">Fiecare job caută fișiere noi pe data.gov.ro, le descarcă și rulează importurile. Programul și regulile se schimbă în <code>config/import-jobs.json</code>, fără modificări de cod. Rulările le execută serviciul <code>worker</code>.</p>
+</header>
+
+@if (Model.Notice is { } notice)
+{
+    <p class="md-typescale-body-medium" role="status">@notice</p>
+}
+
+@if (Model.FileProblem is { } problem)
+{
+    <div class="md-card md-card--outlined" role="alert">
+        <h2 class="md-card__title">Fișierul de joburi nu este valid</h2>
+        <pre class="md-log">@problem</pre>
+    </div>
+}
+else if (Model.Overview is { } overview)
+{
+    <section class="page-section" aria-labelledby="jobs-title">
+        <h2 class="md-typescale-title-large" id="jobs-title">Joburi</h2>
+        <div class="md-table-wrapper">
+            <table class="md-data-table">
+                <thead>
+                    <tr><th scope="col">Job</th><th scope="col">Program</th><th scope="col">Următoarea</th><th scope="col">Ultima rulare</th><th scope="col">Pornește</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var job in overview.Jobs)
+                    {
+                        <tr>
+                            <th scope="row">
+                                <span class="md-typescale-title-small">@job.Title</span><br />
+                                <span class="md-typescale-body-small md-on-surface-variant">@job.Id · @(job.DiscoveryRules switch { 0 => string.Empty, 1 => "1 regulă de descoperire, ", var n => $"{n} reguli de descoperire, " })@(job.Commands.Count == 1 ? "1 comandă" : $"{job.Commands.Count} comenzi")</span>
+                            </th>
+                            <td><code>@(job.Schedule ?? "manual")</code></td>
+                            <td>@RunLabels.Time(job.NextRun, Model.Zone)</td>
+                            <td>
+                                @if (job.LastRun is { } last)
+                                {
+                                    <a asp-page="/Admin/Rulare" asp-route-id="@last.Id"><span class="@RunLabels.StatusClass(last.Status)">@RunLabels.Status(last.Status)</span></a>
+                                    <span class="md-typescale-body-small md-on-surface-variant">@RunLabels.Time(last.QueuedAt, Model.Zone)</span>
+                                }
+                                else
+                                {
+                                    <span class="md-missing">niciodată</span>
+                                }
+                            </td>
+                            <td>
+                                <form method="post" asp-page-handler="Run" class="cluster">
+                                    <input type="hidden" name="job" value="@job.Id" />
+                                    @if (job.DiscoveryRules > 0)
+                                    {
+                                        <label class="md-typescale-body-small"><input type="checkbox" name="force" value="true" /> și fără fișiere noi</label>
+                                    }
+                                    <button class="md-button md-button--tonal" type="submit" disabled="@job.Active">Pornește</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="page-section" aria-labelledby="runs-title">
+        <h2 class="md-typescale-title-large" id="runs-title">Rulări recente</h2>
+        @if (overview.RecentRuns.Count == 0)
+        {
+            <p class="md-typescale-body-medium md-on-surface-variant">Nicio rulare încă.</p>
+        }
+        else
+        {
+            <div class="md-table-wrapper">
+                <table class="md-data-table">
+                    <thead>
+                        <tr><th scope="col" data-numeric>Nr.</th><th scope="col">Job</th><th scope="col">Stare</th><th scope="col">Pornită</th><th scope="col">Durată</th><th scope="col" data-numeric>Fișiere noi</th><th scope="col">Pas / eroare</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var run in overview.RecentRuns)
+                        {
+                            <tr>
+                                <td data-numeric><a asp-page="/Admin/Rulare" asp-route-id="@run.Id">@run.Id</a></td>
+                                <td>@run.JobId <span class="md-typescale-body-small md-on-surface-variant">@RunLabels.Trigger(run.Trigger)</span></td>
+                                <td><span class="@RunLabels.StatusClass(run.Status)">@RunLabels.Status(run.Status)</span></td>
+                                <td>@RunLabels.Time(run.StartedAt ?? run.QueuedAt, Model.Zone)</td>
+                                <td>@RunLabels.Duration(run, Model.Now)</td>
+                                <td data-numeric>@run.NewFiles</td>
+                                <td class="md-typescale-body-small">@(run.Error ?? run.Step)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="page-section" aria-labelledby="files-title">
+        <h2 class="md-typescale-title-large" id="files-title">Fișiere descoperite</h2>
+        @if (overview.RecentFiles.Count == 0)
+        {
+            <p class="md-typescale-body-medium md-on-surface-variant">Niciun fișier nou descoperit încă; catalogul inițial e în aplicație.</p>
+        }
+        else
+        {
+            <div class="md-table-wrapper">
+                <table class="md-data-table">
+                    <thead>
+                        <tr><th scope="col">Fișier</th><th scope="col">Tip</th><th scope="col">Data de referință</th><th scope="col" data-numeric>Mărime</th><th scope="col">Descoperit</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var file in overview.RecentFiles)
+                        {
+                            <tr>
+                                <th scope="row"><a href="@file.Url" rel="noreferrer">@file.Id</a><br /><span class="md-typescale-body-small md-on-surface-variant">@file.Dataset · @file.License</span></th>
+                                <td>@file.Kind</td>
+                                <td>@file.ReferenceDate.ToString("dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture)</td>
+                                <td data-numeric>@BusinessIntelligence.Modules.Jobs.DiscoverFiles.FormatBytes(file.Bytes)</td>
+                                <td>@RunLabels.Time(file.DiscoveredAt, Model.Zone)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}

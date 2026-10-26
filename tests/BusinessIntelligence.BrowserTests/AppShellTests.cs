@@ -7,6 +7,7 @@ public sealed class AppShellTests(PortalFixture portal) : IClassFixture<PortalFi
 {
     private static readonly BrowserNewContextOptions Desktop = new() { ViewportSize = new() { Width = 1280, Height = 800 } };
     private static readonly string[] DesignPaths = ["/Design", "/Design?tab=culori", "/Design?tab=tipografie"];
+    private static readonly string[] OperatorPaths = ["/admin/joburi", "/admin/intrare", "/admin/joburi/rulare/1"];
     private static readonly BrowserNewContextOptions Phone = new() { ViewportSize = new() { Width = 360, Height = 740 }, IsMobile = true, HasTouch = true };
 
     [Fact]
@@ -24,6 +25,17 @@ public sealed class AppShellTests(PortalFixture portal) : IClassFixture<PortalFi
             await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToContainTextAsync("Încă nu există date importate");
             await Assertions.Expect(page.GetByRole(AriaRole.Searchbox)).ToHaveValueAsync("Exemplu SRL");
         }, new() { JavaScriptEnabled = false, ViewportSize = Desktop.ViewportSize });
+
+    [Fact]
+    public Task OperatorPagesDoNotExistWithoutAToken() =>
+        portal.WithPageAsync(nameof(OperatorPagesDoNotExistWithoutAToken), async page =>
+        {
+            foreach (var path in OperatorPaths)
+            {
+                var response = await page.GotoAsync(portal.Address + path);
+                Assert.Equal(404, response!.Status);
+            }
+        });
 
     [Fact]
     public Task ImportedLookingInputIsEscaped() =>

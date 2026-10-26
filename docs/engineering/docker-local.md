@@ -16,7 +16,8 @@ Services:
 
 - postgres: pinned PostgreSQL 18 image with a health check and a persistent named volume. Its port is not published to the host. It gets 3 GB of memory, 4 CPUs, 1 GB of shared memory and larger buffers, WAL and maintenance memory, which the national imports and index builds need.
 - migrate: one-off command using the application image; it waits for PostgreSQL and migrates only the configured business_intelligence database. web starts only after it succeeds.
-- web: pinned ASP.NET chiseled runtime, non-root, read-only root filesystem, bounded /tmp, dropped capabilities and a health probe. It binds only to host loopback.
+- web: pinned ASP.NET chiseled runtime, non-root, read-only root filesystem, bounded /tmp, dropped capabilities and a health probe. It binds only to host loopback. It reads `config/` (read-only) and the operator token for `/admin`.
+- worker: the same image running `jobs worker`: the [import jobs](import-jobs.md) schedule and queue. It mounts `.research/raw` read-write, because it downloads new source files, and calls data.gov.ro.
 - verify: optional profile with the SDK, Python and PostgreSQL server binaries; tests create their own disposable clusters.
 
 The web process never applies migrations itself. This is local setup, not a production deployment procedure.
@@ -33,7 +34,7 @@ docker compose down
 
 `down` keeps the named database volume. Keep `.artifacts/docker/postgres-password` with that volume: rerunning preparation preserves the credential instead of rotating it, and deleting it while keeping the database causes a credential mismatch. Deleting the volume is a deliberate destructive reset.
 
-The password is generated outside Git and excluded from the build context. Compose mounts it as a file, and the app reads it through Database__PasswordFile. Its host parent directory has mode 0700.
+The password is generated outside Git and excluded from the build context. Compose mounts it as a file, and the app reads it through Database__PasswordFile. Its host parent directory has mode 0700. The operator token for <http://localhost:8090/admin/joburi> (`.artifacts/docker/admin-token`) is generated and kept the same way.
 
 No data is seeded automatically. To load everything from the downloaded files in `.research/raw` (see the import guides):
 
@@ -41,7 +42,7 @@ No data is seeded automatically. To load everything from the downloaded files in
 python3 scripts/docker_import_all.py
 ```
 
-It runs each import in order through the `import` service, which mounts `.research/raw` read-only at `/data/raw`, then rebuilds the search tables. Every step is idempotent, so rerunning it after a failure continues where it stopped. A single command runs the same way:
+That is the first full load. Later editions come through the [import jobs](import-jobs.md). The script runs each import in order through the `import` service, which mounts `.research/raw` read-only at `/data/raw`, then rebuilds the search tables. Every step is idempotent, so rerunning it after a failure continues where it stopped. A single command runs the same way:
 
 ```sh
 docker compose --profile import run --rm import registry status

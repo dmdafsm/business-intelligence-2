@@ -32,6 +32,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Search.SearchRegistration> SearchRegistrations => Set<Search.SearchRegistration>();
     public DbSet<Search.SearchCount> SearchCounts => Set<Search.SearchCount>();
     public DbSet<Search.SearchBuild> SearchBuilds => Set<Search.SearchBuild>();
+    public DbSet<Jobs.DiscoveredFile> DiscoveredFiles => Set<Jobs.DiscoveredFile>();
+    public DbSet<Jobs.JobRun> JobRuns => Set<Jobs.JobRun>();
+    public DbSet<Jobs.JobRunLine> JobRunLines => Set<Jobs.JobRunLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,6 +48,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         Anaf.AnafPersistence.Configure(modelBuilder);
         Funds.FundsPersistence.Configure(modelBuilder);
         Licences.LicencesPersistence.Configure(modelBuilder);
+        Jobs.JobsPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }
