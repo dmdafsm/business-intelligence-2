@@ -2,7 +2,7 @@
 
 Start with [AGENTS.md](AGENTS.md) and the [architecture](docs/architecture.md).
 
-Run `python3 scripts/install_hooks.py` once per clone, then work on a `codex/<topic>` branch. main is protected locally and integrates through PRs. See the [branch policy](docs/engineering/branch-policy.md); local hooks do not replace GitHub rulesets.
+Run `python3 scripts/install_hooks.py` once per clone, then work on a `<type>/<topic>` branch such as `feat/search-export` or `fix/profile-dates`. main is protected locally and integrates through PRs. See the [branch policy](docs/engineering/branch-policy.md); local hooks do not replace GitHub rulesets.
 
 ## Workflow
 

@@ -29,7 +29,7 @@ def protected_names(root, remote="origin"):
 def commit_error(root):
     branch = git_output(root, "symbolic-ref", "--quiet", "--short", "HEAD")
     if not branch:
-        return "Commits require a named task branch; create codex/<topic> before committing."
+        return "Commits require a named task branch; create a <type>/<topic> branch (feat/, fix/, chore/, ...) before committing."
     if branch in protected_names(root):
         return f"Direct commits on {branch} are blocked. Use a task branch and integrate through a PR."
     return None

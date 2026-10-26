@@ -6,7 +6,7 @@ The default branch is main. Protect main, master and the resolved default branch
 
 Run once per clone: `python3 scripts/install_hooks.py`. It sets core.hooksPath locally and preserves an existing hook system by refusing to overwrite a different active configuration. Integrate existing hooks deliberately if a conflict is reported. Hooks are not activated automatically by cloning files.
 
-Before editing, inspect the branch and use an appropriate `codex/<topic>` task branch. Creating/switching a branch preserves ordinary uncommitted work, but inspect shared changes first and do not overwrite unrelated work. A named branch is required for commits; create one before committing from a detached worktree.
+Before editing, inspect the branch and use a task branch named `<type>/<topic>`, with the same type as the commit message: `feat/` for new behavior, `fix/` for bug fixes, `chore/` for tooling and maintenance, `docs/` for documentation, `refactor/` and `test/` for those changes. Examples: `feat/search-export`, `fix/profile-dates`. The guards do not check the prefix; it is a naming convention. Creating/switching a branch preserves ordinary uncommitted work, but inspect shared changes first and do not overwrite unrelated work. A named branch is required for commits; create one before committing from a detached worktree.
 
 The installed guards:
 
