@@ -17,6 +17,7 @@ public static class Icons
         ["chevron-left"] = "M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z",
         ["filter-list"] = "M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z",
         ["bar-chart"] = "M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z",
+        ["download"] = "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z",
         ["place"] = "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z",
     };
 }

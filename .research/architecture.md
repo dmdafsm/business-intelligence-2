@@ -5,7 +5,7 @@ Date: 2026-10-25. Carried over from the original repository in simplified form; 
 ## Shape
 
 - One ASP.NET Core Razor Pages application (`BusinessIntelligence.Host`) with two roles: the web portal and operator commands (`database migrate`, and import commands added per step). Imports run as commands. Since S09 one background process exists: the import-jobs worker (`jobs worker`, [ADR 0003](../docs/engineering/decisions/0003-import-jobs.md)), which discovers new source files on schedule and runs those same commands as child processes.
-- One class library (`BusinessIntelligence.Modules`) holding modules as namespaces: `Platform` (persistence, hosting), and per step `Registry`, `Fiscal`, `Financials`, `Search`, `Profile`. A module writes only its own tables; `Profile` only reads the others to assemble a company page. `Market` (S11) reads the registry and writes the `market` statistics tables. `Search` reads the registry and, since S12, the latest financial year.
+- One class library (`BusinessIntelligence.Modules`) holding modules as namespaces: `Platform` (persistence, hosting), and per step `Registry`, `Fiscal`, `Financials`, `Search`, `Profile`. A module writes only its own tables; `Profile` only reads the others to assemble a company page. `Market` (S11) reads the registry and writes the `market` statistics tables. `Search` reads the registry, the latest financial year (S12) and `risk.signals` (S13). `Risk` (S13) reads the registry, ANAF, financials and benchmarks and writes `risk.signals`.
 - PostgreSQL holds everything: staging tables for imports, published tables for reads, and history.
 
 ## Data flow
