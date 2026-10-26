@@ -55,7 +55,7 @@ services:
       start_period: 10s
     restart: unless-stopped
     mem_limit: 3g
-    cpus: 4
+    cpus: ${BI_POSTGRES_CPUS:-4}
 
   migrate:
     <<: *application
