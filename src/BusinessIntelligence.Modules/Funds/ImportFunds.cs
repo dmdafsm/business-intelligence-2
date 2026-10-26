@@ -112,7 +112,7 @@ public sealed class ImportFunds(AppDbContext database, TimeProvider time)
 
             await writer.CompleteAsync(cancellationToken);
 
-            Task Text(string? value) => ImportOnrcFirme.WriteAsync(writer, value, cancellationToken);
+            Task Text(string? value) => ImportOnrcCompanies.WriteAsync(writer, value, cancellationToken);
 
             async Task Value<T>(T? value, NpgsqlDbType type) where T : struct
             {
@@ -135,7 +135,7 @@ public sealed class ImportFunds(AppDbContext database, TimeProvider time)
         var previous = await RegistryImports.PublishAsync(database, $"eu-projects-{programme}", source.Id, time, cancellationToken);
         if (previous is { } old && old != source.Id)
         {
-            await ImportOnrcFirme.ExecuteAsync(connection, "DELETE FROM funds.projects WHERE source_file_id = @old", cancellationToken, ("old", old));
+            await ImportOnrcCompanies.ExecuteAsync(connection, "DELETE FROM funds.projects WHERE source_file_id = @old", cancellationToken, ("old", old));
         }
 
         source.Report = JsonSerializer.Serialize(counts);

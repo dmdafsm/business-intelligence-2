@@ -3,13 +3,13 @@ using System.Text;
 
 namespace BusinessIntelligence.Modules.Registry.Onrc;
 
-public sealed record FirmeRow(
+public sealed record CompanyRow(
     int RowNumber, string RegistrationNumber, string? Euid, string? Name, long? Cui, CuiState CuiState, string? LegalForm,
     DateOnly? RegistrationDate, string? Country, string? County, string? Locality, string? Street, string? StreetNumber,
     string? Block, string? Staircase, string? Floor, string? Apartment, string? PostalCode, string? Sector,
     string? AddressDetails, string? Website, string? ParentCountry);
 
-public sealed class FirmeReadCounts
+public sealed class CompanyReadCounts
 {
     public int Rows { get; set; }
     public int WithoutRegistrationNumber { get; set; }
@@ -21,7 +21,7 @@ public sealed class FirmeReadCounts
 /// Streams ONRC OD_FIRME.CSV: UTF-8 (BOM), '^'-delimited, unquoted, 20 columns. Values are trimmed and blank becomes null.
 /// Personal numeric codes found in the CUI column are dropped here, before anything is stored.
 /// </summary>
-public static class OnrcFirmeReader
+public static class OnrcCompanyReader
 {
     public const string ParserVersion = "onrc-firme-v1";
 
@@ -34,8 +34,8 @@ public static class OnrcFirmeReader
 
     private static readonly string[] DateFormats = ["dd/MM/yyyy", "dd/MM/yyyy HH:mm:ss"];
 
-    public static async IAsyncEnumerable<FirmeRow> ReadAsync(
-        Stream stream, FirmeReadCounts counts, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    public static async IAsyncEnumerable<CompanyRow> ReadAsync(
+        Stream stream, CompanyReadCounts counts, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
     {
         using var reader = new StreamReader(stream, new UTF8Encoding(false, true), detectEncodingFromByteOrderMarks: true, bufferSize: 1 << 16, leaveOpen: true);
         var header = await reader.ReadLineAsync(cancellationToken);
@@ -83,7 +83,7 @@ public static class OnrcFirmeReader
                 }
             }
 
-            yield return new FirmeRow(
+            yield return new CompanyRow(
                 rowNumber, registrationNumber, Clean(fields[4]), Clean(fields[0]), cui, cuiState, Clean(fields[5]), registered,
                 Clean(fields[6]), Clean(fields[7]), Clean(fields[8]), Clean(fields[9]), Clean(fields[10]), Clean(fields[11]),
                 Clean(fields[12]), Clean(fields[13]), Clean(fields[14]), Clean(fields[15]), Clean(fields[16]), Clean(fields[17]),

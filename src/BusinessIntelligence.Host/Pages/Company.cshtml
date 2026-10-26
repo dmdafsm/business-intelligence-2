@@ -1,15 +1,15 @@
 @page "/firma/{cui:long?}"
-@model FirmaModel
+@model CompanyModel
 @{
     var profile = Model.Profile;
     var company = profile.Company;
     var current = profile.CurrentRegistration;
     var fiscal = profile.LatestFiscal;
-    var ro = FirmaModel.Ro;
+    var ro = CompanyModel.Ro;
     ViewData["Title"] = company.Name ?? company.RegistrationNumber;
     var filed = profile.Financials.Where(year => year.Statement is not null).ToList();
     var latestStatement = filed.LastOrDefault();
-    var fiscalEdition = fiscal is not null && profile.FiscalSource is { } fiscalNote ? fiscalNote with { Period = "ediția " + FirmaModel.Date(fiscal.ValidTo) } : null;
+    var fiscalEdition = fiscal is not null && profile.FiscalSource is { } fiscalNote ? fiscalNote with { Period = "ediția " + CompanyModel.Date(fiscal.ValidTo) } : null;
     var peopleSource = profile.RegistrySource with { Dataset = profile.RegistrySource.Dataset + " (reprezentanți)" };
     var websiteSource = profile.RegistrySource with { Dataset = profile.RegistrySource.Dataset + " (site web)" };
 }
@@ -46,14 +46,14 @@
         <div><dt>Nr. înregistrare</dt><dd>@company.RegistrationNumber</dd></div>
         @if (current?.Euid is { } euid) { <div><dt>EUID</dt><dd>@euid</dd></div> }
         <div><dt>Formă juridică</dt><dd>@(company.LegalForm ?? "—")</dd></div>
-        <div><dt>Înregistrată</dt><dd>@(FirmaModel.Date(company.FirstRegistrationDate ?? company.RegistrationDate) is { Length: > 0 } date ? date : "—")</dd></div>
+        <div><dt>Înregistrată</dt><dd>@(CompanyModel.Date(company.FirstRegistrationDate ?? company.RegistrationDate) is { Length: > 0 } date ? date : "—")</dd></div>
         <div><dt>Stare ONRC</dt><dd>@Model.Lifecycle(company.Lifecycle)@if (profile.Statuses.Count > 0) {<span class="md-on-surface-variant"> (@string.Join(", ", profile.Statuses.Where(item => item.RegistrationNumber == company.RegistrationNumber).Select(item => item.Name)))</span>}</dd></div>
         <div class="md-facts__wide"><dt>Sediu social</dt><dd>@AddressText(current)</dd></div>
         @if (current?.ParentCountry is { } parent) { <div><dt>Țara firmei-mamă</dt><dd>@parent</dd></div> }
         @if (fiscal is not null)
         {
-            <div><dt>Plătitor de TVA</dt><dd>@(fiscal.VatPayer switch { true => "Da" + (fiscal.VatSince is { } since ? $", din {FirmaModel.Date(since)}" : ""), false => "Nu", null => "nedeclarat" })</dd></div>
-            <div><dt>Stare fiscală</dt><dd>@(fiscal.FiscalStatus ?? "—")@if (fiscal.StatusDate is { } statusDate) {<span class="md-on-surface-variant">, @FirmaModel.Date(statusDate)</span>}</dd></div>
+            <div><dt>Plătitor de TVA</dt><dd>@(fiscal.VatPayer switch { true => "Da" + (fiscal.VatSince is { } since ? $", din {CompanyModel.Date(since)}" : ""), false => "Nu", null => "nedeclarat" })</dd></div>
+            <div><dt>Stare fiscală</dt><dd>@(fiscal.FiscalStatus ?? "—")@if (fiscal.StatusDate is { } statusDate) {<span class="md-on-surface-variant">, @CompanyModel.Date(statusDate)</span>}</dd></div>
         }
         @if (profile.Registrations.Count > 1)
         {
@@ -88,22 +88,22 @@
         <h2 id="anaf-title" class="md-card__title">Situația la ANAF</h2>
         @if (!anaf.Found)
         {
-            <p class="md-typescale-body-medium md-missing">ANAF nu a găsit acest CUI la @FirmaModel.Date(anaf.CheckedOn).</p>
+            <p class="md-typescale-body-medium md-missing">ANAF nu a găsit acest CUI la @CompanyModel.Date(anaf.CheckedOn).</p>
         }
         else
         {
             <dl class="md-facts">
-                <div><dt>Plătitor de TVA</dt><dd>@FirmaModel.YesNo(anaf.VatPayer)</dd></div>
-                <div><dt>TVA la încasare</dt><dd>@FirmaModel.YesNo(anaf.CashAccountingVat, anaf.CashAccountingVatSince)</dd></div>
-                <div><dt>Plată defalcată a TVA</dt><dd>@FirmaModel.YesNo(anaf.SplitVat)</dd></div>
-                <div><dt>Contribuabil inactiv</dt><dd>@FirmaModel.YesNo(anaf.Inactive, anaf.InactiveSince)@if (anaf.ReactivatedOn is { } reactivated) {<span class="md-on-surface-variant">, reactivat la @FirmaModel.Date(reactivated)</span>}</dd></div>
-                <div><dt>Înregistrat în RO e-Factura</dt><dd>@FirmaModel.YesNo(anaf.EInvoice, anaf.EInvoiceSince)</dd></div>
+                <div><dt>Plătitor de TVA</dt><dd>@CompanyModel.YesNo(anaf.VatPayer)</dd></div>
+                <div><dt>TVA la încasare</dt><dd>@CompanyModel.YesNo(anaf.CashAccountingVat, anaf.CashAccountingVatSince)</dd></div>
+                <div><dt>Plată defalcată a TVA</dt><dd>@CompanyModel.YesNo(anaf.SplitVat)</dd></div>
+                <div><dt>Contribuabil inactiv</dt><dd>@CompanyModel.YesNo(anaf.Inactive, anaf.InactiveSince)@if (anaf.ReactivatedOn is { } reactivated) {<span class="md-on-surface-variant">, reactivat la @CompanyModel.Date(reactivated)</span>}</dd></div>
+                <div><dt>Înregistrat în RO e-Factura</dt><dd>@CompanyModel.YesNo(anaf.EInvoice, anaf.EInvoiceSince)</dd></div>
                 <div><dt>Stare la ANAF</dt><dd>@(anaf.RegistrationStatus ?? "—")</dd></div>
-                <div class="md-facts__wide"><dt>Organ fiscal competent</dt><dd>@(anaf.TaxOffice ?? "—")@if (FirmaModel.TaxpayerCategory(anaf.TaxOffice) is { } category) {<span class="md-status md-status--active md-facts__badge">@category</span>}</dd></div>
-                @if (anaf.DeregisteredOn is { } deregistered) { <div><dt>Radiat la ANAF</dt><dd>@FirmaModel.Date(deregistered)</dd></div> }
+                <div class="md-facts__wide"><dt>Organ fiscal competent</dt><dd>@(anaf.TaxOffice ?? "—")@if (CompanyModel.TaxpayerCategory(anaf.TaxOffice) is { } category) {<span class="md-status md-status--active md-facts__badge">@category</span>}</dd></div>
+                @if (anaf.DeregisteredOn is { } deregistered) { <div><dt>Radiat la ANAF</dt><dd>@CompanyModel.Date(deregistered)</dd></div> }
             </dl>
         }
-        <p class="md-source">Sursa: Agenția Națională de Administrare Fiscală, serviciul web „PlatitorTvaRest” v9, interogat pentru data de @FirmaModel.Date(anaf.CheckedOn). Se păstrează doar stările fiscale, nu adresa, telefonul sau contul bancar.</p>
+        <p class="md-source">Sursa: Agenția Națională de Administrare Fiscală, serviciul web „PlatitorTvaRest” v9, interogat pentru data de @CompanyModel.Date(anaf.CheckedOn). Se păstrează doar stările fiscale, nu adresa, telefonul sau contul bancar.</p>
     </section>
 }
 
@@ -223,11 +223,11 @@
                         @foreach (var award in procurement.RecentWins)
                         {
                             <tr>
-                                <td class="md-numeric">@FirmaModel.Date(award.ContractDate ?? award.PublishedOn)</td>
+                                <td class="md-numeric">@CompanyModel.Date(award.ContractDate ?? award.PublishedOn)</td>
                                 <td>@(award.AuthorityName ?? "—")</td>
                                 <td>@(award.Title ?? award.CpvName ?? "—")@if (award.CpvCode is { } cpv) {<span class="md-on-surface-variant"> · CPV @cpv</span>}</td>
                                 <td>@(award.Kind == "direct" ? "achiziție directă" : "contract")@if (award.Winners > 1) {<span class="md-on-surface-variant"> · @award.Winners câștigători</span>}</td>
-                                <td class="md-numeric">@(award.ValueRon is { } value ? value.ToString("N2", FirmaModel.Ro) : "—")</td>
+                                <td class="md-numeric">@(award.ValueRon is { } value ? value.ToString("N2", CompanyModel.Ro) : "—")</td>
                             </tr>
                         }
                     </tbody>
@@ -269,9 +269,9 @@
                                 <td>@project.Programme</td>
                                 <td>@(project.Title ?? "—")@if (project.ProjectCode is { } code) {<span class="md-on-surface-variant"> · @code</span>}</td>
                                 <td>@(project.Status ?? "—")</td>
-                                <td class="md-numeric">@(project.StartDate is null && project.EndDate is null ? "—" : $"{FirmaModel.Date(project.StartDate)} – {FirmaModel.Date(project.EndDate)}")</td>
-                                <td class="md-numeric">@(value is { } amount ? amount.ToString("N2", FirmaModel.Ro) : "—")</td>
-                                <td class="md-numeric">@(project.PaidValue is { } paid ? paid.ToString("N2", FirmaModel.Ro) : "—")</td>
+                                <td class="md-numeric">@(project.StartDate is null && project.EndDate is null ? "—" : $"{CompanyModel.Date(project.StartDate)} – {CompanyModel.Date(project.EndDate)}")</td>
+                                <td class="md-numeric">@(value is { } amount ? amount.ToString("N2", CompanyModel.Ro) : "—")</td>
+                                <td class="md-numeric">@(project.PaidValue is { } paid ? paid.ToString("N2", CompanyModel.Ro) : "—")</td>
                                 <td>@(entry.ByName ? "după denumire și județ" : "după CUI")</td>
                             </tr>
                         }
@@ -336,7 +336,7 @@
                     @foreach (var period in profile.RegistryHistory.Reverse())
                     {
                         <tr>
-                            <td class="md-numeric">@FirmaModel.Date(period.ValidFrom) – @FirmaModel.Date(period.ValidTo)</td>
+                            <td class="md-numeric">@CompanyModel.Date(period.ValidFrom) – @CompanyModel.Date(period.ValidTo)</td>
                             <td>@period.RegistrationNumber</td>
                             <td>@period.Name</td>
                             <td>@(Model.Place(period.LocalityCode ?? period.UatCode) ?? period.Locality)@(Model.County(period.CountyNumber) is { } periodCounty ? $", {periodCounty}" : "")</td>
@@ -363,12 +363,12 @@
                     @foreach (var period in profile.FiscalHistory.Reverse())
                     {
                         <tr>
-                            <td class="md-numeric">@FirmaModel.Date(period.ValidFrom) – @FirmaModel.Date(period.ValidTo)</td>
+                            <td class="md-numeric">@CompanyModel.Date(period.ValidFrom) – @CompanyModel.Date(period.ValidTo)</td>
                             <td>@period.Name</td>
                             <td>@string.Join(", ", new[] { period.Locality, period.County }.Where(item => !string.IsNullOrEmpty(item)))</td>
                             <td>@(period.VatPayer switch { true => "Da", false => "Nu", null => "—" })</td>
                             <td>@(period.FiscalStatus ?? "—")</td>
-                            <td>@(period.Obligations.Length == 0 ? "—" : string.Join(", ", period.Obligations.Select(code => FirmaModel.Obligations.TryGetValue(code, out var name) ? $"{code} {name}" : code.ToString(System.Globalization.CultureInfo.InvariantCulture))))</td>
+                            <td>@(period.Obligations.Length == 0 ? "—" : string.Join(", ", period.Obligations.Select(code => CompanyModel.Obligations.TryGetValue(code, out var name) ? $"{code} {name}" : code.ToString(System.Globalization.CultureInfo.InvariantCulture))))</td>
                         </tr>
                     }
                 </tbody>
@@ -431,7 +431,7 @@
                 <table class="md-data-table">
                     <thead><tr><th scope="col">Indicator</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <th scope="col" class="md-numeric">@year.Year</th> }</tr></thead>
                     <tbody>
-                        @foreach (var (label, value) in FirmaModel.Indicators)
+                        @foreach (var (label, value) in CompanyModel.Indicators)
                         {
                             <tr><th scope="row">@label</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <td class="md-numeric">@Cell(value(year.Statement!))</td> }</tr>
                         }
@@ -454,7 +454,7 @@
 
 @functions {
     private static Microsoft.AspNetCore.Html.IHtmlContent Cell(decimal? value) => value is { } present
-        ? new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(FirmaModel.Amount(present)))
+        ? new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(CompanyModel.Amount(present)))
         : new Microsoft.AspNetCore.Html.HtmlString("<span class=\"md-missing\" title=\"necompletat\">—<span class=\"md-visually-hidden\"> necompletat</span></span>");
 
     private static Microsoft.AspNetCore.Html.IHtmlContent Cell(int? value) => Cell((decimal?)value);

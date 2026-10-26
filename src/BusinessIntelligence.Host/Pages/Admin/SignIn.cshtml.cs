@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BusinessIntelligence.Host.Pages.Admin;
 
-public sealed class IntrareModel(OperatorAccess access) : PageModel
+public sealed class SignInModel(OperatorAccess access) : PageModel
 {
     [BindProperty]
     public string? Token { get; set; }
@@ -34,6 +34,6 @@ public sealed class IntrareModel(OperatorAccess access) : PageModel
         await HttpContext.SignInAsync(OperatorAccess.Scheme, new ClaimsPrincipal(identity));
         return Url.IsLocalUrl(ReturnUrl) && ReturnUrl.StartsWith(OperatorAccess.PathPrefix, StringComparison.OrdinalIgnoreCase)
             ? LocalRedirect(ReturnUrl)
-            : RedirectToPage("/Admin/Joburi");
+            : RedirectToPage("/Admin/Jobs");
     }
 }

@@ -13,7 +13,7 @@ The UI follows [Material 3](https://m3.material.io), implemented in this reposit
 | [Icons.cs](../../src/BusinessIntelligence.Host/Components/Icons.cs) | Icon paths; `<md-icon name="search" />` renders one |
 | [Navigation.cs](../../src/BusinessIntelligence.Host/Components/Navigation.cs) | Navigation destinations |
 
-In Development, `/Design` shows every component, the color roles and the type scale.
+In Development, `/Design` shows every component, the color roles and the type scale. It is a developer reference: open it by URL; the navigation has no link to it.
 
 ## Rules
 

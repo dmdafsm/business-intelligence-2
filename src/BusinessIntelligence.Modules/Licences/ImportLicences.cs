@@ -103,13 +103,13 @@ public sealed class ImportLicences(AppDbContext database, TimeProvider time)
 
             await writer.CompleteAsync(cancellationToken);
 
-            Task Text(string? value) => ImportOnrcFirme.WriteAsync(writer, value, cancellationToken);
+            Task Text(string? value) => ImportOnrcCompanies.WriteAsync(writer, value, cancellationToken);
         }
 
         var previous = await RegistryImports.PublishAsync(database, file.Kind + "-" + ListName(file), source.Id, time, cancellationToken);
         if (previous is { } old && old != source.Id)
         {
-            await ImportOnrcFirme.ExecuteAsync(connection, "DELETE FROM licences.licences WHERE source_file_id = @old", cancellationToken, ("old", old));
+            await ImportOnrcCompanies.ExecuteAsync(connection, "DELETE FROM licences.licences WHERE source_file_id = @old", cancellationToken, ("old", old));
         }
 
         source.Report = JsonSerializer.Serialize(counts);

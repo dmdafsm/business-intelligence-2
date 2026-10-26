@@ -110,7 +110,7 @@ public sealed class ImportRegistryHistory(AppDbContext database, TimeProvider ti
 
     private static IEnumerable<CatalogFile> Files() =>
         SourceCatalog.All.Where(file => file.Kind.StartsWith(HistoryKindPrefix, StringComparison.Ordinal)
-            || file.Kind is ImportOnrcFirme.Kind or ImportOnrcAnnexes.StatusKind);
+            || file.Kind is ImportOnrcCompanies.Kind or ImportOnrcAnnexes.StatusKind);
 
     private static async Task CopyLegacyLayoutAsync(
         NpgsqlConnection connection, List<CatalogFile> files, string rawRoot, HistoryReadCounts counts, CancellationToken cancellationToken)
@@ -151,11 +151,11 @@ public sealed class ImportRegistryHistory(AppDbContext database, TimeProvider ti
         NpgsqlConnection connection, List<CatalogFile> files, string rawRoot, HistoryReadCounts counts, CancellationToken cancellationToken)
     {
         var firme = files.Single(file => file.Kind is "onrc-firme" or "onrc-history-firme");
-        var firmeCounts = new FirmeReadCounts();
+        var companyCounts = new CompanyReadCounts();
         await using (var writer = await connection.BeginBinaryImportAsync(Sql.CopyRows, cancellationToken))
         await using (var stream = VerifiedFileStream.Open(Path.Combine(rawRoot, firme.LocalPath!), firme))
         {
-            await foreach (var row in OnrcFirmeReader.ReadAsync(stream, firmeCounts, cancellationToken))
+            await foreach (var row in OnrcCompanyReader.ReadAsync(stream, companyCounts, cancellationToken))
             {
                 var street = string.Join(", ", new[] { row.Street, row.StreetNumber is null ? null : "Nr. " + row.StreetNumber }.Where(part => part is not null));
                 var address = string.Join(", ", new[] { row.Locality, street.Length == 0 ? null : street, row.County }.Where(part => part is not null));
@@ -167,8 +167,8 @@ public sealed class ImportRegistryHistory(AppDbContext database, TimeProvider ti
             stream.EnsureComplete();
         }
 
-        counts.Rows = firmeCounts.Rows;
-        counts.WithoutRegistrationNumber = firmeCounts.WithoutRegistrationNumber;
+        counts.Rows = companyCounts.Rows;
+        counts.WithoutRegistrationNumber = companyCounts.WithoutRegistrationNumber;
         var status = files.Single(file => file.Kind is "onrc-firme-status" or "onrc-history-status");
         await using (var writer = await connection.BeginBinaryImportAsync("COPY history_status (registration_number, status_code) FROM STDIN (FORMAT BINARY)", cancellationToken))
         await using (var stream = VerifiedFileStream.Open(Path.Combine(rawRoot, status.LocalPath!), status))
@@ -199,8 +199,8 @@ public sealed class ImportRegistryHistory(AppDbContext database, TimeProvider ti
         var individual = row.RegistrationNumber.StartsWith('F');
         await writer.StartRowAsync(cancellationToken);
         await writer.WriteAsync(row.RegistrationNumber, NpgsqlDbType.Text, cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, row.Name, cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, NameKey(row.Name), cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, row.Name, cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, NameKey(row.Name), cancellationToken);
         if (row.Cui is { } cui)
         {
             await writer.WriteAsync(cui, NpgsqlDbType.Bigint, cancellationToken);
@@ -211,9 +211,9 @@ public sealed class ImportRegistryHistory(AppDbContext database, TimeProvider ti
         }
 
         await writer.WriteAsync(row.CuiState.ToString(), NpgsqlDbType.Text, cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, row.County, cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, row.Locality, cancellationToken);
-        await ImportOnrcFirme.WriteAsync(writer, individual ? null : row.Address, cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, row.County, cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, row.Locality, cancellationToken);
+        await ImportOnrcCompanies.WriteAsync(writer, individual ? null : row.Address, cancellationToken);
         await writer.WriteAsync(row.StatusCodes, NpgsqlDbType.Array | NpgsqlDbType.Integer, cancellationToken);
         await writer.WriteAsync(row.StruckOffFile, NpgsqlDbType.Boolean, cancellationToken);
         await writer.WriteAsync(lifecycle, NpgsqlDbType.Text, cancellationToken);
@@ -268,8 +268,8 @@ public sealed class ImportRegistryHistory(AppDbContext database, TimeProvider ti
             var match = matcher.Match(county, locality);
             states[match.State] = states.GetValueOrDefault(match.State) + 1;
             await writer.StartRowAsync(cancellationToken);
-            await ImportOnrcFirme.WriteAsync(writer, county, cancellationToken);
-            await ImportOnrcFirme.WriteAsync(writer, locality, cancellationToken);
+            await ImportOnrcCompanies.WriteAsync(writer, county, cancellationToken);
+            await ImportOnrcCompanies.WriteAsync(writer, locality, cancellationToken);
             await WriteNullableAsync(writer, match.CountyNumber, NpgsqlDbType.Smallint, cancellationToken);
             await WriteNullableAsync(writer, match.UatCode, NpgsqlDbType.Integer, cancellationToken);
             await WriteNullableAsync(writer, match.LocalityCode, NpgsqlDbType.Integer, cancellationToken);
