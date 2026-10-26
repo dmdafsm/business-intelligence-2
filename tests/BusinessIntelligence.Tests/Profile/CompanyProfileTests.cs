@@ -1,3 +1,4 @@
+using BusinessIntelligence.Modules.Financials;
 using BusinessIntelligence.Modules.Profile;
 using BusinessIntelligence.Modules.Search;
 using BusinessIntelligence.Tests.Infrastructure;
@@ -42,6 +43,18 @@ public sealed class CompanyProfileTests(PostgresFixture postgres) : IClassFixtur
         Assert.Equal(0, profile.Financials[2].Statement!.Employees);
         Assert.Equal("web2012.txt", profile.Financials[2].Source!.FileName);
         Assert.Equal("Ministerul Finanțelor", profile.FiscalSource!.Publisher);
+
+        // The comparison uses the latest statement with a known CAEN version (2013, 3 employees): the 1–9 band has no
+        // percentiles, so all sizes are used where they have them; a blank turnover gives a reason, not a value.
+        var comparison = profile.Comparison!;
+        Assert.Equal((2013, "6201", "1-9"), (comparison.Year, comparison.CaenCode, comparison.SizeBand));
+        var equity = comparison.Rows.Single(row => row.Indicator == FinancialIndicators.ReturnOnEquity);
+        Assert.Equal(0.2m, equity.Value.Value);
+        Assert.Equal(FinancialIndicators.AllSizes, equity.Cohort!.SizeBand);
+        var margin = comparison.Rows.Single(row => row.Indicator == FinancialIndicators.NetMargin);
+        Assert.Equal("cifra de afaceri necompletată", margin.Value.Reason);
+        Assert.Null(margin.Cohort!.P50);
+        Assert.Null(comparison.Rows.Single(row => row.Indicator == FinancialIndicators.DebtRatio).Cohort);
     }
 
     [Fact]

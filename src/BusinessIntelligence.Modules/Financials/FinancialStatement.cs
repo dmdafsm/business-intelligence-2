@@ -67,5 +67,18 @@ public static class FinancialsPersistence
                 property.SetScale(0);
             }
         });
+
+        builder.Entity<FinancialBenchmark>(entity =>
+        {
+            entity.ToTable("benchmarks", Schema);
+            entity.HasKey(item => new { item.Year, item.CaenVersion, item.CaenCode, item.SizeBand, item.Indicator });
+            entity.Property(item => item.SizeBand).HasMaxLength(8);
+            entity.Property(item => item.Indicator).HasMaxLength(32);
+            entity.Property(item => item.FormulaVersion).HasMaxLength(32);
+            foreach (var property in new[] { nameof(FinancialBenchmark.P10), nameof(FinancialBenchmark.P25), nameof(FinancialBenchmark.P50), nameof(FinancialBenchmark.P75), nameof(FinancialBenchmark.P90) })
+            {
+                entity.Property(property).HasPrecision(24, 6);
+            }
+        });
     }
 }

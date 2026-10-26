@@ -15,6 +15,7 @@ internal static class FinancialCommands
           financials import-all <raw-root>             import every pinned MF year and family found under <raw-root>
           financials import <year> <family> <raw-root>  import one year and family (BL, UU or IR)
           financials status                             statements per year and family
+          financials benchmarks                         rebuild the indicator benchmarks (imports do it too)
         """;
 
     private static readonly JsonSerializerOptions Output = new(JsonSerializerDefaults.Web)
@@ -25,7 +26,7 @@ internal static class FinancialCommands
 
     public static async Task<int> ExecuteAsync(string[] arguments, CancellationToken cancellationToken)
     {
-        if (arguments is not (["financials", "import-all", _] or ["financials", "import", _, _, _] or ["financials", "status"]))
+        if (arguments is not (["financials", "import-all", _] or ["financials", "import", _, _, _] or ["financials", "status"] or ["financials", "benchmarks"]))
         {
             await Console.Error.WriteLineAsync(Usage);
             return 2;
@@ -48,6 +49,12 @@ internal static class FinancialCommands
                     .OrderBy(item => item.Year).ThenBy(item => item.Family)
                     .ToListAsync(cancellationToken);
                 await WriteAsync(rows, cancellationToken);
+                return 0;
+            }
+
+            if (arguments is ["financials", "benchmarks"])
+            {
+                await BenchmarkAsync(connection, cancellationToken);
                 return 0;
             }
 
@@ -85,6 +92,7 @@ internal static class FinancialCommands
                 await RegistryImports.VacuumAsync(database, "financials.statements", cancellationToken);
             }
 
+            await BenchmarkAsync(connection, cancellationToken);
             return 0;
         }
         catch (Exception exception) when (exception is InvalidDataException or ArgumentException or InvalidOperationException or FileNotFoundException or DirectoryNotFoundException)
@@ -97,6 +105,14 @@ internal static class FinancialCommands
             await Console.Error.WriteLineAsync("Database operation failed: " + exception.Message);
             return 1;
         }
+    }
+
+    private static async Task BenchmarkAsync(string connection, CancellationToken cancellationToken)
+    {
+        await using var database = OperatorDatabase.Create(connection);
+        var watch = Stopwatch.StartNew();
+        var rows = await new BuildFinancialBenchmarks(database, TimeProvider.System).ExecuteAsync(cancellationToken);
+        await WriteAsync(new { benchmarks = rows, formulaVersion = FinancialIndicators.Version, seconds = Math.Round(watch.Elapsed.TotalSeconds, 1) }, cancellationToken);
     }
 
     private static async Task WriteAsync(object value, CancellationToken cancellationToken)
