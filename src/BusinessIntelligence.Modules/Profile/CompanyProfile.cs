@@ -22,7 +22,9 @@ public sealed record ActivityEntry(short Version, string Code, string? Name);
 public sealed record PersonEntry(string RegistrationNumber, string? Name, string? Role, string Kind, int? BirthYear, string? Place);
 
 /// <summary>Public procurement in one year, as winner or as contracting authority. Contract values are counted once per contract.</summary>
-public sealed record ProcurementYear(short Year, int Contracts, decimal ContractValue, int DirectPurchases, decimal DirectValue);
+/// <summary>Values are null when none of the year's rows has one; the <c>WithoutValue</c> counts are rows with a blank value.</summary>
+public sealed record ProcurementYear(
+    short Year, int Contracts, decimal? ContractValue, int ContractsWithoutValue, int DirectPurchases, decimal? DirectValue, int DirectWithoutValue);
 
 public sealed record ProcurementSummary(
     IReadOnlyList<ProcurementYear> Won, IReadOnlyList<Procurement.ProcurementAward> RecentWins, IReadOnlyList<ProcurementYear> Bought,
@@ -233,19 +235,20 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             return null;
         }
 
-        var won = await YearlyAsync("winner_cui = @cui", cui, cancellationToken);
-        var bought = await YearlyAsync("authority_cui = @cui", cui, cancellationToken);
-        var recent = await database.ProcurementAwards
-            .FromSql($"""
-                SELECT DISTINCT ON (kind, authority_cui, authority_name, reference, lot, contract_number) *
-                FROM procurement.awards WHERE winner_cui = {cui}
-                ORDER BY kind, authority_cui, authority_name, reference, lot, contract_number, year DESC, quarter DESC
-                """)
-            .AsNoTracking()
-            .OrderByDescending(item => item.ContractDate ?? item.PublishedOn).ThenByDescending(item => item.ValueRon)
-            .Take(RecentAwards).ToListAsync(cancellationToken);
-        var coverage = string.Join(", ", files.GroupBy(file => file.ReferenceDate.Year).OrderBy(group => group.Key)
-            .Select(group => $"{group.Key} ({string.Join(", ", group.Select(file => "T" + ((file.ReferenceDate.Month + 2) / 3)).Distinct().Order(StringComparer.Ordinal))})"));
+        var totals = await database.ProcurementYearTotals.AsNoTracking().Where(item => item.Cui == cui).OrderByDescending(item => item.Year).ToListAsync(cancellationToken);
+        var won = totals.Where(item => item.Role == "W").Select(Year).ToList();
+        var bought = totals.Where(item => item.Role == "A").Select(Year).ToList();
+        // The newest rows by award date, read through the (winner, date) index; a contract listed in several quarters shows once.
+        // Undated rows are left out: a descending scan would otherwise start with them.
+        var recent = (await database.ProcurementAwards.AsNoTracking().Where(item => item.WinnerCui == cui && item.AwardedOn != null)
+                .OrderByDescending(item => item.AwardedOn).ThenByDescending(item => item.ValueRon)
+                .Take(RecentAwards * 5).ToListAsync(cancellationToken))
+            .DistinctBy(item => (item.Kind, item.AuthorityCui, item.AuthorityName, item.Reference, item.Lot, item.ContractNumber))
+            .Take(RecentAwards).ToList();
+        var coverage = Coverage(files);
+        static ProcurementYear Year(Procurement.ProcurementYearTotal total) =>
+            new(total.Year, total.Contracts, total.ContractValue, total.ContractsWithoutValue, total.DirectPurchases, total.DirectValue, total.DirectWithoutValue);
+
         return new ProcurementSummary(won, recent, bought,
             [.. files.GroupBy(file => (file.Publisher, file.License)).Select(group => new SourceNote(group.Key.Publisher, "Achiziții publice (SEAP)",
                 $"{group.Min(file => file.ReferenceDate).ToString("dd.MM.yyyy", Culture)} – {group.Max(file => file.ReferenceDate).ToString("dd.MM.yyyy", Culture)}", group.Key.License))],
@@ -254,29 +257,39 @@ public sealed class CompanyProfileQuery(AppDbContext database)
     }
 
     /// <summary>
-    /// Yearly counts and values. A contract can be listed in several quarterly files and once per winner: it is counted once,
-    /// by authority, notice, lot and contract number, in the first year it appears, with the largest value published for it.
+    /// The periods the imported SEAP files cover: whole years as ranges (2007–2018), partial years with their quarters
+    /// (2026 (T1, T2, T3)). A yearly or half-yearly file covers its whole year.
     /// </summary>
-    private async Task<List<ProcurementYear>> YearlyAsync(string condition, long cui, CancellationToken cancellationToken)
+    public static string Coverage(IEnumerable<SourceFile> files)
     {
-        await database.Database.OpenConnectionAsync(cancellationToken);
-        await using var command = new Npgsql.NpgsqlCommand($"""
-            SELECT year, count(*) FILTER (WHERE kind = 'contract'), coalesce(sum(value) FILTER (WHERE kind = 'contract'), 0),
-                   count(*) FILTER (WHERE kind = 'direct'), coalesce(sum(value) FILTER (WHERE kind = 'direct'), 0)
-            FROM (SELECT kind, min(year) AS year, max(value_ron) AS value
-                  FROM procurement.awards WHERE {condition}
-                  GROUP BY kind, authority_cui, authority_name, reference, lot, contract_number) contracts
-            GROUP BY year ORDER BY year DESC
-            """, (Npgsql.NpgsqlConnection)database.Database.GetDbConnection());
-        command.Parameters.AddWithValue("cui", cui);
-        var years = new List<ProcurementYear>();
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        while (await reader.ReadAsync(cancellationToken))
+        var years = files.GroupBy(file => file.ReferenceDate.Year).OrderBy(group => group.Key)
+            .Select(group =>
+            {
+                var quarters = group.Select(file => file.CatalogId.Contains("-q", StringComparison.Ordinal) ? (file.ReferenceDate.Month + 2) / 3 : 0).ToHashSet();
+                var whole = quarters.Contains(0) || quarters.SetEquals([1, 2, 3, 4]);
+                return (Year: group.Key, Whole: whole, Quarters: quarters.Where(quarter => quarter > 0).Order().ToList());
+            })
+            .ToList();
+        var parts = new List<string>();
+        for (var index = 0; index < years.Count; index++)
         {
-            years.Add(new ProcurementYear(reader.GetInt16(0), (int)reader.GetInt64(1), reader.GetDecimal(2), (int)reader.GetInt64(3), reader.GetDecimal(4)));
+            if (!years[index].Whole)
+            {
+                parts.Add($"{years[index].Year} ({string.Join(", ", years[index].Quarters.Select(quarter => "T" + quarter))})");
+                continue;
+            }
+
+            var end = index;
+            while (end + 1 < years.Count && years[end + 1].Whole && years[end + 1].Year == years[end].Year + 1)
+            {
+                end++;
+            }
+
+            parts.Add(end == index ? $"{years[index].Year}" : $"{years[index].Year}–{years[end].Year}");
+            index = end;
         }
 
-        return years;
+        return string.Join(", ", parts);
     }
 
     /// <summary>

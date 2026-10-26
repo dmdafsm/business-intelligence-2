@@ -32,6 +32,29 @@ public sealed class SeapImportTests(PostgresFixture postgres) : IClassFixture<Po
     }
 
     [Fact]
+    public void CoverageShowsWholeYearsAsRangesAndPartialYearsByQuarter()
+    {
+        static SourceFile File(string id, int year, int month) => new()
+        {
+            CatalogId = id,
+            Kind = "seap-direct",
+            Dataset = "d",
+            FileName = "f",
+            Url = "u",
+            Publisher = "p",
+            License = "l",
+            Sha256 = id,
+            ParserVersion = "v",
+            Report = "{}",
+            ReferenceDate = new DateOnly(year, month, 28),
+        };
+
+        Assert.Equal("2007–2008, 2010, 2026 (T1, T2)", CompanyProfileQuery.Coverage([
+            File("seap-contracts-2007-y", 2007, 12), File("seap-direct-2008-q1", 2008, 3), File("seap-direct-2008-q2", 2008, 6), File("seap-direct-2008-q3", 2008, 9),
+            File("seap-direct-2008-q4", 2008, 12), File("seap-contracts-2010-s1", 2010, 6), File("seap-direct-2026-q1", 2026, 3), File("seap-direct-2026-q2", 2026, 6)]));
+    }
+
+    [Fact]
     public async Task WorkbookRowsComeBackByColumnWithSharedAndInlineStrings()
     {
         var path = Workbook("read", [["A", "B", "C"], ["x", null, "45931.5"]], shared: true);
@@ -56,7 +79,9 @@ public sealed class SeapImportTests(PostgresFixture postgres) : IClassFixture<Po
             ["Primaria Test", "4305857", "Anunt", "Licitatie deschisa", "1", "45900", "L98", "Contract", "Furnizare", "Pret",
                 "30200000-1", "Echipament informatic", "1", notice, "45931", "45930", "C-1", "SEAP", value, winner, winnerCui];
 
-        var q3 = Write("seap-contracts", 3, [ImportSeap.ContractHeader, ["DENUMIRE_AC", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+        var q3 = Write("seap-contracts", 3, [ImportSeap.ContractHeader, ["DENUMIRE_AC", "CUI_AC", "TIP_ANUNT", "TIP_PROCEDURA", "NUMAR_ANUNT_AI", "DATA_PUBLICARE_AI", "TIP_LESIGLATIE", "TIP_INCHEIERE_CONTRACT",
+                "TIP_CONTRACT", "TIP_CRITERII_ATRIBUIRE", "CPV_CODE", "DENUMIRE_CPV", "NUMAR_LOT", "NUMAR_ANUNT_ATRIBUIRE", "DATA_ANUNT_ATRIBUIRE",
+                "DATA_CONTRACT", "NUMAR_CONTRACT", "INCHEIAT_PRIN", "VALOARE_CONTRACT_RON", "OFERTANT", "CUI_OF"],
             Contract("A1", "1000.5", "EXEMPLU SOFT SRL", "RO" + soft),
             Contract("A1", "1000.5", "PARTENER SRL", "478197"),
             Contract("A2", "200", "POPESCU ION", "1850101123456")]);
@@ -74,11 +99,14 @@ public sealed class SeapImportTests(PostgresFixture postgres) : IClassFixture<Po
         Assert.Equal([true, false, true], rows.Select(item => item.FirstWinner));
         Assert.Equal((null, null, "PersonalCode"), (rows[2].WinnerName, rows[2].WinnerCui, rows[2].WinnerCuiState));
         Assert.Equal((new DateOnly(2025, 9, 30), 1000.5m), (rows[0].ContractDate!.Value, rows[0].ValueRon!.Value));
+        Assert.Equal(new DateOnly(2025, 9, 30), rows[0].AwardedOn);
 
+        // The profile reads the yearly totals, which are rebuilt after imports.
+        Assert.True(await new SummarizeProcurement(database).ExecuteAsync(CancellationToken.None) > 0);
         var profile = await new CompanyProfileQuery(database).ExecuteAsync(SearchFixtures.ExempluSoft, null, CancellationToken.None);
         // Besides the fixture's one direct purchase (Q1), contract A1 counts once although it has two rows in Q3 and one in Q4.
         var won = Assert.Single(profile!.Procurement!.Won);
-        Assert.Equal((2025, 1, 1000.5m, 1), (won.Year, won.Contracts, won.ContractValue, won.DirectPurchases));
+        Assert.Equal((2025, 1, (decimal?)1000.5m, 0, 1), (won.Year, won.Contracts, won.ContractValue, won.ContractsWithoutValue, won.DirectPurchases));
         Assert.Equal(2, profile.Procurement.RecentWins.Count);
         Assert.Equal("2025 (T1, T3, T4)", profile.Procurement.Coverage);
     }
@@ -98,6 +126,13 @@ public sealed class SeapImportTests(PostgresFixture postgres) : IClassFixture<Po
         var rows = await database.ProcurementAwards.AsNoTracking().Where(item => item.SourceFileId == result.SourceFileId).OrderBy(item => item.RowNumber).ToListAsync();
         Assert.Equal(("direct", "Licente software", true, "PNRR", 500m), (rows[0].Kind, rows[0].Title!, rows[0].EuFunded!.Value, rows[0].Programme!, rows[0].ValueRon!.Value));
         Assert.Null(rows[1].ValueRon);
+
+        // A blank value is not summed as zero: the year has no value, and the blank row is counted.
+        await new SummarizeProcurement(database).ExecuteAsync(CancellationToken.None);
+        var blank = await database.ProcurementYearTotals.AsNoTracking().SingleAsync(item => item.Cui == 478197 && item.Role == "W");
+        Assert.Equal((1, (decimal?)null, 1), (blank.DirectPurchases, blank.DirectValue, blank.DirectWithoutValue));
+        var authority = await database.ProcurementYearTotals.AsNoTracking().SingleAsync(item => item.Cui == 4305857 && item.Role == "A");
+        Assert.Equal((2, (decimal?)500m, 1, (decimal?)null), (authority.DirectPurchases, authority.DirectValue, authority.DirectWithoutValue, authority.ContractValue));
 
         var wrong = Write("seap-direct", 2, [["Autoritate", "CUI"], ["x", "1"]]);
         await Assert.ThrowsAsync<InvalidDataException>(() => import.ExecuteAsync(wrong.Path, wrong.File, CancellationToken.None));

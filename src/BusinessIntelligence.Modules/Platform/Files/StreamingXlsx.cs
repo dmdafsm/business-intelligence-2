@@ -23,16 +23,42 @@ public static class StreamingXlsx
         Async = true,
     };
 
-    /// <summary>Rows of <paramref name="columns"/> cells (missing cells are null), with their 1-based sheet row number.</summary>
+    /// <summary>
+    /// Rows of <paramref name="columns"/> cells (missing cells are null), with their 1-based row number. With
+    /// <paramref name="allSheets"/>, every sheet is read in order and row numbers continue from one sheet to the next
+    /// (exports split a quarter into sheets of 65,000 rows).
+    /// </summary>
     public static async IAsyncEnumerable<(int Row, string?[] Cells)> ReadAsync(
-        string path, int columns, [EnumeratorCancellation] CancellationToken cancellationToken)
+        string path, int columns, [EnumeratorCancellation] CancellationToken cancellationToken, bool allSheets = false)
     {
         using var archive = ZipFile.OpenRead(path);
         var shared = await SharedStringsAsync(archive, cancellationToken);
-        var sheet = archive.Entries
+        var sheets = archive.Entries
             .Where(entry => entry.FullName.StartsWith("xl/worksheets/sheet", StringComparison.Ordinal) && entry.FullName.EndsWith(".xml", StringComparison.Ordinal))
             .OrderBy(entry => entry.FullName.Length).ThenBy(entry => entry.FullName, StringComparer.Ordinal)
-            .FirstOrDefault() ?? throw new InvalidDataException("The workbook has no worksheet.");
+            .ToList();
+        if (sheets.Count == 0)
+        {
+            throw new InvalidDataException("The workbook has no worksheet.");
+        }
+
+        var offset = 0;
+        foreach (var sheet in allSheets ? sheets : sheets.Take(1))
+        {
+            var last = 0;
+            await foreach (var (row, cells) in SheetAsync(sheet, shared, columns, cancellationToken))
+            {
+                last = row;
+                yield return (offset + row, cells);
+            }
+
+            offset += last;
+        }
+    }
+
+    private static async IAsyncEnumerable<(int Row, string?[] Cells)> SheetAsync(
+        ZipArchiveEntry sheet, List<string> shared, int columns, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
         await using var stream = sheet.Open();
         using var reader = XmlReader.Create(stream, Settings);
         var rows = 0;

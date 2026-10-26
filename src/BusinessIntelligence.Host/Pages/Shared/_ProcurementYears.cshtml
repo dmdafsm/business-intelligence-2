@@ -9,9 +9,9 @@
                 <tr>
                     <th scope="row" class="md-numeric">@year.Year</th>
                     <td class="md-numeric">@year.Contracts.ToString("N0", ro)</td>
-                    <td class="md-numeric">@year.ContractValue.ToString("N2", ro)</td>
+                    <td class="md-numeric"><partial name="_ProcurementValue" model="(year.ContractValue, year.ContractsWithoutValue)" /></td>
                     <td class="md-numeric">@year.DirectPurchases.ToString("N0", ro)</td>
-                    <td class="md-numeric">@year.DirectValue.ToString("N2", ro)</td>
+                    <td class="md-numeric"><partial name="_ProcurementValue" model="(year.DirectValue, year.DirectWithoutValue)" /></td>
                 </tr>
             }
         </tbody>

@@ -1,0 +1,15 @@
+@model (decimal? Value, int WithoutValue)
+@{ var ro = System.Globalization.CultureInfo.GetCultureInfo("ro-RO"); }
+@* A blank value in SEAP is not zero: a year whose rows have no value shows a dash, and rows without one are counted. *@
+@if (Model.Value is { } value)
+{
+    @value.ToString("N2", ro)
+}
+else
+{
+    <span class="md-missing">—</span>
+}
+@if (Model.WithoutValue > 0)
+{
+    <br /><span class="md-on-surface-variant md-typescale-body-small">@Model.WithoutValue.ToString("N0", ro) fără valoare publicată</span>
+}

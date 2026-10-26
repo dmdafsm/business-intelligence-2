@@ -160,7 +160,7 @@
     {
       "id": "S08",
       "title": "More public data on the profile",
-      "status": "in_progress",
+      "status": "completed",
       "path": "steps/s08-more-data.md",
       "depends_on": [
         "S06"
@@ -171,6 +171,36 @@
           "title": "Public procurement (SEAP) 2025",
           "status": "completed",
           "note": "tasks/s08-1-procurement.md"
+        },
+        {
+          "id": "S08.2",
+          "title": "Current ANAF status (web service harvest)",
+          "status": "completed",
+          "note": "tasks/s08-2-anaf-status.md"
+        },
+        {
+          "id": "S08.3",
+          "title": "EU-funded projects",
+          "status": "completed",
+          "note": "tasks/s08-3-eu-funds.md"
+        },
+        {
+          "id": "S08.4",
+          "title": "Licences and contracts with authorities",
+          "status": "completed",
+          "note": "tasks/s08-4-licences.md"
+        },
+        {
+          "id": "S08.5",
+          "title": "Location map",
+          "status": "completed",
+          "note": "tasks/s08-5-location-map.md"
+        },
+        {
+          "id": "S08.6",
+          "title": "Public procurement (SEAP) 2007–2026",
+          "status": "completed",
+          "note": "tasks/s08-6-procurement-history.md"
         }
       ]
     }

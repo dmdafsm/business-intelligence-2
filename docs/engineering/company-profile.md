@@ -6,9 +6,11 @@
 
 | Section | Contents | Source shown |
 | --- | --- | --- |
-| Prezentare | CUI, registry number, EUID, legal form, first registration date, ONRC lifecycle and status names, registered office, parent company's country, VAT and fiscal status, other registrations with the same CUI | ONRC snapshot; MF identification edition of the latest fiscal period |
+| Prezentare | Map of the county and locality (ANCPI boundaries), CUI, registry number, EUID, legal form, first registration date, ONRC lifecycle and status names, registered office, parent company's country, VAT and fiscal status, other registrations with the same CUI | ONRC snapshot; MF identification edition of the latest fiscal period |
 | Contact | Phone, fax and fiscal address from the latest MF period, website from ONRC | MF edition, ONRC snapshot |
 | Persoane | Administrators, legal representatives, liquidators and family-enterprise members: name, role, birth year for natural persons, locality/county/country for firms | ONRC representatives files of the snapshot |
+| Situația la ANAF | VAT, cash-accounting VAT, split VAT, inactive, e-Factura, tax office and taxpayer size | ANAF web service, date asked |
+| Achiziții publice, Fonduri UE, Licențe | Procurement (2007–2026), EU-funded projects, regulator licences and contracts | See [profile open data](profile-open-data.md) |
 | Activități | Main activity declared in the latest financial statement (Rev.2 label), authorized activities in the registration's CAEN version | ONRC snapshot |
 | Istoric | Registry periods (by registry number and by CUI, so earlier numbers appear) and MF fiscal periods, newest first | ONRC yearly snapshots with their licenses; MF editions |
 | Financiar | Three charts (turnover, net result, employees), a table of key indicators per year, all 21 published indicators, and the file and license of each year | Each year's MF file |

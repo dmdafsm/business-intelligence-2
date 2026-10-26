@@ -74,6 +74,8 @@ internal static class FiscalCommands
     private static async Task<int> ImportAllAsync(string connection, string root, bool rebuild, CancellationToken cancellationToken)
     {
         var releases = ImportFiscalHistory.AvailableReleases();
+        DateOnly? latest;
+        List<DateOnly> applied;
         await using (var database = OperatorDatabase.Create(connection))
         {
             var import = new ImportFiscalHistory(database, TimeProvider.System);
@@ -83,7 +85,8 @@ internal static class FiscalCommands
             }
 
             // Older releases need the taxpayer types of the newer ones to recognise individuals.
-            var latest = await database.FiscalReleases.AsNoTracking().MaxAsync(item => (DateOnly?)item.ReleaseDate, cancellationToken);
+            applied = await database.FiscalReleases.AsNoTracking().Select(item => item.ReleaseDate).ToListAsync(cancellationToken);
+            latest = applied.Count > 0 ? applied.Max() : null;
             if (releases.Any(release => release < ImportFiscalHistory.TypedReleases && (latest is null || release > latest)))
             {
                 var watch = Stopwatch.StartNew();
@@ -95,6 +98,13 @@ internal static class FiscalCommands
 
         foreach (var release in releases)
         {
+            // A rerun skips what is applied; a release older than the history needs --rebuild, so it is reported, not refused.
+            if (release <= latest)
+            {
+                await WriteAsync(new { release, outcome = applied.Contains(release) ? "AlreadyImported" : "SkippedOlderThanHistory" }, cancellationToken);
+                continue;
+            }
+
             // A fresh context per release keeps each transaction and change tracker separate.
             await using var database = OperatorDatabase.Create(connection);
             var watch = Stopwatch.StartNew();

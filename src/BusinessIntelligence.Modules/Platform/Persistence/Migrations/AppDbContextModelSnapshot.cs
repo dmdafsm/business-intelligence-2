@@ -613,6 +613,10 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("authority_name");
 
+                    b.Property<DateOnly?>("AwardedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("awarded_on");
+
                     b.Property<DateOnly?>("ContractDate")
                         .HasColumnType("date")
                         .HasColumnName("contract_date");
@@ -708,10 +712,57 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.HasIndex("AuthorityCui")
                         .HasDatabaseName("ix_awards_authority_cui");
 
-                    b.HasIndex("WinnerCui")
-                        .HasDatabaseName("ix_awards_winner_cui");
+                    b.HasIndex("WinnerCui", "AwardedOn")
+                        .HasDatabaseName("ix_awards_winner_cui_awarded_on");
 
                     b.ToTable("awards", "procurement");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Procurement.ProcurementYearTotal", b =>
+                {
+                    b.Property<long>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<string>("Role")
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("role");
+
+                    b.Property<short>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.Property<decimal?>("ContractValue")
+                        .HasPrecision(22, 2)
+                        .HasColumnType("numeric(22,2)")
+                        .HasColumnName("contract_value");
+
+                    b.Property<int>("Contracts")
+                        .HasColumnType("integer")
+                        .HasColumnName("contracts");
+
+                    b.Property<int>("ContractsWithoutValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("contracts_without_value");
+
+                    b.Property<int>("DirectPurchases")
+                        .HasColumnType("integer")
+                        .HasColumnName("direct_purchases");
+
+                    b.Property<decimal?>("DirectValue")
+                        .HasPrecision(22, 2)
+                        .HasColumnType("numeric(22,2)")
+                        .HasColumnName("direct_value");
+
+                    b.Property<int>("DirectWithoutValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("direct_without_value");
+
+                    b.HasKey("Cui", "Role", "Year")
+                        .HasName("pk_year_totals");
+
+                    b.ToTable("year_totals", "procurement");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.CaenEntry", b =>
