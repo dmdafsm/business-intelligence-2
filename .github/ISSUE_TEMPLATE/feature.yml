@@ -1,5 +1,5 @@
 name: Feature or data step
-description: A bounded implementation task linked to the MVP plan.
+description: A bounded implementation task.
 body:
   - type: input
     id: plans

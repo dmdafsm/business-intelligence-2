@@ -24,6 +24,6 @@ Resolve material findings or record a concrete, justified disposition. Re-run af
 
 - Local review: `.artifacts/reviews/<task-id>/review.md`, using [the review template](templates/code-review.md). It is generated local output and is ignored by Git.
 - PR review: comments/review on the PR, with the reviewed commit/base and dispositions. Link the relevant CI run and artifacts.
-- Durable design/product conclusions: a short summary under `.research/` or an ADR under docs/engineering, as appropriate; avoid committing raw transient review output.
+- Durable design/product conclusions: a short summary in docs or an ADR under docs/engineering, as appropriate; avoid committing raw transient review output.
 
 Record reviewer or review mode, scope, base/head where available and dirty/untracked state for local work. Link evidence to the exact version inspected. A report that says review has not run must not be presented as completed review.

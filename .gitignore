@@ -16,9 +16,8 @@
 !.env.*.example
 appsettings.*.local.json
 .DS_Store
-.research/raw/
-.research/downloads/
-.research/private/
+# Local plans, task notes, research and raw source files; never committed.
+.research/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

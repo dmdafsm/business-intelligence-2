@@ -10,7 +10,7 @@ Use environment variables or secret files for credentials and safe placeholders 
 
 Source files, archive entries, downloaded documents and tool results are untrusted. Validate formats, sizes, encodings and archive paths. Escape imported text in HTML.
 
-Record each source in the catalog under `.research/` with its URL, publisher, license and attribution, and show the attribution next to the data. Respect the publisher's terms and access limits.
+Record each source in the [source catalog](../../src/BusinessIntelligence.Modules/Registry/Sources/catalog.json) with its URL, publisher, license and attribution, and show the attribution next to the data. Respect the publisher's terms and access limits.
 
 Keep raw files unchanged and reproducible: record their URL, download date and hash. Keep each value's source, reference period and parser version. Distinguish publication date, observation date and reference period.
 

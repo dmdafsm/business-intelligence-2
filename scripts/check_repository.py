@@ -19,7 +19,7 @@ REQUIRED_PATHS = (
     "global.json", "Directory.Build.props", "Directory.Packages.props",
     "NuGet.Config", ".github/PULL_REQUEST_TEMPLATE.md", ".github/workflows/verify.yml",
     "docs/engineering/coding-standards.md", "docs/engineering/testing-and-verification.md",
-    "docs/engineering/security-and-data.md", ".research/implementation-map.json",
+    "docs/engineering/security-and-data.md", "docs/architecture.md",
     "scripts/branch_policy.py", "scripts/install_hooks.py", "docs/engineering/branch-policy.md",
     ".githooks/pre-commit", ".githooks/pre-merge-commit", ".githooks/pre-push",
     ".github/rulesets/protected-branches.json",
@@ -95,86 +95,6 @@ def check_credential_path(path):
     return []
 
 
-def inside_research(root, value):
-    path = (root / ".research" / value).resolve()
-    try:
-        path.relative_to((root / ".research").resolve())
-    except ValueError:
-        return None
-    return path
-
-
-def check_map(data, root):
-    """MVP steps (Sxx) with tasks (Sxx.n); a completed task needs its note, a completed step all tasks."""
-    errors = []
-    statuses = {"planned", "in_progress", "completed"}
-    records = {}
-    if data.get("version") != "mvp":
-        errors.append("implementation-map: scope must remain mvp until a new plan is agreed")
-    for item in data.get("steps", []):
-        identifier = item.get("id", "")
-        if not re.fullmatch(r"S\d{2}", identifier) or identifier in records:
-            errors.append(f"implementation-map: invalid/duplicate ID {identifier!r}")
-            continue
-        records[identifier] = item
-        if item.get("status") not in statuses:
-            errors.append(f"{identifier}: unknown implementation status")
-        path = inside_research(root, item.get("path", ""))
-        if path is None:
-            errors.append(f"{identifier}: plan must stay under .research")
-        elif not path.is_file():
-            errors.append(f"{identifier}: missing plan {item.get('path')}")
-        task_ids = set()
-        for task in item.get("tasks", []):
-            task_id = task.get("id", "")
-            if not re.fullmatch(re.escape(identifier) + r"\.\d+", task_id) or task_id in task_ids:
-                errors.append(f"{identifier}: invalid/duplicate task {task_id}")
-            task_ids.add(task_id)
-            if task.get("status") not in statuses:
-                errors.append(f"{task_id}: unknown implementation status")
-            if task.get("status") == "completed":
-                note = inside_research(root, task.get("note", ""))
-                if note is None:
-                    errors.append(f"{task_id}: task note must stay under .research")
-                elif not task.get("note") or not note.is_file():
-                    errors.append(f"{task_id}: completed task needs its note")
-        if item.get("status") == "completed" and (
-                not item.get("tasks") or any(task.get("status") != "completed" for task in item["tasks"])):
-            errors.append(f"{identifier}: completed step has unfinished tasks")
-    if not records:
-        errors.append("implementation-map: no steps defined")
-    graph = {}
-    for identifier, item in records.items():
-        graph[identifier] = []
-        for dependency in item.get("depends_on", []):
-            if dependency not in records:
-                errors.append(f"{identifier}: unknown depends_on reference {dependency}")
-            else:
-                graph[identifier].append(dependency)
-    visiting, visited = set(), set()
-
-    def visit(identifier):
-        if identifier in visiting:
-            errors.append(f"implementation-map: dependency cycle at {identifier}")
-            return
-        if identifier in visited:
-            return
-        visiting.add(identifier)
-        for dependency in graph[identifier]:
-            visit(dependency)
-        visiting.remove(identifier)
-        visited.add(identifier)
-
-    for identifier in graph:
-        visit(identifier)
-    for key in ("plan", "architecture"):
-        value = data.get("references", {}).get(key)
-        path = inside_research(root, value or "")
-        if not value or path is None or not path.is_file():
-            errors.append(f"implementation-map: missing reference {key}")
-    return errors
-
-
 def elements(tree, name):
     return [element for element in tree.iter() if element.tag.rsplit("}", 1)[-1] == name]
 
@@ -231,17 +151,7 @@ def check_repository(root):
                     if not (root / path.parent / target).exists():
                         errors.append(f"{path}: missing local link {target}")
             elif path.suffix == ".json":
-                data = read_json(root / path)
-                if path.as_posix() == ".research/implementation-map.json":
-                    errors.extend(check_map(data, root))
-                if path.parent == Path(".research") and isinstance(data, dict) and "sources" in data:
-                    ids = [item["id"] for item in data["sources"]]
-                    if len(ids) != len(set(ids)):
-                        errors.append(f"{path}: duplicate source IDs")
-                    for source in data["sources"]:
-                        url = urlsplit(source.get("url", ""))
-                        if url.scheme not in {"http", "https"} or not url.netloc:
-                            errors.append(f"{path}: invalid source URL for {source['id']}")
+                read_json(root / path)
             elif path.suffix in {".props", ".targets", ".csproj", ".slnx", ".config"}:
                 tree = ET.fromstring(content)
                 if path.suffix == ".csproj":
@@ -267,7 +177,7 @@ def main():
         for error in errors:
             print("ERROR: " + error, file=sys.stderr)
         return 1
-    print("PASS: repository paths, text, JSON, plan graph, source catalogs and dependency/workflow contracts")
+    print("PASS: repository paths, text, JSON and dependency/workflow contracts")
     return 0
 
 

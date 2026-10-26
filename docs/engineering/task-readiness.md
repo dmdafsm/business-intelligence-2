@@ -1,6 +1,6 @@
 # Task readiness: business analysis and architecture
 
-Use the MVP step plans as the starting point. The implementing agent performs a short business pass and an architecture impact check before editing. These are responsibilities, not mandatory separate people, agents, meetings or approval gates.
+Use the task's plan, when there is one, as the starting point. The implementing agent performs a short business pass and an architecture impact check before editing. These are responsibilities, not mandatory separate people, agents, meetings or approval gates.
 
 ## Business pass
 
@@ -12,7 +12,7 @@ For a feature or data task, establish:
 4. The source license, attribution and personal-data constraints affected by the change.
 5. What evidence will establish the result: unit/fixture, PostgreSQL, browser, migration or performance checks.
 
-Reuse a complete existing plan rather than rewriting it. A small UI bug or REPO task may need only a few sentences in the task/PR. Material new analysis or unresolved product questions belong under `.research/tasks/`, using the [task brief template](templates/task-brief.md).
+Reuse a complete existing plan rather than rewriting it. A small UI bug or REPO task may need only a few sentences in the task/PR. Material new analysis or unresolved product questions belong in a local brief under `.research/tasks/`, using the [task brief template](templates/task-brief.md).
 
 Do not invent a business rule to avoid an essential clarification. Ask only when the missing decision materially changes behavior or correctness; continue independent safe work. Routine implementation details are for the agent to resolve.
 
@@ -32,6 +32,6 @@ Use [ADR guidance](decisions/template.md) when a decision affects future work. E
 
 ## Before implementation and before handoff
 
-Begin implementation when the outcome, relevant rules and verification path are clear. The plan can be lightweight and evolve with evidence. Record substantive discoveries back into the relevant plan and research.
+Begin implementation when the outcome, relevant rules and verification path are clear. The plan can be lightweight and evolve with evidence. Record substantive discoveries back into the relevant plan, and into `docs/` when the code relies on them.
 
 Before handoff: run applicable verification/browser checks, inspect the diff, and follow [code review](code-review.md). Self-review, independent review and merge authorization are distinct. A completed readiness note is not implementation evidence or a passing test.

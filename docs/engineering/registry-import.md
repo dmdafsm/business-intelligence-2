@@ -40,7 +40,7 @@ All in one transaction:
 
 1. Streams the file into a temporary table (binary COPY), dropping personal numeric codes (CNP) found in the CUI column before they reach the database.
 2. Checks the SHA-256 of what was read.
-3. Resolves each distinct county/locality text to SIRUTA codes (county, UAT, locality) with the matcher ported from the original repository.
+3. Resolves each distinct county/locality text to SIRUTA codes (county, UAT, locality) with a deterministic matcher (exact, then orthographic; ambiguous or unmatched names get no code).
 4. Merges rows that share a registry number: one valid CUI wins over zero or missing ones; other fields take their most frequent value; disagreeing fields are listed in `conflicting_fields`; two different valid CUIs leave the CUI empty with state `Conflict`.
 5. Groups registrations into companies by valid CUI (a company re-registers when it moves county or gets a 2024-format number). The latest registration is the current one. Without a valid CUI, a registration is its own company.
 6. Publishes the snapshot and deletes the previous one.
@@ -65,7 +65,7 @@ On the 19.10.2026 files: statuses 189 s, activities 135 s, each about 300 MB pea
 dotnet run --project src/BusinessIntelligence.Host -- registry history .research/raw [--rebuild]
 ```
 
-Applies the pinned yearly snapshots (2013–2025, then the current 19.10.2026 files) to `registry.registration_periods`, oldest first, one transaction per snapshot. Snapshots already applied are skipped; a snapshot older than the latest applied one is refused, so a missing year means `--rebuild` (truncate and replay all, about 12 minutes). Formats per year are in the [inspection note](../../.research/tasks/s02-4-history-inspection.md).
+Applies the pinned yearly snapshots (2013–2025, then the current 19.10.2026 files) to `registry.registration_periods`, oldest first, one transaction per snapshot. Snapshots already applied are skipped; a snapshot older than the latest applied one is refused, so a missing year means `--rebuild` (truncate and replay all, about 12 minutes).
 
 A period is a stretch of consecutive snapshots in which a registration had the same name (folded, legal-form spellings unified), lifecycle, CUI and place. A change starts a new period; spelling-only address changes and a CUI or UAT that appears where it was missing extend the current one. Missing from a snapshot is not a change and is never read as struck off: the period just stops at the last snapshot that had it. Lifecycle comes from the inline status codes (2013–2024) or `OD_STARE_FIRMA` (2025–2026); a row in a struck-off file without codes counts as StruckOff.
 
