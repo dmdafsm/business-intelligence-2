@@ -11,8 +11,8 @@ namespace BusinessIntelligence.Modules.Search;
 /// <summary>
 /// Rebuilds the search tables from the published registry snapshot in one transaction: pages keep reading the previous
 /// build until it commits. Reads <c>registry.companies</c>, <c>registrations</c>, <c>company_activities</c>,
-/// <c>caen</c> and <c>registration_periods</c>, and the latest year of <c>financials.statements</c>; writes only the
-/// <c>search</c> schema.
+/// <c>caen</c> and <c>registration_periods</c>, the latest year of <c>financials.statements</c> and <c>risk.signals</c>
+/// (run <c>risk build</c> first); writes only the <c>search</c> schema.
 /// </summary>
 public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
 {
@@ -105,28 +105,34 @@ public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
     // Every activity adds its section, division and group; a code missing from the nomenclature adds only itself.
     private const string CompaniesSql = """
         WITH tokens AS (
-            SELECT a.company_key, array_agg(DISTINCT a.caen_version || ':' || t) AS caen
+            SELECT a.company_key, array_agg(DISTINCT a.caen_version || ':' || t) AS caen,
+                   coalesce(array_agg(DISTINCT a.caen_version || ':' || t) FILTER (WHERE u.level <= 2), '{}') AS caen_upper
             FROM registry.company_activities a
             LEFT JOIN registry.caen e ON e.version = a.caen_version AND e.code = a.caen_code
-            CROSS JOIN LATERAL unnest(ARRAY[e.section, e.division, e."group", a.caen_code]) AS t
+            CROSS JOIN LATERAL unnest(ARRAY[e.section, e.division, e."group", a.caen_code]) WITH ORDINALITY AS u(t, level)
             WHERE a.snapshot_id = @snapshot AND t IS NOT NULL
             GROUP BY a.company_key
         )
         INSERT INTO search.companies (company_key, cui, registration_number, name, name_key, legal_form, lifecycle,
             first_registration_date, county_number, uat_code, locality_code, caen_version, caen,
-            financial_year, turnover, employees, net_result)
+            financial_year, turnover, employees, net_result, signals, caen_upper)
         SELECT c.company_key, c.cui, c.registration_number, c.name, s.name_key, c.legal_form, c.lifecycle,
             coalesce(c.first_registration_date, c.registration_date), c.county_number, c.uat_code, c.locality_code, c.caen_version,
             coalesce(t.caen, '{}'),
             f.year, f.turnover,
             -- Filters and ordering skip employee counts the import flagged, and 1,000+ employees without turnover (source errors).
             CASE WHEN 'employees_unlikely' = ANY(f.quality_flags) OR (f.employees >= 1000 AND coalesce(f.turnover, 0) = 0) THEN NULL ELSE f.employees END,
-            CASE WHEN f.net_profit > 0 THEN f.net_profit WHEN f.net_loss > 0 THEN -f.net_loss ELSE coalesce(f.net_profit, f.net_loss) END
+            CASE WHEN f.net_profit > 0 THEN f.net_profit WHEN f.net_loss > 0 THEN -f.net_loss ELSE coalesce(f.net_profit, f.net_loss) END,
+            coalesce(r.signals, '{}'),
+            coalesce(t.caen_upper, '{}')
         FROM registry.companies c
         LEFT JOIN search_current s ON s.company_key = c.company_key
         LEFT JOIN tokens t ON t.company_key = c.company_key
         LEFT JOIN financials.statements f ON f.cui = c.cui AND f.year = (SELECT max(year) FROM financials.statements)
+        LEFT JOIN (SELECT company_key, array_agg(signal ORDER BY signal) AS signals FROM risk.signals GROUP BY company_key) r ON r.company_key = c.company_key
         WHERE c.snapshot_id = @snapshot
+        -- Rows of a county and locality sit together on disk, so a county filter reads a small part of the table.
+        ORDER BY c.county_number, c.uat_code, s.name_key
         """;
 
     // Names the company's current registrations had in earlier snapshots, with the latest spelling of each.

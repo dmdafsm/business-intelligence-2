@@ -1988,6 +1988,13 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("text[]")
                         .HasColumnName("caen");
 
+                    b.PrimitiveCollection<string[]>("CaenUpper")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text[]")
+                        .HasColumnName("caen_upper")
+                        .HasDefaultValueSql("'{}'::text[]");
+
                     b.Property<short?>("CaenVersion")
                         .HasColumnType("smallint")
                         .HasColumnName("caen_version");
@@ -2044,6 +2051,13 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("registration_number");
 
+                    b.PrimitiveCollection<string[]>("Signals")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text[]")
+                        .HasColumnName("signals")
+                        .HasDefaultValueSql("'{}'::text[]");
+
                     b.Property<decimal?>("Turnover")
                         .HasPrecision(20)
                         .HasColumnType("numeric(20,0)")
@@ -2069,6 +2083,11 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
 
                     b.HasIndex("NameKey")
                         .HasDatabaseName("ix_companies_name_key");
+
+                    b.HasIndex("Signals")
+                        .HasDatabaseName("ix_companies_signals");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Signals"), "gin");
 
                     b.HasIndex("Turnover")
                         .HasDatabaseName("ix_companies_turnover");

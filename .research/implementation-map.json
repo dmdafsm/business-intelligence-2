@@ -116,6 +116,12 @@
           "title": "Search by name, CUI and registry number; grouping by CAEN, county and city",
           "status": "completed",
           "note": "tasks/s05-1-search.md"
+        },
+        {
+          "id": "S05.2",
+          "title": "Faster filters, legal form filter, Excel export, form layout",
+          "status": "completed",
+          "note": "tasks/s05-2-search-filters.md"
         }
       ]
     },

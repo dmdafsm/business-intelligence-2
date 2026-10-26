@@ -16,7 +16,10 @@ public static class PortalApplication
         var connection = await ApplicationDatabaseConnection.ResolveAsync(
             builder.Configuration.GetConnectionString("Application"), builder.Configuration["Database:PasswordFile"], CancellationToken.None)
             ?? throw new InvalidOperationException("Set ConnectionStrings__Application explicitly.");
-        builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
+        // Page queries are short; JIT compilation only adds to the aggregate counts of a broad search.
+        var pages = new Npgsql.NpgsqlConnectionStringBuilder(connection);
+        pages.Options = string.IsNullOrEmpty(pages.Options) ? "-c jit=off" : pages.Options + " -c jit=off";
+        builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(pages.ConnectionString));
         builder.Services.AddScoped<BusinessIntelligence.Modules.Search.CompanySearch>();
         builder.Services.AddScoped<BusinessIntelligence.Modules.Profile.CompanyProfileQuery>();
         builder.Services.AddScoped<BusinessIntelligence.Modules.Market.MarketStatistics>();

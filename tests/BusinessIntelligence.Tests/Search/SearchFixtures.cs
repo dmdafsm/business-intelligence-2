@@ -263,9 +263,10 @@ public static class SearchFixtures
         await new BusinessIntelligence.Modules.Procurement.SummarizeProcurement(database).ExecuteAsync(CancellationToken.None);
         if (build)
         {
+            // Signals first: the search index carries them.
+            await new BuildRiskSignals(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
             await new BuildMarketStatistics(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
-            await new BuildRiskSignals(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
         }
     }
 
@@ -487,6 +488,7 @@ public static class SearchFixtures
         RegistrationNumber = number,
         Name = name,
         FormCategory = "company",
+        LegalForm = "SRL",
         CountyNumber = county,
         UatCode = uat,
         LocalityCode = locality,

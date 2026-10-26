@@ -181,6 +181,37 @@ public sealed class CompanySearchTests(PostgresFixture postgres) : IClassFixture
     }
 
     [Fact]
+    public async Task FilteredCountsAgreeWithTheTable()
+    {
+        await using var database = await postgres.CreateIsolatedContextAsync();
+        await SearchFixtures.SeedAsync(database);
+        var search = new CompanySearch(database);
+        var companies = await database.SearchCompanies.AsNoTracking().ToListAsync();
+
+        // A legal-form filter with a lifecycle: the lifecycle facet ignores the chosen lifecycle, every other count applies it.
+        var result = await search.ExecuteAsync(new SearchRequest(Lifecycle: Lifecycle.Active, LegalForm: "SRL"), CancellationToken.None);
+        var srl = companies.Where(item => item.LegalForm == "SRL").ToList();
+        Assert.Equal(srl.Count(item => item.Lifecycle == Lifecycle.Active), result.Total);
+        Assert.Equal(srl.GroupBy(item => item.Lifecycle).ToDictionary(group => group.Key, group => (long)group.Count()),
+            result.Lifecycles.ToDictionary(item => item.Value, item => item.Count));
+        Assert.Equal(
+            srl.Where(item => item.Lifecycle == Lifecycle.Active && item.CountyNumber != null).GroupBy(item => item.CountyNumber!.Value)
+                .ToDictionary(group => group.Key.ToString(System.Globalization.CultureInfo.InvariantCulture), group => (long)group.Count()),
+            result.Places.ToDictionary(item => item.Value, item => item.Count));
+        // Sections are counted from the short caen_upper array; each must match the full token list.
+        Assert.NotEmpty(result.Activities);
+        Assert.All(result.Activities, item => Assert.Equal(srl.Count(company => company.Lifecycle == Lifecycle.Active && company.Caen.Contains(item.Value)), item.Count));
+        Assert.All(companies, item => Assert.Subset(item.Caen.ToHashSet(), item.CaenUpper.ToHashSet()));
+
+        // Within a county, the locality counts; in name order, as the stored path would list them.
+        var county = await search.ExecuteAsync(new SearchRequest(County: SearchFixtures.Cluj, LegalForm: "SRL"), CancellationToken.None);
+        Assert.Equal(srl.Where(item => item.CountyNumber == SearchFixtures.Cluj && item.UatCode != null).GroupBy(item => item.UatCode!.Value)
+                .ToDictionary(group => group.Key.ToString(System.Globalization.CultureInfo.InvariantCulture), group => (long)group.Count()),
+            county.Places.ToDictionary(item => item.Value, item => item.Count));
+        Assert.Equal(county.Hits.Select(hit => hit.Name).Order(StringComparer.Ordinal), county.Hits.Select(hit => hit.Name));
+    }
+
+    [Fact]
     public async Task PagesAreServerSideAndBounded()
     {
         await using var database = await SeededAsync();

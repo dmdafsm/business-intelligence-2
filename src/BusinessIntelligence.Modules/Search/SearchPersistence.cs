@@ -31,6 +31,9 @@ public sealed class SearchCompany
     /// </summary>
     public required string[] Caen { get; set; }
 
+    /// <summary>The section and division tokens of <see cref="Caen"/> only: what the top two levels of the CAEN facet count.</summary>
+    public string[] CaenUpper { get; set; } = [];
+
     /// <summary>
     /// The latest published financial year (the same for every company in a build) when the company filed that year;
     /// null otherwise, so older statements never pass for current ones.
@@ -48,6 +51,9 @@ public sealed class SearchCompany
 
     /// <summary>Profit positive, loss negative, as published that year.</summary>
     public decimal? NetResult { get; set; }
+
+    /// <summary>The company's warning signals (keys of <see cref="Risk.RiskSignals"/>) from the risk build before this one.</summary>
+    public string[] Signals { get; set; } = [];
 }
 
 /// <summary>A name a company is found by: its current name and the other names its registrations had in earlier snapshots.</summary>
@@ -110,6 +116,9 @@ public static class SearchPersistence
             entity.HasIndex(item => item.Caen).HasMethod("gin");
             entity.HasIndex(item => item.Turnover);
             entity.HasIndex(item => item.Employees);
+            entity.HasIndex(item => item.Signals).HasMethod("gin");
+            entity.Property(item => item.Signals).HasDefaultValueSql("'{}'::text[]");
+            entity.Property(item => item.CaenUpper).HasDefaultValueSql("'{}'::text[]");
             entity.Property(item => item.Turnover).HasPrecision(20, 0);
             entity.Property(item => item.NetResult).HasPrecision(20, 0);
         });
