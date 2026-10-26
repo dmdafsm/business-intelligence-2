@@ -92,6 +92,25 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
         }, NoScript);
 
     [Fact]
+    public Task SignalsShowTheirReasonAndFilterTheSearch() =>
+        portal.WithPageAsync(nameof(SignalsShowTheirReasonAndFilterTheSearch), async page =>
+        {
+            await page.GotoAsync(portal.Address + $"/firma/{SearchFixtures.ExempluSoft}");
+            var none = page.GetByRole(AriaRole.Region, new() { Name = "Semnale de atenție" });
+            await Assertions.Expect(none).ToContainTextAsync("Niciun semnal din datele verificate.");
+            await Assertions.Expect(none).ToContainTextAsync("nu un rating");
+
+            // ALFA EXEMPLU is active, registered in 2010 and has no statement for 2012 or 2013.
+            await page.GotoAsync(portal.Address + $"/?judet={SearchFixtures.Bucuresti}");
+            await page.GetByRole(AriaRole.Link, new() { Name = "Situații financiare nedepuse" }).ClickAsync();
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(@"semnal=nedepus"));
+            await page.GetByRole(AriaRole.Link, new() { Name = "S.C. ALFA EXEMPLU S.R.L." }).ClickAsync();
+            var signals = page.GetByRole(AriaRole.Region, new() { Name = "Semnale de atenție" });
+            await Assertions.Expect(signals).ToContainTextAsync("Situații financiare nedepuse");
+            await Assertions.Expect(signals).ToContainTextAsync("Nicio situație financiară publicată pentru 2012 și 2013. Sursa: Ministerul Finanțelor.");
+        }, NoScript);
+
+    [Fact]
     public Task IndividualsWithoutCuiHideContactsAndUnknownCompaniesAreNotFound() =>
         portal.WithPageAsync(nameof(IndividualsWithoutCuiHideContactsAndUnknownCompaniesAreNotFound), async page =>
         {

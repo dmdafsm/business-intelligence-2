@@ -28,6 +28,7 @@
 
 <nav class="md-tabs profile-nav" aria-label="Secțiuni">
     <a class="md-tab" href="#prezentare">Prezentare</a>
+    @if (profile.RiskBuild is not null) { <a class="md-tab" href="#semnale">Semnale</a> }
     <a class="md-tab" href="#contact">Contact</a>
     @if (profile.Anaf is not null) { <a class="md-tab" href="#anaf">ANAF</a> }
     <a class="md-tab" href="#persoane">Persoane</a>
@@ -105,6 +106,38 @@
             </dl>
         }
         <p class="md-source">Sursa: Agenția Națională de Administrare Fiscală, serviciul web „PlatitorTvaRest” v9, interogat pentru data de @CompanyModel.Date(anaf.CheckedOn). Se păstrează doar stările fiscale, nu adresa, telefonul sau contul bancar.</p>
+    </section>
+}
+
+@if (profile.RiskBuild is { } riskBuild)
+{
+    <section id="semnale" class="md-card md-card--outlined profile-section" aria-labelledby="semnale-title">
+        <h2 id="semnale-title" class="md-card__title">Semnale de atenție</h2>
+        @if (company.Cui is null || company.Lifecycle == BusinessIntelligence.Modules.Registry.Onrc.Lifecycle.StruckOff)
+        {
+            <p class="md-typescale-body-medium md-missing">Nu se calculează semnale pentru firmele radiate sau fără CUI valid.</p>
+        }
+        else if (profile.Signals.Count == 0)
+        {
+            <p class="md-typescale-body-medium">Niciun semnal din datele verificate.</p>
+        }
+        else
+        {
+            <ul class="md-list signal-list">
+                @foreach (var signal in profile.Signals.OrderBy(item => BusinessIntelligence.Modules.Risk.RiskSignals.All.ToList().FindIndex(definition => definition.Key == item.Signal)))
+                {
+                    var definition = BusinessIntelligence.Modules.Risk.RiskSignals.Get(signal.Signal);
+                    <li class="md-list__item md-list__item--dense">
+                        <md-icon name="info" />
+                        <span class="md-list__text">
+                            <span class="md-list__headline">@definition.Name</span>
+                            <span class="md-list__supporting">@CompanyModel.SignalDetail(signal) Sursa: @definition.Source.</span>
+                        </span>
+                    </li>
+                }
+            </ul>
+        }
+        <p class="md-typescale-body-small md-on-surface-variant">Semnalele sunt fapte din datele publice, nu un rating: lipsa lor nu înseamnă lipsa riscului. Starea ANAF este cea din ultimul răspuns al serviciului web; datele financiare sunt cele publicate de MF pentru @(riskBuild.FinancialYear?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "—"). Stările din registru (insolvență, dizolvare) apar în Prezentare. Reguli @riskBuild.Version.</p>
     </section>
 }
 

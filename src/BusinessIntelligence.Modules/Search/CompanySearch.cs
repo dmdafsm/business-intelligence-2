@@ -17,7 +17,8 @@ public sealed record SearchRequest(
     string? Lifecycle = null,
     int Page = 1,
     bool IncludeHits = true,
-    FinancialFilter? Financials = null);
+    FinancialFilter? Financials = null,
+    string? Signal = null);
 
 /// <summary>
 /// Ranges on the latest published financial year (bounds inclusive, any may be null) and an order of the results. A
@@ -97,6 +98,9 @@ public sealed class CompanySearch(AppDbContext database)
 
     public static readonly IReadOnlyList<short> CaenVersions = [3, 2];
 
+    /// <summary>The <see cref="SearchRequest.Signal"/> for companies that were checked and have no warning signal.</summary>
+    public const string NoSignal = "none";
+
     /// <summary>pg_trgm word similarity for the approximate tier: one or two wrong letters in a word still match.</summary>
     public const double SimilarityThreshold = 0.5;
 
@@ -141,13 +145,14 @@ public sealed class CompanySearch(AppDbContext database)
         var page = Math.Clamp(request.Page, 1, MaxPage);
 
         var financials = request.Financials ?? new FinancialFilter();
-        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle, financials);
+        var signal = request.Signal is { } chosen && (chosen == NoSignal || Risk.RiskSignals.All.Any(item => item.Key == chosen)) ? chosen : null;
+        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle, financials, signal);
         var children = await CaenChildrenAsync(connection, request.CaenVersion, path.Count > 0 ? path[^1] : null, cancellationToken);
         List<HitRow> rows;
         long total;
         Dictionary<string, Dictionary<string, long>> facets;
         // The stored counts cover county, lifecycle and CAEN only; a locality or a financial filter is counted live.
-        if (hasQuery || request.Uat is not null || !financials.IsEmpty)
+        if (hasQuery || request.Uat is not null || !financials.IsEmpty || signal is not null)
         {
             (rows, total, facets) = await LiveAsync(connection, filter, hasQuery, page, request.CaenVersion, children.Keys, cancellationToken);
         }
@@ -198,7 +203,7 @@ public sealed class CompanySearch(AppDbContext database)
         counts is null ? [] : [.. counts.Where(item => item.Value > 0).Select(item => new FacetItem(item.Key, label(item.Key) ?? item.Key, item.Value))];
 
     /// <summary>The WHERE clauses and parameters for one request, shared by the result list and the live counts.</summary>
-    private sealed class SqlFilter(SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle, FinancialFilter financials)
+    private sealed class SqlFilter(SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle, FinancialFilter financials, string? signal)
     {
         public SearchQuery Query { get; } = query;
         public string? Lifecycle { get; } = lifecycle;
@@ -223,6 +228,15 @@ public sealed class CompanySearch(AppDbContext database)
             if (Financials.TurnoverMax is not null) { clauses.Add("c.turnover <= @turnoverMax"); }
             if (Financials.EmployeesMin is not null) { clauses.Add("c.employees >= @employeesMin"); }
             if (Financials.EmployeesMax is not null) { clauses.Add("c.employees <= @employeesMax"); }
+            // "No signal" covers only companies the signals are built for: with a CUI and not struck off.
+            if (signal == NoSignal)
+            {
+                clauses.Add("c.cui IS NOT NULL AND c.lifecycle <> 'StruckOff' AND NOT EXISTS (SELECT 1 FROM risk.signals r WHERE r.company_key = c.company_key)");
+            }
+            else if (signal is not null)
+            {
+                clauses.Add("EXISTS (SELECT 1 FROM risk.signals r WHERE r.company_key = c.company_key AND r.signal = @signal)");
+            }
             return string.Join(" AND ", clauses);
         }
 
@@ -300,6 +314,7 @@ public sealed class CompanySearch(AppDbContext database)
             Add("turnoverMax", Financials.TurnoverMax);
             Add("employeesMin", Financials.EmployeesMin);
             Add("employeesMax", Financials.EmployeesMax);
+            Add("signal", signal == NoSignal ? null : signal);
             if (Query.NameKey is { } key)
             {
                 command.Parameters.AddWithValue("key", key);

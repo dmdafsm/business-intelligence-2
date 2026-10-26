@@ -72,6 +72,10 @@ public sealed record CompanyProfile
     public required IReadOnlyList<TaxpayerPeriod> FiscalHistory { get; init; }
     public required IReadOnlyList<FinancialYear> Financials { get; init; }
     public FinancialComparison? Comparison { get; init; }
+
+    /// <summary>The company's warning signals from the latest build; <see cref="RiskBuild"/> is null when signals were never built.</summary>
+    public IReadOnlyList<Risk.RiskSignal> Signals { get; init; } = [];
+    public Risk.RiskBuild? RiskBuild { get; init; }
     /// <summary>SIRUTA names of the UATs and localities shown, by code.</summary>
     public required IReadOnlyDictionary<int, string> Places { get; init; }
 
@@ -162,6 +166,8 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             FiscalHistory = fiscal,
             Financials = financials,
             Comparison = await ComparisonAsync(financials, cancellationToken),
+            Signals = await database.RiskSignals.AsNoTracking().Where(item => item.CompanyKey == company.CompanyKey).ToListAsync(cancellationToken),
+            RiskBuild = await database.RiskBuilds.AsNoTracking().OrderByDescending(item => item.Id).FirstOrDefaultAsync(cancellationToken),
             Places = await PlacesAsync([company.UatCode, company.LocalityCode, .. history.SelectMany(item => new int?[] { item.UatCode, item.LocalityCode })], cancellationToken),
             Counties = await database.Siruta.AsNoTracking().Where(item => item.Level == 1)
                 .ToDictionaryAsync(item => item.CountyNumber, item => Search.PlaceNames.Display(item.Name, true), cancellationToken),

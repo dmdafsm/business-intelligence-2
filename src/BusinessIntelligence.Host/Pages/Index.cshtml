@@ -112,6 +112,7 @@
             if (Model.TurnoverMax is not null) { active.Add(($"CA ≤ {IndexModel.Lei(Model.TurnoverMax)} lei", Model.With(turnoverMax: null))); }
             if (Model.EmployeesMin is not null) { active.Add(($"≥ {IndexModel.Lei(Model.EmployeesMin)} salariați", Model.With(employeesMin: null))); }
             if (Model.EmployeesMax is not null) { active.Add(($"≤ {IndexModel.Lei(Model.EmployeesMax)} salariați", Model.With(employeesMax: null))); }
+            if (Model.Signal is not null) { active.Add(($"Semnal: {IndexModel.Signals.First(item => item.Slug == Model.Signal).Label.ToLowerInvariant()}", Model.With(signal: null))); }
             if (Model.Sort is not null) { active.Add(($"Ordonate: {IndexModel.Sorts.First(item => item.Slug == Model.Sort).Label.ToLowerInvariant()}", Model.With(sort: null))); }
         }
         @if (active.Count > 0)
@@ -197,6 +198,19 @@
                     <li><a class="md-chip" asp-page="/Index" asp-all-route-data="Model.With(lifecycle: selected ? null : slug)" aria-current="@(selected ? "true" : null)">
                         @if (selected) { <md-icon name="check" small="true" /> }
                         @item.Label <span class="md-chip__count">@item.Count.ToString("N0", ro)</span></a></li>
+                }
+            </ul>
+        </section>
+
+        <section class="facet" aria-labelledby="facet-signals">
+            <h2 id="facet-signals" class="facet__title">Semnale de atenție</h2>
+            <ul class="md-chip-set">
+                @foreach (var option in IndexModel.Signals)
+                {
+                    var selected = option.Slug == Model.Signal;
+                    <li><a class="md-chip" asp-page="/Index" asp-all-route-data="Model.With(signal: selected ? null : option.Slug)" aria-current="@(selected ? "true" : null)">
+                        @if (selected) { <md-icon name="check" small="true" /> }
+                        @option.Label</a></li>
                 }
             </ul>
         </section>

@@ -4,6 +4,7 @@ using BusinessIntelligence.Modules.Market;
 using BusinessIntelligence.Modules.Platform.Persistence;
 using BusinessIntelligence.Modules.Registry;
 using BusinessIntelligence.Modules.Registry.Onrc;
+using BusinessIntelligence.Modules.Risk;
 using BusinessIntelligence.Modules.Search;
 using Microsoft.EntityFrameworkCore;
 
@@ -234,6 +235,7 @@ public static class SearchFixtures
         {
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
             await new BuildMarketStatistics(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
+            await new BuildRiskSignals(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
         }
     }
 

@@ -112,6 +112,20 @@ public sealed class CompanyModel(CompanyProfileQuery query) : PageModel
         _ => "peste 90% din firme",
     };
 
+    /// <summary>What a signal refers to, in one sentence ending with a full stop.</summary>
+    public static string SignalDetail(BusinessIntelligence.Modules.Risk.RiskSignal signal) => signal.Signal switch
+    {
+        BusinessIntelligence.Modules.Risk.RiskSignals.AnafInactive =>
+            (signal.Since is { } since ? $"Inactiv din {Date(since)}" : "Inactiv") + (signal.CheckedOn is { } checkedOn ? $", conform răspunsului ANAF din {Date(checkedOn)}." : "."),
+        BusinessIntelligence.Modules.Risk.RiskSignals.NoRecentStatement => $"Nicio situație financiară publicată pentru {signal.Year - 1} și {signal.Year}.",
+        BusinessIntelligence.Modules.Risk.RiskSignals.NegativeEquity => $"{Amount(signal.Amount ?? 0)} lei în {signal.Year}.",
+        BusinessIntelligence.Modules.Risk.RiskSignals.RepeatedLosses =>
+            $"Pierdere netă în {signal.Year - 2}, {signal.Year - 1} și {signal.Year}" + (signal.Amount is { } loss ? $"; în {signal.Year}: {Amount(loss)} lei." : "."),
+        BusinessIntelligence.Modules.Risk.RiskSignals.HighDebtRatio =>
+            $"{Indicator(FinancialIndicators.DebtRatio, signal.Ratio ?? 0)} în {signal.Year}, peste {Indicator(FinancialIndicators.DebtRatio, signal.Threshold ?? 0)} (percentila 90 a clasei CAEN {signal.CaenCode}).",
+        _ => string.Empty,
+    };
+
     public static string SizeLabel(string band) =>
         band == FinancialIndicators.AllSizes ? "toate mărimile" : FinancialIndicators.SizeBands.FirstOrDefault(item => item.Key == band).Label ?? band;
 
