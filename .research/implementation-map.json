@@ -274,6 +274,25 @@
           "note": "tasks/s12-1-prospecting-filters.md"
         }
       ]
+    },
+    {
+      "id": "S13",
+      "title": "Risk signals",
+      "status": "completed",
+      "path": "steps/s13-risk-signals.md",
+      "depends_on": [
+        "S04",
+        "S08",
+        "S10"
+      ],
+      "tasks": [
+        {
+          "id": "S13.1",
+          "title": "Signals table, profile section and search filter",
+          "status": "completed",
+          "note": "tasks/s13-1-risk-signals.md"
+        }
+      ]
     }
   ]
 }
