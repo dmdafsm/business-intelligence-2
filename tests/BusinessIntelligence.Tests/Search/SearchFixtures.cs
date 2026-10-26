@@ -164,6 +164,7 @@ public static class SearchFixtures
                 BirthCounty = "Cluj",
                 BirthCountry = "România",
                 PersonKind = "natural",
+                PersonKey = "N:POPESCUANA:1980-03-05:TURDA",
             },
             new Representative
             {
@@ -177,6 +178,35 @@ public static class SearchFixtures
                 County = "Cluj",
                 Country = "România",
                 PersonKind = "legal",
+                PersonKey = "L:EXEMPLUINSOLVIPURL",
+            },
+            // The same POPESCU ANA (name spelled differently, same birth date and place) at ALFA EXEMPLU, and a namesake born
+            // elsewhere at ZARZAVAT FRESH, who must not be linked.
+            new Representative
+            {
+                SnapshotId = Snapshot,
+                Source = "legal",
+                RowNumber = 3,
+                RegistrationNumber = "J40/3/2005",
+                Name = "Popescu-Ana",
+                Role = "asociat unic",
+                BirthDate = new DateOnly(1980, 3, 5),
+                BirthLocality = "TURDA",
+                PersonKind = "natural",
+                PersonKey = "N:POPESCUANA:1980-03-05:TURDA",
+            },
+            new Representative
+            {
+                SnapshotId = Snapshot,
+                Source = "legal",
+                RowNumber = 4,
+                RegistrationNumber = "J12/4/2011",
+                Name = "POPESCU ANA",
+                Role = "administrator",
+                BirthDate = new DateOnly(1980, 3, 5),
+                BirthLocality = "Arad",
+                PersonKind = "natural",
+                PersonKey = "N:POPESCUANA:1980-03-05:ARAD",
             });
         await database.SaveChangesAsync();
         AddFinancials(database);

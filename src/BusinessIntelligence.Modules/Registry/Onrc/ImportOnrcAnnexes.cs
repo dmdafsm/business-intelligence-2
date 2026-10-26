@@ -329,14 +329,15 @@ public sealed class ImportOnrcAnnexes(AppDbContext database, TimeProvider time)
             """;
 
         // Identical rows are stored once, under the first line that has them; rows for registrations not in the snapshot are counted, not kept.
-        public const string InsertRepresentatives = """
+        public static readonly string InsertRepresentatives = $"""
             INSERT INTO registry.representatives (snapshot_id, source, row_number, registration_number, name, role, birth_date, birth_date_text,
-                birth_locality, birth_county, birth_country, locality, county, country, person_kind)
+                birth_locality, birth_county, birth_country, locality, county, country, person_kind, person_key)
             SELECT @snapshot, @source, min(p.row_number), p.registration_number, p.name, p.role, p.birth_date, p.birth_date_text,
                 p.birth_locality, p.birth_county, p.birth_country, p.locality, p.county, p.country,
                 CASE WHEN p.birth_date IS NOT NULL OR p.birth_date_text IS NOT NULL THEN 'natural'
                      WHEN coalesce(p.locality, p.county, p.country) IS NOT NULL THEN 'legal'
-                     ELSE 'unknown' END
+                     ELSE 'unknown' END,
+                {RepresentativeKeys.Sql("p")}
             FROM representative_rows p
             WHERE EXISTS (SELECT 1 FROM registry.registrations r WHERE r.snapshot_id = @snapshot AND r.registration_number = p.registration_number)
             GROUP BY p.registration_number, p.name, p.role, p.birth_date, p.birth_date_text, p.birth_locality, p.birth_county, p.birth_country,

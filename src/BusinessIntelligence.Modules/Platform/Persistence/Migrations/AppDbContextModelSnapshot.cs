@@ -1668,6 +1668,10 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<string>("PersonKey")
+                        .HasColumnType("text")
+                        .HasColumnName("person_key");
+
                     b.Property<string>("PersonKind")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1684,6 +1688,9 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
 
                     b.HasKey("SnapshotId", "Source", "RowNumber")
                         .HasName("pk_representatives");
+
+                    b.HasIndex("SnapshotId", "PersonKey")
+                        .HasDatabaseName("ix_representatives_snapshot_id_person_key");
 
                     b.HasIndex("SnapshotId", "RegistrationNumber")
                         .HasDatabaseName("ix_representatives_snapshot_id_registration_number");

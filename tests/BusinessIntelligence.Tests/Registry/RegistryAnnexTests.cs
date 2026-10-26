@@ -97,6 +97,8 @@ public sealed class RegistryAnnexTests(PostgresFixture postgres) : IClassFixture
         Assert.Equal(("legal", "Cluj-Napoca"), (rows[1].PersonKind, rows[1].Locality!));
         Assert.Equal(("natural", (DateOnly?)null, "31/02/1975"), (rows[2].PersonKind, rows[2].BirthDate, rows[2].BirthDateText!));
         Assert.Equal("unknown", rows[3].PersonKind);
+        // Linking keys (ADR 0004): folded name, birth date and place for people, the name for firms; none without a readable date.
+        Assert.Equal(["N:POPESCUANA:1980-03-05:CLUJNAPOCA", "L:EXEMPLUINSOLVIPURL", null, null], rows.Select(item => item.PersonKey));
 
         var (familyPath, familyFile) = RegistryFixtures.WriteFile(_files.FullName, "family", ImportOnrcAnnexes.FamilyMembersKind,
             "COD_INMATRICULARE^NUME^DATA_NASTERE^LOCALITATE_NASTERE^JUDET_NASTERE^TARA_NASTERE^CALITATE",
@@ -104,6 +106,7 @@ public sealed class RegistryAnnexTests(PostgresFixture postgres) : IClassFixture
         await new ImportOnrcAnnexes(database, TimeProvider.System).FamilyMembersAsync(familyPath, familyFile, CancellationToken.None);
         var member = await database.Representatives.AsNoTracking().SingleAsync(item => item.Source == "family");
         Assert.Equal(("membru întreprindere familiala", new DateOnly(1970, 1, 1), "natural"), (member.Role!, member.BirthDate!.Value, member.PersonKind));
+        Assert.Equal("N:POPESCUION:1970-01-01:FLORESTI", member.PersonKey);
 
         // A newer OD_FIRME snapshot removes the previous snapshot's representatives with its other annexes.
         var (firme, companiesFile) = RegistryFixtures.WriteFile(_files.FullName, "firme-next", "onrc-firme", RegistryFixtures.Header, RegistryFixtures.SecondSnapshot, Snapshot.AddDays(1));
