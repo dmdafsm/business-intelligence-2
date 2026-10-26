@@ -1,0 +1,25 @@
+@page "/admin/intrare"
+@model BusinessIntelligence.Host.Pages.Admin.IntrareModel
+@{
+    ViewData["Title"] = "Intrare operator";
+}
+<header class="page-header">
+    <h1 class="md-typescale-headline-medium">Intrare operator</h1>
+    <p class="md-typescale-body-medium md-on-surface-variant">Paginile de operator pornesc și urmăresc importurile de date. Introdu tokenul de operator din <code>.artifacts/docker/admin-token</code>.</p>
+</header>
+
+<form method="post" class="page-section admin-form">
+    <input type="hidden" asp-for="ReturnUrl" />
+    <div class="md-text-field">
+        <label class="md-text-field__label" for="token">Token de operator</label>
+        <input class="md-text-field__input" id="token" name="Token" type="password" autocomplete="current-password" required
+               aria-describedby="@(Model.Refused ? "token-error" : null)" aria-invalid="@(Model.Refused ? "true" : null)" />
+        @if (Model.Refused)
+        {
+            <span class="md-text-field__supporting admin-form__error" id="token-error" role="alert">Token incorect.</span>
+        }
+    </div>
+    <div class="cluster">
+        <button class="md-button md-button--filled" type="submit">Intră</button>
+    </div>
+</form>

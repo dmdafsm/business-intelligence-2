@@ -538,6 +538,214 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("projects", "funds");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Jobs.DiscoveredFile", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<long>("Bytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("bytes");
+
+                    b.Property<string>("Dataset")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("dataset");
+
+                    b.Property<DateTimeOffset>("DiscoveredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("discovered_at");
+
+                    b.Property<string>("Family")
+                        .HasColumnType("text")
+                        .HasColumnName("family");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("Grouping")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("grouping");
+
+                    b.Property<string>("JobId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("job_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("License")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("license");
+
+                    b.Property<string>("LocalPath")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("local_path");
+
+                    b.Property<string>("Publisher")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("publisher");
+
+                    b.Property<DateOnly>("ReferenceDate")
+                        .HasColumnType("date")
+                        .HasColumnName("reference_date");
+
+                    b.Property<string>("ResourceId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("resource_id");
+
+                    b.Property<DateTimeOffset?>("ResourceModified")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resource_modified");
+
+                    b.Property<long?>("RunId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("run_id");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sha256");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("url");
+
+                    b.Property<short?>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id")
+                        .HasName("pk_catalog_files");
+
+                    b.HasIndex("LocalPath")
+                        .IsUnique()
+                        .HasDatabaseName("ix_catalog_files_local_path");
+
+                    b.HasIndex("ResourceId")
+                        .HasDatabaseName("ix_catalog_files_resource_id");
+
+                    b.HasIndex("Kind", "ReferenceDate")
+                        .HasDatabaseName("ix_catalog_files_kind_reference_date");
+
+                    b.ToTable("catalog_files", "jobs");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Jobs.JobRun", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("CancelRequested")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cancel_requested");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<DateTimeOffset?>("FinishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("finished_at");
+
+                    b.Property<bool>("Force")
+                        .HasColumnType("boolean")
+                        .HasColumnName("force");
+
+                    b.Property<string>("JobId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("job_id");
+
+                    b.Property<int>("NewFiles")
+                        .HasColumnType("integer")
+                        .HasColumnName("new_files");
+
+                    b.Property<DateTimeOffset>("QueuedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("queued_at");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Step")
+                        .HasColumnType("text")
+                        .HasColumnName("step");
+
+                    b.Property<string>("Trigger")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("trigger");
+
+                    b.HasKey("Id")
+                        .HasName("pk_runs");
+
+                    b.HasIndex("JobId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_runs_active_job")
+                        .HasFilter("status IN ('queued', 'running')");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_runs_status");
+
+                    b.HasIndex("JobId", "QueuedAt")
+                        .HasDatabaseName("ix_runs_job_id_queued_at");
+
+                    b.ToTable("runs", "jobs");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Jobs.JobRunLine", b =>
+                {
+                    b.Property<long>("RunId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("run_id");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer")
+                        .HasColumnName("number");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<string>("Stream")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("stream");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("text");
+
+                    b.HasKey("RunId", "Number")
+                        .HasName("pk_run_lines");
+
+                    b.ToTable("run_lines", "jobs");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Licences.Licence", b =>
                 {
                     b.Property<int>("SourceFileId")
@@ -1629,6 +1837,16 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasName("pk_registration_numbers");
 
                     b.ToTable("registration_numbers", "search");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Jobs.JobRunLine", b =>
+                {
+                    b.HasOne("BusinessIntelligence.Modules.Jobs.JobRun", null)
+                        .WithMany()
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_run_lines_runs_run_id");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Registry.PublishedDataset", b =>

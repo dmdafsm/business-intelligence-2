@@ -31,12 +31,16 @@ public class PortalFixture : IAsyncLifetime
         _app = await PortalApplication.BuildAsync([
             "--environment", "Development", "--urls", "http://127.0.0.1:0",
             "--ConnectionStrings:Application", _postgres.ConnectionString,
-            "--Logging:LogLevel:Default", "Warning"
+            "--Logging:LogLevel:Default", "Warning",
+            .. PortalArguments,
         ], Path.Combine(root!.FullName, "src/BusinessIntelligence.Host"));
         await _app.StartAsync();
         _playwright = await Playwright.CreateAsync();
         Browser = await _playwright.Chromium.LaunchAsync(new() { Headless = true });
     }
+
+    /// <summary>More configuration for the portal, as command-line arguments.</summary>
+    protected virtual IEnumerable<string> PortalArguments => [];
 
     /// <summary>Runs once against the migrated database before the portal starts.</summary>
     protected virtual Task SeedAsync(BusinessIntelligence.Modules.Platform.Persistence.AppDbContext database) => Task.CompletedTask;

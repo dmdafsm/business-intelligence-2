@@ -24,6 +24,18 @@ class DockerInputTests(unittest.TestCase):
             self.assertEqual(0o700, stat.S_IMODE(target.stat().st_mode))
             self.assertEqual(0o444, stat.S_IMODE((target / "postgres-password").stat().st_mode))
 
+    def test_admin_token_is_separate_and_preserved(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            prepare_docker.prepare(root)
+            target = root / ".artifacts/docker"
+            token = (target / "admin-token").read_bytes()
+            self.assertGreaterEqual(len(token), 48)
+            self.assertNotEqual(token, (target / "postgres-password").read_bytes())
+            prepare_docker.prepare(root)
+            self.assertEqual(token, (target / "admin-token").read_bytes())
+            self.assertEqual(0o444, stat.S_IMODE((target / "admin-token").stat().st_mode))
+
     def test_invalid_existing_secret_is_preserved_and_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

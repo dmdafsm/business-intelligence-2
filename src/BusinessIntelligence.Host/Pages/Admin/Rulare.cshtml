@@ -1,0 +1,65 @@
+@page "/admin/joburi/rulare/{id:long}"
+@model BusinessIntelligence.Host.Pages.Admin.RulareModel
+@{
+    ViewData["Title"] = $"Rularea {Model.Run.Id}";
+}
+@section Head {
+    @if (Model.Active)
+    {
+        @* The page follows a run without JavaScript. *@
+        <meta http-equiv="refresh" content="10" />
+    }
+}
+<header class="page-header">
+    <partial name="_AdminBar" />
+    <h1 class="md-typescale-headline-medium">Rularea @Model.Run.Id: @Model.Run.JobId</h1>
+    <div class="cluster">
+        <span class="@RunLabels.StatusClass(Model.Run.Status)">@RunLabels.Status(Model.Run.Status)</span>
+        <span class="md-typescale-body-medium md-on-surface-variant">@RunLabels.Trigger(Model.Run.Trigger)@(Model.Run.Force ? ", forțată" : string.Empty)</span>
+    </div>
+</header>
+
+@if (Model.Notice is { } notice)
+{
+    <p class="md-typescale-body-medium" role="status">@notice</p>
+}
+
+<section class="page-section">
+    <dl class="md-facts">
+        <div><dt>În coadă</dt><dd>@RunLabels.Time(Model.Run.QueuedAt, Model.Zone)</dd></div>
+        <div><dt>Pornită</dt><dd>@RunLabels.Time(Model.Run.StartedAt, Model.Zone)</dd></div>
+        <div><dt>Încheiată</dt><dd>@RunLabels.Time(Model.Run.FinishedAt, Model.Zone)</dd></div>
+        <div><dt>Durată</dt><dd>@RunLabels.Duration(Model.Run, Model.Now)</dd></div>
+        <div><dt>Fișiere noi</dt><dd>@Model.Run.NewFiles</dd></div>
+        <div class="md-facts__wide"><dt>Pas</dt><dd><code>@(Model.Run.Step ?? "—")</code></dd></div>
+        @if (Model.Run.Error is { } error)
+        {
+            <div class="md-facts__wide"><dt>Eroare</dt><dd>@error</dd></div>
+        }
+    </dl>
+    @if (Model.Active)
+    {
+        <form method="post" asp-page="/Admin/Joburi" asp-page-handler="Cancel" class="cluster">
+            <input type="hidden" name="run" value="@Model.Run.Id" />
+            <button class="md-button md-button--outlined" type="submit" disabled="@Model.Run.CancelRequested">@(Model.Run.CancelRequested ? "Anulare cerută" : "Anulează")</button>
+            <span class="md-typescale-body-small md-on-surface-variant">Pagina se reîncarcă la 10 secunde.</span>
+        </form>
+    }
+</section>
+
+<section class="page-section" aria-labelledby="log-title">
+    <div class="cluster">
+        <h2 class="md-typescale-title-large" id="log-title">Jurnal</h2>
+        <span class="md-typescale-body-small md-on-surface-variant">@(Model.TotalLines > Model.Lines.Count ? $"ultimele {Model.Lines.Count} din {Model.TotalLines} linii" : $"{Model.TotalLines} linii")</span>
+        <a class="md-button md-button--text" asp-page-handler="Text" asp-route-id="@Model.Run.Id">Descarcă tot jurnalul</a>
+    </div>
+    @if (Model.Lines.Count == 0)
+    {
+        <p class="md-typescale-body-medium md-on-surface-variant">Nimic încă. @(Model.Run.Status == BusinessIntelligence.Modules.Jobs.RunStatus.Queued ? "Rularea așteaptă serviciul worker." : string.Empty)</p>
+    }
+    else
+    {
+        <pre class="md-log">@foreach (var line in Model.Lines)
+{<span class="@(line.Stream == "err" ? "md-log__err" : line.Stream == "job" ? "md-log__job" : null)">@line.Text</span>@("\n")}</pre>
+    }
+</section>

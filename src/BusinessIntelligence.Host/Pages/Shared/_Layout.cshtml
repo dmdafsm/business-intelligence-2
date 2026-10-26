@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
 </head>
 <body class="md-app">
     <partial name="Components/_IconSprite" />

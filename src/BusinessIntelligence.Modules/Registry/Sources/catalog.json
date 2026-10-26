@@ -36,7 +36,8 @@
    "license": "CC BY 4.0",
    "referenceDate": "2026-10-19",
    "bytes": 437467917,
-   "sha256": "05db43ffc8a3e5179332c53c0f7d22a5845341506292b7463e42d74747b9440d"
+   "sha256": "05db43ffc8a3e5179332c53c0f7d22a5845341506292b7463e42d74747b9440d",
+   "localPath": "onrc-2026-10-19/OD_CAEN_AUTORIZAT.CSV"
   },
   {
    "id": "onrc-n-caen-2026-10-19",
@@ -48,7 +49,8 @@
    "license": "CC BY 4.0",
    "referenceDate": "2026-10-19",
    "bytes": 276396,
-   "sha256": "45f207eb6634eea667c8450e20ac8197743ba7ec2371d19a269b20e24f07b34f"
+   "sha256": "45f207eb6634eea667c8450e20ac8197743ba7ec2371d19a269b20e24f07b34f",
+   "localPath": "onrc-2026-10-19/N_CAEN.CSV"
   },
   {
    "id": "onrc-n-stare-firma-2026-10-19",
@@ -60,7 +62,8 @@
    "license": "CC BY 4.0",
    "referenceDate": "2026-10-19",
    "bytes": 12740,
-   "sha256": "c3b4af92691fe6bb47e924e13070b80c605672225c399e1f48ef5b578beadf9b"
+   "sha256": "c3b4af92691fe6bb47e924e13070b80c605672225c399e1f48ef5b578beadf9b",
+   "localPath": "onrc-2026-10-19/N_STARE_FIRMA.CSV"
   },
   {
    "id": "ins-siruta-s1-2024",
@@ -72,7 +75,8 @@
    "license": "CC BY 4.0",
    "referenceDate": "2024-01-01",
    "bytes": 1095632,
-   "sha256": "50ae2c83b73c921bec3d25a937702b39c7bb51581a81ec13fbe227f1ac5a876e"
+   "sha256": "50ae2c83b73c921bec3d25a937702b39c7bb51581a81ec13fbe227f1ac5a876e",
+   "localPath": "siruta-s1-2024/siruta_s1_2024.xlsx"
   },
   {
    "id": "mf-2008-bl-data",

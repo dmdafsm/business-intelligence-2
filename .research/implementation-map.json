@@ -1,6 +1,6 @@
 {
   "version": "mvp",
-  "updated": "2026-10-25",
+  "updated": "2026-10-26",
   "references": {
     "plan": "mvp-plan.md",
     "architecture": "architecture.md"
@@ -201,6 +201,23 @@
           "title": "Public procurement (SEAP) 2007–2026",
           "status": "completed",
           "note": "tasks/s08-6-procurement-history.md"
+        }
+      ]
+    },
+    {
+      "id": "S09",
+      "title": "Import jobs",
+      "status": "completed",
+      "path": "steps/s09-import-jobs.md",
+      "depends_on": [
+        "S08"
+      ],
+      "tasks": [
+        {
+          "id": "S09.1",
+          "title": "Job manager: catalog, discovery, worker, CLI and operator page",
+          "status": "completed",
+          "note": "tasks/s09-1-import-jobs.md"
         }
       ]
     }
