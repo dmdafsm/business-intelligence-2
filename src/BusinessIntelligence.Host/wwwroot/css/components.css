@@ -384,6 +384,24 @@ a.md-list__item[aria-current="true"] { background: var(--md-sys-color-secondary-
 .md-data-table .md-numeric, .md-data-table [data-numeric] { text-align: end; font-variant-numeric: tabular-nums; }
 .md-data-table .md-missing { color: var(--md-sys-color-on-surface-variant); }
 
+/* Row labels stay in view while the values scroll sideways (one row per indicator, one column per year). */
+.md-data-table--sticky-first tr > :first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--md-field-background, var(--md-sys-color-surface));
+  box-shadow: inset -1px 0 0 var(--md-sys-color-outline-variant);
+}
+@media (max-width: 599px) {
+  /* On a phone the fixed names wrap so more of each row's values stay visible. */
+  .md-data-table--sticky-first tbody th:first-child { min-width: 8rem; max-width: 9.5rem; white-space: normal; }
+}
+.md-data-table--sticky-first tbody tr:hover > :first-child {
+  background:
+    linear-gradient(color-mix(in srgb, var(--md-sys-color-on-surface) var(--md-sys-state-hover), transparent) 0 0),
+    var(--md-field-background, var(--md-sys-color-surface));
+}
+
 /* ---------- Tabs (primary, as links) ---------- */
 
 .md-tabs {
