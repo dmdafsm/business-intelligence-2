@@ -293,6 +293,25 @@
           "note": "tasks/s13-1-risk-signals.md"
         }
       ]
+    },
+    {
+      "id": "S14",
+      "title": "CSV export of search results",
+      "status": "completed",
+      "path": "steps/s14-export.md",
+      "depends_on": [
+        "S05",
+        "S12",
+        "S13"
+      ],
+      "tasks": [
+        {
+          "id": "S14.1",
+          "title": "CSV export from the search page",
+          "status": "completed",
+          "note": "tasks/s14-1-csv-export.md"
+        }
+      ]
     }
   ]
 }

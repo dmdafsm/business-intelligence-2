@@ -88,6 +88,11 @@
                     @(result.Total == 1 ? "1 firmă" : $"{result.Total.ToString("N0", ro)} firme")
                 }
             </p>
+            @if (result.Total > 0)
+            {
+                <a class="md-button md-button--text" asp-page="/Index" asp-page-handler="Csv" asp-all-route-data="Model.With()" download
+                   title="@(result.Total > BusinessIntelligence.Modules.Search.CompanySearch.MaxExport ? $"Primele {BusinessIntelligence.Modules.Search.CompanySearch.MaxExport.ToString("N0", ro)} rezultate, în ordinea listei" : null)"><md-icon name="download" />Descarcă CSV</a>
+            }
             <a class="md-button md-button--text results-header__filters" href="#filtre"><md-icon name="filter-list" />Filtre</a>
         </div>
 
