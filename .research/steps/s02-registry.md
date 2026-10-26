@@ -1,6 +1,6 @@
 # S02 Registry
 
-Status: in progress. Depends on S01. Part of the [MVP plan](../mvp-plan.md).
+Status: completed. Depends on S01. Part of the [MVP plan](../mvp-plan.md).
 
 ## Outcome
 
@@ -26,3 +26,8 @@ Every company in the ONRC open-data registry exists in the database with its ide
 - S02.2 Import nomenclatures, SIRUTA and the latest OD_FIRME snapshot — [note](../tasks/s02-2-registry-import.md).
 - S02.3 Import company statuses (`OD_STARE_FIRMA`) and authorized CAEN activities (`OD_CAEN_AUTORIZAT`) — [note](../tasks/s02-3-statuses-and-activities.md).
 - S02.4 Import older snapshots as history — [inspection](../tasks/s02-4-history-inspection.md), [note](../tasks/s02-4-registry-history.md).
+
+## Not covered
+
+- `OD_SUCURSALE_ALTE_STATE_MEMBRE` (branches of companies from other EU member states) is not imported.
+- Legal-form changes have no history: the older snapshots carry no legal form or registration date ([S02.4 note](../tasks/s02-4-registry-history.md)).
