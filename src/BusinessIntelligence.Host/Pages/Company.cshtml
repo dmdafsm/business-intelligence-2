@@ -428,7 +428,7 @@
         <details class="facet__more">
             <summary>Toți indicatorii publicați</summary>
             <div class="md-table-wrapper">
-                <table class="md-data-table">
+                <table class="md-data-table md-data-table--sticky-first">
                     <thead><tr><th scope="col">Indicator</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <th scope="col" class="md-numeric">@year.Year</th> }</tr></thead>
                     <tbody>
                         @foreach (var (label, value) in CompanyModel.Indicators)
