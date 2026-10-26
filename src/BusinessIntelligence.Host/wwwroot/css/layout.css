@@ -197,7 +197,7 @@
 .profile-header__name { overflow-wrap: anywhere; }
 .profile-nav { margin-bottom: var(--md-sys-spacing-4); }
 .profile-sections { display: grid; gap: var(--md-sys-spacing-4); }
-.profile-section { display: grid; gap: var(--md-sys-spacing-3); min-width: 0; scroll-margin-top: var(--md-sys-spacing-4); }
+.profile-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--md-sys-spacing-3); min-width: 0; scroll-margin-top: var(--md-sys-spacing-4); }
 .profile-section h3 { margin: var(--md-sys-spacing-2) 0 0; }
 .activity-list { padding: 0; }
 .chart-grid { display: grid; gap: var(--md-sys-spacing-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
