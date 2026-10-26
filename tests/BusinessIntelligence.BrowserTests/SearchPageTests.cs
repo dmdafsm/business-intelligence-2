@@ -85,6 +85,30 @@ public sealed partial class SearchPageTests(SearchPortalFixture portal) : IClass
         }, NoScript);
 
     [Fact]
+    public Task FinancialFiltersSubmitWithoutJavaScriptAndKeepTheOtherFilters() =>
+        portal.WithPageAsync(nameof(FinancialFiltersSubmitWithoutJavaScriptAndKeepTheOtherFilters), async page =>
+        {
+            await page.GotoAsync(portal.Address + $"/?judet={SearchFixtures.Cluj}");
+            var form = page.GetByRole(AriaRole.Complementary, new() { Name = "Filtre" });
+            await Assertions.Expect(form.GetByRole(AriaRole.Heading, new() { Name = "Date financiare 2013" })).ToBeVisibleAsync();
+            await form.GetByRole(AriaRole.Group, new() { Name = "Număr mediu de salariați" }).GetByLabel("De la").FillAsync("1");
+            await form.GetByLabel("Ordine").SelectOptionAsync(new SelectOptionValue { Label = "Salariați, descrescător" });
+            await form.GetByRole(AriaRole.Button, new() { Name = "Aplică" }).ClickAsync();
+
+            // A GET form also sends its empty fields; they are ignored.
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex($@"\?judet={SearchFixtures.Cluj}&.*sal_min=1&.*ordine=salariati$"));
+            await Assertions.Expect(page.GetByRole(AriaRole.Status)).ToHaveTextAsync("1 firmă");
+            await Assertions.Expect(page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "EXEMPLU SOFT SRL" }))
+                .ToContainTextAsync("2013: cifra de afaceri necompletată · 3 salariați");
+
+            // Thousands separators typed by a person keep their digits.
+            await page.GotoAsync(portal.Address + "/?ca_min=1.000.000");
+            await Assertions.Expect(page.GetByRole(AriaRole.Link, new() { Name = "Elimină filtrul CA ≥ 1.000.000 lei" })).ToBeVisibleAsync();
+            await page.GetByRole(AriaRole.Link, new() { Name = "Elimină filtrul CA ≥ 1.000.000 lei" }).ClickAsync();
+            await Assertions.Expect(page).ToHaveURLAsync(new Regex(@"/$"));
+        }, NoScript);
+
+    [Fact]
     public Task PhoneShowsResultsFirstWithoutHorizontalScroll() =>
         portal.WithPageAsync(nameof(PhoneShowsResultsFirstWithoutHorizontalScroll), async page =>
         {

@@ -1,0 +1,169 @@
+@page "/statistici"
+@model StatisticsModel
+@using BusinessIntelligence.Modules.Market
+@{
+    ViewData["Title"] = "Statistici";
+    var report = Model.Report;
+    var scope = string.Join(", ", new[] { Model.County is { } selected ? Model.CountyName(selected) : null, Model.FormLabel }.Where(item => item is not null));
+}
+
+<header class="profile-header">
+    <h1 class="md-typescale-headline-medium">Statistici despre firme</h1>
+    <p class="md-typescale-body-large md-on-surface-variant">Înregistrări noi și starea firmelor din Registrul Comerțului@(scope.Length > 0 ? $" — {scope}" : "").</p>
+    <form class="cluster" method="get" aria-label="Filtre">
+        <div class="md-text-field">
+            <label class="md-text-field__label" for="judet">Județ</label>
+            <select class="md-text-field__input" id="judet" name="judet">
+                <option value="">Toate județele</option>
+                @foreach (var (number, name) in Model.Counties)
+                {
+                    <option value="@number" selected="@(Model.County == number)">@name</option>
+                }
+                <option value="0" selected="@(Model.County == 0)">Județ necunoscut</option>
+            </select>
+            <span class="md-text-field__chevron"><md-icon name="arrow-drop-down" /></span>
+        </div>
+        <div class="md-text-field">
+            <label class="md-text-field__label" for="forma">Formă</label>
+            <select class="md-text-field__input" id="forma" name="forma">
+                <option value="">Toate formele</option>
+                @foreach (var form in StatisticsModel.Forms)
+                {
+                    <option value="@form.Slug" selected="@(Model.Form == form.Slug)">@form.Label</option>
+                }
+            </select>
+            <span class="md-text-field__chevron"><md-icon name="arrow-drop-down" /></span>
+        </div>
+        <button class="md-button md-button--tonal" type="submit">Aplică</button>
+        @if (Model.County is not null || Model.Form is not null)
+        {
+            <a class="md-button md-button--text" href="@Model.Link(null, null)">Toate</a>
+        }
+    </form>
+</header>
+
+@if (report is null)
+{
+    <div class="md-empty-state" role="status">
+        <md-icon name="info" />
+        <h2 class="md-empty-state__title">Încă nu există statistici</h2>
+        <p class="md-empty-state__text">Statisticile apar după importul registrului ONRC și comanda <code>market build</code>.</p>
+    </div>
+}
+else
+{
+    var reference = report.Build.ReferenceDate;
+    var partial = report.Months[^1];
+    var lastYear = report.Months.Where(item => !item.Partial).TakeLast(12).Sum(item => item.Registered);
+    var yearBefore = report.Months.Where(item => !item.Partial).SkipLast(12).TakeLast(12).Sum(item => item.Registered);
+    var active = report.States.FirstOrDefault(item => item.Lifecycle == BusinessIntelligence.Modules.Registry.Onrc.Lifecycle.Active)?.Companies ?? 0;
+    <div class="profile-sections">
+        <section id="rezumat" class="md-card md-card--outlined profile-section" aria-labelledby="rezumat-title">
+            <h2 id="rezumat-title" class="md-card__title">Pe scurt</h2>
+            <dl class="md-facts">
+                <div><dt>Active acum</dt><dd>@StatisticsModel.Number(active)</dd></div>
+                <div><dt>În registru, toate stările</dt><dd>@StatisticsModel.Number(report.Total)</dd></div>
+                <div><dt>Înregistrate în ultimele 12 luni încheiate</dt><dd>@StatisticsModel.Number(lastYear)</dd></div>
+                <div><dt>În cele 12 luni dinainte</dt><dd>@StatisticsModel.Number(yearBefore)</dd></div>
+            </dl>
+            <p class="md-source">Sursa: ONRC, „Firme înregistrate la Registrul Comerțului” la @StatisticsModel.Date(reference); toate înregistrările, inclusiv cele radiate ulterior.</p>
+        </section>
+
+        <section id="inregistrari" class="md-card md-card--outlined profile-section" aria-labelledby="inregistrari-title">
+            <h2 id="inregistrari-title" class="md-card__title">Înregistrări noi</h2>
+            <p class="md-typescale-body-small md-on-surface-variant">După data primei înmatriculări. O firmă care și-a mutat sediul în alt județ apare la județul de acum.</p>
+            <div class="chart-grid">
+                @foreach (var chart in Model.Charts())
+                {
+                    <partial name="_BarChart" model="chart" />
+                }
+            </div>
+            <div class="md-table-wrapper">
+                <table class="md-data-table">
+                    <caption>Ultimele @MarketStatistics.Months luni</caption>
+                    <thead><tr><th scope="col">Luna</th><th scope="col" class="md-numeric">Înregistrări</th></tr></thead>
+                    <tbody>
+                        @foreach (var month in report.Months.AsEnumerable().Reverse())
+                        {
+                            <tr>
+                                <th scope="row">@StatisticsModel.MonthName(month.Month)@if (month.Partial) {<span class="md-on-surface-variant"> (parțial, până la @StatisticsModel.Date(reference))</span>}</th>
+                                <td class="md-numeric">@StatisticsModel.Number(month.Registered)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <details class="facet__more">
+                <summary>Toți anii și câte firme sunt încă active</summary>
+                <div class="md-table-wrapper">
+                    <table class="md-data-table">
+                        <caption>Înregistrări pe an</caption>
+                        <thead><tr><th scope="col">An</th><th scope="col" class="md-numeric">Înregistrări</th><th scope="col" class="md-numeric">Active acum</th><th scope="col" class="md-numeric">Pondere</th></tr></thead>
+                        <tbody>
+                            @foreach (var year in report.Years.AsEnumerable().Reverse())
+                            {
+                                <tr>
+                                    <th scope="row" class="md-numeric">@year.Year@if (year.Year == reference.Year) {<span class="md-on-surface-variant"> (parțial)</span>}</th>
+                                    <td class="md-numeric">@StatisticsModel.Number(year.Registered)</td>
+                                    <td class="md-numeric">@StatisticsModel.Number(year.ActiveNow)</td>
+                                    <td class="md-numeric">@StatisticsModel.Share(year.ActiveNow, year.Registered)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+
+        <section id="stari" class="md-card md-card--outlined profile-section" aria-labelledby="stari-title">
+            <h2 id="stari-title" class="md-card__title">Starea firmelor</h2>
+            <div class="md-table-wrapper">
+                <table class="md-data-table">
+                    <caption>Starea la @StatisticsModel.Date(reference)</caption>
+                    <thead><tr><th scope="col">Stare</th><th scope="col" class="md-numeric">Firme</th><th scope="col" class="md-numeric">Pondere</th></tr></thead>
+                    <tbody>
+                        @foreach (var state in report.States.OrderByDescending(item => item.Companies))
+                        {
+                            <tr><th scope="row">@StatisticsModel.LifecycleLabel(state.Lifecycle)</th><td class="md-numeric">@StatisticsModel.Number(state.Companies)</td><td class="md-numeric">@StatisticsModel.Share(state.Companies, report.Total)</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (report.Changes.Count > 0)
+            {
+                <h3 id="schimbari-title" class="md-typescale-title-small">Schimbări de stare între instantanee</h3>
+                <p class="md-typescale-body-small md-on-surface-variant">ONRC nu publică data radierii, a dizolvării sau a intrării în insolvență. Tabelul numără înregistrările care aveau altă stare la instantaneul anterior: schimbarea s-a produs între cele două date, fără o zi anume.</p>
+                <div class="md-table-wrapper">
+                    <table class="md-data-table md-data-table--sticky-first" aria-labelledby="schimbari-title">
+                        <thead><tr><th scope="col">Între</th>@foreach (var state in StatisticsModel.ChangeStates) { <th scope="col" class="md-numeric">Au devenit: @StatisticsModel.LifecycleLabel(state).ToLowerInvariant()</th> }</tr></thead>
+                        <tbody>
+                            @foreach (var change in report.Changes)
+                            {
+                                <tr><th scope="row">@StatisticsModel.Date(change.PreviousSnapshot) și @StatisticsModel.Date(change.ObservedOn)</th>@foreach (var state in StatisticsModel.ChangeStates) { <td class="md-numeric">@StatisticsModel.Number(change.ByLifecycle.GetValueOrDefault(state))</td> }</tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        @if (report.Counties.Count > 0)
+        {
+            <section id="judete" class="md-card md-card--outlined profile-section" aria-labelledby="judete-title">
+                <h2 id="judete-title" class="md-card__title">Pe județe</h2>
+                <div class="md-table-wrapper">
+                    <table class="md-data-table md-data-table--sticky-first">
+                        <caption>Firme active și înregistrări în ultimele 12 luni încheiate</caption>
+                        <thead><tr><th scope="col">Județ</th><th scope="col" class="md-numeric">Active acum</th><th scope="col" class="md-numeric">Înregistrate în 12 luni</th></tr></thead>
+                        <tbody>
+                            @foreach (var county in report.Counties.OrderByDescending(item => item.Active))
+                            {
+                                <tr><th scope="row"><a href="@Model.Link(county.County, Model.Form)">@Model.CountyName(county.County)</a></th><td class="md-numeric">@StatisticsModel.Number(county.Active)</td><td class="md-numeric">@StatisticsModel.Number(county.RegisteredLastYear)</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    </div>
+}

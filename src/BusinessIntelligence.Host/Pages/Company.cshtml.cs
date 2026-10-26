@@ -92,11 +92,35 @@ public sealed class CompanyModel(CompanyProfileQuery query) : PageModel
 
     public static string Amount(decimal value) => value.ToString("N0", Ro);
 
-    /// <summary>Net result as published: profit positive, loss negative; null when the statement gives neither.</summary>
-    public static decimal? NetResult(FinancialStatement statement) =>
-        statement.NetProfit is > 0 ? statement.NetProfit
-        : statement.NetLoss is > 0 ? -statement.NetLoss
-        : statement.NetProfit ?? statement.NetLoss;
+    public static decimal? NetResult(FinancialStatement statement) => FinancialIndicators.NetResult(statement);
+
+    /// <summary>Ratios as percentages with one decimal, lei amounts whole.</summary>
+    public static string Indicator(IndicatorDefinition indicator, decimal value) => indicator.Unit == IndicatorUnit.Ratio
+        ? (value * 100).ToString("N1", Ro) + "%"
+        : Amount(Math.Round(value, MidpointRounding.AwayFromZero)) + " lei";
+
+    /// <summary>Where the company's value falls in the cohort's distribution; null when the cohort has no percentiles.</summary>
+    public static string? Position(decimal value, FinancialBenchmark cohort) => cohort switch
+    {
+        { P10: null } => null,
+        _ when value < cohort.P10 => "sub 90% din firme",
+        _ when value < cohort.P25 => "în sfertul de jos",
+        _ when value < cohort.P50 => "sub mediană",
+        _ when value == cohort.P50 => "la mediană",
+        _ when value <= cohort.P75 => "peste mediană",
+        _ when value <= cohort.P90 => "în sfertul de sus",
+        _ => "peste 90% din firme",
+    };
+
+    public static string SizeLabel(string band) =>
+        band == FinancialIndicators.AllSizes ? "toate mărimile" : FinancialIndicators.SizeBands.FirstOrDefault(item => item.Key == band).Label ?? band;
+
+    /// <summary>Derived indicators for one filed year, with the year before as the base for growth.</summary>
+    public IReadOnlyList<IndicatorValue> Derived(FinancialYear year)
+    {
+        var previous = Profile.Financials.FirstOrDefault(item => item.Year == year.Year - 1)?.Statement;
+        return [.. FinancialIndicators.All.Select(indicator => FinancialIndicators.Calculate(indicator, year.Statement!, previous))];
+    }
 
     public IReadOnlyList<BarChart> Charts()
     {

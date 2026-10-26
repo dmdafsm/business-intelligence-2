@@ -36,7 +36,7 @@
                     }
                     @if (column.ShowYear)
                     {
-                        <g><text class="md-chart__tick" x="@BarChart.Number(column.Center)" y="@BarChart.Number(BarChart.Height - 6)" text-anchor="middle">@column.Point.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)[2..]</text></g>
+                        <g><text class="md-chart__tick" x="@BarChart.Number(column.Center)" y="@BarChart.Number(BarChart.Height - 6)" text-anchor="middle">@(column.Point.Label ?? column.Point.Year.ToString(System.Globalization.CultureInfo.InvariantCulture)[2..])</text></g>
                     }
                 </g>
             }

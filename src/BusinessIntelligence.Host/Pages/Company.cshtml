@@ -1,5 +1,6 @@
 @page "/firma/{cui:long?}"
 @model CompanyModel
+@using BusinessIntelligence.Modules.Financials
 @{
     var profile = Model.Profile;
     var company = profile.Company;
@@ -440,6 +441,68 @@
                 </table>
             </div>
         </details>
+        <h3 id="indicatori-title" class="md-typescale-title-small">Indicatori calculați</h3>
+        <div class="md-table-wrapper">
+            <table class="md-data-table md-data-table--sticky-first" aria-labelledby="indicatori-title">
+                <thead><tr><th scope="col">Indicator</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <th scope="col" class="md-numeric">@year.Year</th> }</tr></thead>
+                <tbody>
+                    @{ var derived = filed.ToDictionary(year => year.Year, Model.Derived); }
+                    @for (var index = 0; index < FinancialIndicators.All.Count; index++)
+                    {
+                        var indicator = FinancialIndicators.All[index];
+                        <tr><th scope="row">@indicator.Name</th>@foreach (var year in filed.AsEnumerable().Reverse()) { <td class="md-numeric">@Derived(indicator, derived[year.Year][index])</td> }</tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (profile.Comparison is { } comparison)
+        {
+            <h3 id="comparatie-title" class="md-typescale-title-small">Comparație cu firmele din aceeași clasă CAEN, @comparison.Year</h3>
+            <p class="md-typescale-body-medium">
+                CAEN Rev.@comparison.CaenVersion @comparison.CaenCode@(comparison.CaenName is { } caenName ? " – " + caenName : "")@(comparison.SizeBand is { } band ? $"; mărimea firmei: {CompanyModel.SizeLabel(band)}" : "").
+                @if (filed[^1].Year > comparison.Year)
+                {
+                    <span class="md-on-surface-variant">Pentru @filed[^1].Year sursa amestecă coduri CAEN Rev.2 și Rev.3, așa că nu se poate stabili clasa fiecărei firme; comparația folosește @comparison.Year.</span>
+                }
+            </p>
+            <div class="md-table-wrapper">
+                <table class="md-data-table md-data-table--sticky-first" aria-labelledby="comparatie-title">
+                    <thead><tr><th scope="col">Indicator</th><th scope="col" class="md-numeric">Firma</th><th scope="col" class="md-numeric">Mediana</th><th scope="col" class="md-numeric">Jumătatea de mijloc</th><th scope="col">Poziția firmei</th><th scope="col">Comparat cu</th></tr></thead>
+                    <tbody>
+                        @foreach (var row in comparison.Rows)
+                        {
+                            var cohort = row.Cohort;
+                            <tr>
+                                <th scope="row">@row.Indicator.Name</th>
+                                <td class="md-numeric">@Derived(row.Indicator, row.Value, visibleReason: true)</td>
+                                @if (cohort is not { P50: { } median })
+                                {
+                                    <td colspan="3" class="md-missing">prea puține firme pentru o comparație</td>
+                                }
+                                else
+                                {
+                                    <td class="md-numeric">@CompanyModel.Indicator(row.Indicator, median)</td>
+                                    <td class="md-numeric">de la @CompanyModel.Indicator(row.Indicator, cohort.P25!.Value) la @CompanyModel.Indicator(row.Indicator, cohort.P75!.Value)</td>
+                                    <td>@(row.Value.Value is { } own ? CompanyModel.Position(own, cohort) : "—")</td>
+                                }
+                                <td>@(cohort is null ? "—" : $"{CompanyModel.Amount(cohort.Population)} firme, {CompanyModel.SizeLabel(cohort.SizeBand)}")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <p class="md-typescale-body-small md-on-surface-variant">Mediana împarte firmele în două jumătăți egale; jumătatea de mijloc cuprinde firmele dintre percentilele 25 și 75. Se compară firmele cu aceeași mărime când sunt cel puțin @BuildFinancialBenchmarks.MinimumPopulation, altfel toate firmele din clasă. Poziția nu este o apreciere: o valoare mare poate fi bună (marja) sau un risc (îndatorarea).</p>
+        }
+        <details class="facet__more">
+            <summary>Cum se calculează indicatorii</summary>
+            <dl class="md-facts">
+                @foreach (var indicator in FinancialIndicators.All)
+                {
+                    <div class="md-facts__wide"><dt>@indicator.Name</dt><dd>@indicator.Formula</dd></div>
+                }
+            </dl>
+            <p class="md-typescale-body-small md-on-surface-variant">Rezultatul net este profitul net publicat sau, cu minus, pierderea netă. Un câmp necompletat nu este citit ca zero: indicatorul rămâne necalculat, cu motivul afișat. Formule @FinancialIndicators.Version.</p>
+        </details>
         <p class="md-source">Sursa: Ministerul Finanțelor, situațiile financiare anuale publicate pe data.gov.ro; fișierul și licența fiecărui an:</p>
         <ul class="source-list">
             @foreach (var year in filed.AsEnumerable().Reverse().Where(item => item.Source is not null))
@@ -458,6 +521,12 @@
         : new Microsoft.AspNetCore.Html.HtmlString("<span class=\"md-missing\" title=\"necompletat\">—<span class=\"md-visually-hidden\"> necompletat</span></span>");
 
     private static Microsoft.AspNetCore.Html.IHtmlContent Cell(int? value) => Cell((decimal?)value);
+
+    /// <summary>A derived value, or a dash whose reason is read by screen readers and shown on hover (or in full when <paramref name="visibleReason"/>).</summary>
+    private static Microsoft.AspNetCore.Html.IHtmlContent Derived(IndicatorDefinition indicator, IndicatorValue value, bool visibleReason = false) => value.Value is { } present
+        ? new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(CompanyModel.Indicator(indicator, present)))
+        : visibleReason ? new Microsoft.AspNetCore.Html.HtmlString($"<span class=\"md-missing\">{System.Net.WebUtility.HtmlEncode(value.Reason)}</span>")
+        : new Microsoft.AspNetCore.Html.HtmlString($"<span class=\"md-missing\" title=\"{System.Net.WebUtility.HtmlEncode(value.Reason)}\">—<span class=\"md-visually-hidden\"> {System.Net.WebUtility.HtmlEncode(value.Reason)}</span></span>");
 
     private string AddressText(BusinessIntelligence.Modules.Registry.Registration? registration)
     {
