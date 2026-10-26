@@ -106,8 +106,8 @@ public sealed class RegistryAnnexTests(PostgresFixture postgres) : IClassFixture
         Assert.Equal(("membru întreprindere familiala", new DateOnly(1970, 1, 1), "natural"), (member.Role!, member.BirthDate!.Value, member.PersonKind));
 
         // A newer OD_FIRME snapshot removes the previous snapshot's representatives with its other annexes.
-        var (firme, firmeFile) = RegistryFixtures.WriteFile(_files.FullName, "firme-next", "onrc-firme", RegistryFixtures.Header, RegistryFixtures.SecondSnapshot, Snapshot.AddDays(1));
-        await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(firme, firmeFile, CancellationToken.None);
+        var (firme, companiesFile) = RegistryFixtures.WriteFile(_files.FullName, "firme-next", "onrc-firme", RegistryFixtures.Header, RegistryFixtures.SecondSnapshot, Snapshot.AddDays(1));
+        await new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(firme, companiesFile, CancellationToken.None);
         Assert.Equal(0, await database.Representatives.CountAsync());
     }
 
@@ -133,8 +133,8 @@ public sealed class RegistryAnnexTests(PostgresFixture postgres) : IClassFixture
         await annexes.StatusesAsync(statusPath, statusFile, CancellationToken.None);
         await annexes.ActivitiesAsync(caenPath, caenFile, CancellationToken.None);
 
-        var (path, file) = RegistryFixtures.WriteFirme(_files.FullName, "next", RegistryFixtures.SecondSnapshot);
-        await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
+        var (path, file) = RegistryFixtures.WriteCompanies(_files.FullName, "next", RegistryFixtures.SecondSnapshot);
+        await new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
 
         Assert.Equal(0, await database.RegistrationStatuses.CountAsync());
         Assert.Equal(0, await database.CompanyActivities.CountAsync());
@@ -156,8 +156,8 @@ public sealed class RegistryAnnexTests(PostgresFixture postgres) : IClassFixture
         }));
         await database.SaveChangesAsync();
         database.ChangeTracker.Clear();
-        var (path, file) = RegistryFixtures.WriteFirme(_files.FullName, "snapshot-" + Guid.NewGuid().ToString("N"), RegistryFixtures.FirstSnapshot);
-        await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
+        var (path, file) = RegistryFixtures.WriteCompanies(_files.FullName, "snapshot-" + Guid.NewGuid().ToString("N"), RegistryFixtures.FirstSnapshot);
+        await new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
         return database;
     }
 }

@@ -43,7 +43,7 @@ public static class SearchFixtures
         {
             Id = Snapshot,
             CatalogId = "test-firme",
-            Kind = ImportOnrcFirme.Kind,
+            Kind = ImportOnrcCompanies.Kind,
             Dataset = "test",
             FileName = "OD_FIRME.CSV",
             Url = "https://example.invalid",
@@ -57,7 +57,7 @@ public static class SearchFixtures
             Report = "{}",
         });
         await database.SaveChangesAsync();
-        database.PublishedDatasets.Add(new PublishedDataset { Kind = ImportOnrcFirme.Kind, SourceFileId = Snapshot, PublishedAt = DateTimeOffset.UnixEpoch });
+        database.PublishedDatasets.Add(new PublishedDataset { Kind = ImportOnrcCompanies.Kind, SourceFileId = Snapshot, PublishedAt = DateTimeOffset.UnixEpoch });
         database.Siruta.AddRange(
             Place(1000, "JUDEŢUL CLUJ", Cluj, 1, 1),
             Place(ClujNapoca, "MUNICIPIUL CLUJ-NAPOCA", Cluj, 1000, 2),

@@ -77,7 +77,7 @@ internal static class RegistryCommands
             "onrc-caen" => await reference.CaenAsync(path, file, cancellationToken),
             "onrc-status" => await reference.StatusCodesAsync(path, file, cancellationToken),
             "siruta" => await reference.SirutaAsync(path, file, cancellationToken),
-            ImportOnrcFirme.Kind => await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
+            ImportOnrcCompanies.Kind => await new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.StatusKind => await new ImportOnrcAnnexes(database, TimeProvider.System).StatusesAsync(path, file, cancellationToken),
             ImportOnrcAnnexes.ActivitiesKind => await new ImportOnrcAnnexes(database, TimeProvider.System).ActivitiesAsync(path, file, cancellationToken),
             Modules.Registry.Geography.ImportBoundaries.Kind => await new Modules.Registry.Geography.ImportBoundaries(database, TimeProvider.System).ExecuteAsync(path, file, cancellationToken),
@@ -148,7 +148,7 @@ internal static class RegistryCommands
                 (item, file) => new { item.Kind, file.CatalogId, file.ReferenceDate, item.PublishedAt, file.Id })
             .OrderBy(item => item.Kind)
             .ToListAsync(cancellationToken);
-        var snapshot = published.FirstOrDefault(item => item.Kind == ImportOnrcFirme.Kind)?.Id;
+        var snapshot = published.FirstOrDefault(item => item.Kind == ImportOnrcCompanies.Kind)?.Id;
         return new
         {
             published,
@@ -165,7 +165,7 @@ internal static class RegistryCommands
     private static async Task<int> ShowAsync(Modules.Platform.Persistence.AppDbContext database, string identifier, CancellationToken cancellationToken)
     {
         var snapshot = await database.PublishedDatasets.AsNoTracking()
-            .Where(item => item.Kind == ImportOnrcFirme.Kind).Select(item => (int?)item.SourceFileId).FirstOrDefaultAsync(cancellationToken);
+            .Where(item => item.Kind == ImportOnrcCompanies.Kind).Select(item => (int?)item.SourceFileId).FirstOrDefaultAsync(cancellationToken);
         var (_, cui) = RomanianCui.Parse(identifier);
         var registration = cui is null ? identifier.Trim() : null;
         var company = await database.Companies.AsNoTracking()
