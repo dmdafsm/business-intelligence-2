@@ -5,7 +5,7 @@
 - Read this file, applicable nested AGENTS.md files, and [CONTRIBUTING.md](CONTRIBUTING.md).
 - Plans, task notes and source research are kept locally in the ignored `.research/` folder and are not committed. When one exists for the task, read it before editing.
 - Inspect the working tree and existing implementation. Preserve unrelated changes. Plans describe intended scope; code, task notes and verification establish what is done.
-- Work on a `codex/<topic>` branch; never commit directly to main. Install [branch guards](docs/engineering/branch-policy.md) once per clone with `python3 scripts/install_hooks.py`.
+- Work on a `<type>/<topic>` branch (`feat/`, `fix/`, `chore/`, `docs/`, `refactor/`, `test/`); never commit directly to main. Install [branch guards](docs/engineering/branch-policy.md) once per clone with `python3 scripts/install_hooks.py`.
 - Direct user instructions take precedence over repository defaults. Resolve routine implementation choices autonomously; do not create extra approval steps.
 - Before implementation, do the short [readiness pass and architecture impact check](docs/engineering/task-readiness.md). It needs no separate agent or approval meeting.
 
