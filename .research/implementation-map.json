@@ -238,6 +238,24 @@
           "note": "tasks/s10-1-indicators.md"
         }
       ]
+    },
+    {
+      "id": "S11",
+      "title": "Market statistics",
+      "status": "completed",
+      "path": "steps/s11-market.md",
+      "depends_on": [
+        "S02",
+        "S05"
+      ],
+      "tasks": [
+        {
+          "id": "S11.1",
+          "title": "Market statistics tables and page",
+          "status": "completed",
+          "note": "tasks/s11-1-market-statistics.md"
+        }
+      ]
     }
   ]
 }

@@ -44,7 +44,8 @@
         ["registry", "import", "{latest-id:onrc-firme-representatives}", "{latest-path:onrc-firme-representatives}"],
         ["registry", "import", "{latest-id:onrc-firme-family-members}", "{latest-path:onrc-firme-family-members}"],
         ["registry", "history", "{raw}"],
-        ["search", "build"]
+        ["search", "build"],
+        ["market", "build"]
       ]
     },
     {

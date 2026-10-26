@@ -13,7 +13,7 @@ public sealed record JobDefinitions(
 {
     /// <summary>Operator command groups a job may run. <c>database</c> and <c>jobs</c> are not among them.</summary>
     public static readonly IReadOnlySet<string> CommandGroups =
-        new HashSet<string>(["registry", "financials", "fiscal", "procurement", "funds", "licences", "anaf", "search"], StringComparer.Ordinal);
+        new HashSet<string>(["registry", "financials", "fiscal", "procurement", "funds", "licences", "anaf", "search", "market"], StringComparer.Ordinal);
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {

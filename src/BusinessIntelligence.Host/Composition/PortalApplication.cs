@@ -19,6 +19,7 @@ public static class PortalApplication
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
         builder.Services.AddScoped<BusinessIntelligence.Modules.Search.CompanySearch>();
         builder.Services.AddScoped<BusinessIntelligence.Modules.Profile.CompanyProfileQuery>();
+        builder.Services.AddScoped<BusinessIntelligence.Modules.Market.MarketStatistics>();
         var operatorAccess = await OperatorAccess.CreateAsync(builder.Configuration);
         builder.Services.AddSingleton(operatorAccess);
         builder.Services.AddAuthentication(OperatorAccess.Scheme).AddCookie(OperatorAccess.Scheme, options =>
