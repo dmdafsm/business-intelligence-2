@@ -103,8 +103,13 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    # The worker touches a heartbeat file every 20 s, also while an import runs.
     healthcheck:
-      disable: true
+      test: [CMD, dotnet, BusinessIntelligence.Host.dll, healthcheck, worker]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
     # Each import runs as a child process; the SEAP history peaks at 2.5 GB.
     mem_limit: 3g
