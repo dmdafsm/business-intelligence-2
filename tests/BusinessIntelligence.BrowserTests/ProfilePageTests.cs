@@ -88,6 +88,12 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
         {
             await page.GotoAsync(portal.Address + $"/firma/{SearchFixtures.ExempluSoft}");
             Assert.False(await page.EvaluateAsync<bool>("document.documentElement.scrollWidth > window.innerWidth"));
+
+            // An opened wide table scrolls inside its own region, never the page, and only sideways.
+            await page.EvaluateAsync("document.querySelectorAll('details').forEach(details => details.open = true)");
+            Assert.False(await page.EvaluateAsync<bool>("document.documentElement.scrollWidth > window.innerWidth"));
+            Assert.False(await page.EvaluateAsync<bool>(
+                "[...document.querySelectorAll('.md-table-wrapper')].some(w => getComputedStyle(w).overflowY !== 'hidden' || w.clientWidth > document.documentElement.clientWidth)"));
             await page.GetByRole(AriaRole.Link, new() { Name = "Financiar" }).ClickAsync();
             await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Financiar" })).ToBeInViewportAsync();
         }, Phone);

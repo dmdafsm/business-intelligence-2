@@ -344,10 +344,13 @@ a.md-list__item[aria-current="true"] { background: var(--md-sys-color-secondary-
 .md-divider { height: 1px; margin: 0; border: 0; background: var(--md-sys-color-outline-variant); }
 
 /* ---------- Data table ---------- */
-/* Wide tables scroll inside their own region, never the page. */
+/* Wide tables scroll inside their own region, never the page. Relative positioning keeps visually hidden labels in
+   far columns inside that region too. */
 
 .md-table-wrapper {
+  position: relative;
   overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-corner-medium);
 }
@@ -359,7 +362,7 @@ a.md-list__item[aria-current="true"] { background: var(--md-sys-color-secondary-
   letter-spacing: var(--md-sys-typescale-body-medium-tracking);
 }
 
-.md-data-table caption { padding: var(--md-sys-spacing-4); text-align: start; font: var(--md-sys-typescale-title-medium); }
+.md-data-table caption { padding: var(--md-sys-spacing-4) var(--md-sys-spacing-4) var(--md-sys-spacing-1); text-align: start; font: var(--md-sys-typescale-title-medium); }
 
 .md-data-table th, .md-data-table td {
   height: 52px;
