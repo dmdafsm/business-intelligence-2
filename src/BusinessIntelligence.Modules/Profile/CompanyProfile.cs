@@ -42,6 +42,15 @@ public sealed record LocationMap(IReadOnlyList<Registry.Geography.AreaOutline> C
 /// <summary>One financial year in the company's range; <see cref="Statement"/> is null when nothing was filed.</summary>
 public sealed record FinancialYear(short Year, FinancialStatement? Statement, SourceFile? Source, string? CaenName);
 
+/// <summary>The company's value of one indicator and the cohort it is compared with (null when no benchmark row exists).</summary>
+public sealed record BenchmarkRow(IndicatorDefinition Indicator, IndicatorValue Value, FinancialBenchmark? Cohort);
+
+/// <summary>
+/// The latest year whose statement has a known CAEN version, compared with the same class in that year. For each indicator
+/// the company's size band is used when it has percentiles, otherwise all sizes.
+/// </summary>
+public sealed record FinancialComparison(short Year, short CaenVersion, string CaenCode, string? CaenName, string? SizeBand, IReadOnlyList<BenchmarkRow> Rows);
+
 /// <summary>Everything public about one company, read from the registry, fiscal and financial modules. Nothing is derived beyond labels.</summary>
 public sealed record CompanyProfile
 {
@@ -62,6 +71,7 @@ public sealed record CompanyProfile
     public required IReadOnlyList<RegistrationPeriod> RegistryHistory { get; init; }
     public required IReadOnlyList<TaxpayerPeriod> FiscalHistory { get; init; }
     public required IReadOnlyList<FinancialYear> Financials { get; init; }
+    public FinancialComparison? Comparison { get; init; }
     /// <summary>SIRUTA names of the UATs and localities shown, by code.</summary>
     public required IReadOnlyDictionary<int, string> Places { get; init; }
 
@@ -139,6 +149,7 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             .Where(item => item.Cui == company.Cui).OrderBy(item => item.ValidFrom).ToListAsync(cancellationToken);
         var releases = await database.FiscalReleases.AsNoTracking().OrderBy(item => item.ReleaseDate).Select(item => item.ReleaseDate).ToListAsync(cancellationToken);
         var snapshots = await database.HistorySnapshots.AsNoTracking().OrderBy(item => item.SnapshotDate).Select(item => item.SnapshotDate).ToListAsync(cancellationToken);
+        var financials = await FinancialsAsync(company, registrations, cancellationToken);
 
         return new CompanyProfile
         {
@@ -149,7 +160,8 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             People = [.. people.OrderBy(item => RoleOrder(item.Role)).ThenBy(item => item.Name, StringComparer.Create(Culture, true))],
             RegistryHistory = history,
             FiscalHistory = fiscal,
-            Financials = await FinancialsAsync(company, registrations, cancellationToken),
+            Financials = financials,
+            Comparison = await ComparisonAsync(financials, cancellationToken),
             Places = await PlacesAsync([company.UatCode, company.LocalityCode, .. history.SelectMany(item => new int?[] { item.UatCode, item.LocalityCode })], cancellationToken),
             Counties = await database.Siruta.AsNoTracking().Where(item => item.Level == 1)
                 .ToDictionaryAsync(item => item.CountyNumber, item => Search.PlaceNames.Display(item.Name, true), cancellationToken),
@@ -218,6 +230,35 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             return new FinancialYear((short)year, statement, statement is null ? null : sources.GetValueOrDefault(statement.SourceFileId),
                 statement is { CaenCode: { } code, CaenVersion: 2 } ? caen.GetValueOrDefault(code) : null);
         })];
+    }
+
+    private async Task<FinancialComparison?> ComparisonAsync(List<FinancialYear> financials, CancellationToken cancellationToken)
+    {
+        var year = financials.LastOrDefault(item => item.Statement is { CaenVersion: not null, CaenCode: not null });
+        if (year?.Statement is not { } statement)
+        {
+            return null;
+        }
+
+        var version = statement.CaenVersion!.Value;
+        var band = FinancialIndicators.SizeBand(statement.Employees);
+        var cohorts = await database.FinancialBenchmarks.AsNoTracking()
+            .Where(item => item.Year == year.Year && item.CaenVersion == version && item.CaenCode == statement.CaenCode
+                && (item.SizeBand == band || item.SizeBand == FinancialIndicators.AllSizes))
+            .ToListAsync(cancellationToken);
+        if (cohorts.Count == 0)
+        {
+            return null;
+        }
+
+        var previous = financials.FirstOrDefault(item => item.Year == year.Year - 1)?.Statement;
+        var rows = FinancialIndicators.All.Select(indicator =>
+        {
+            var own = cohorts.FirstOrDefault(item => item.Indicator == indicator.Key && item.SizeBand == band && item.P50 is not null);
+            var all = cohorts.FirstOrDefault(item => item.Indicator == indicator.Key && item.SizeBand == FinancialIndicators.AllSizes);
+            return new BenchmarkRow(indicator, FinancialIndicators.Calculate(indicator, statement, previous), own ?? all);
+        }).ToList();
+        return new FinancialComparison(year.Year, version, statement.CaenCode!, year.CaenName, band, rows);
     }
 
     /// <summary>Recent awards shown on the page; the yearly totals cover everything imported.</summary>

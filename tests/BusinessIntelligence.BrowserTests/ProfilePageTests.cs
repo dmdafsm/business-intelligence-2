@@ -69,6 +69,29 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
         }, NoScript);
 
     [Fact]
+    public Task DerivedIndicatorsAndTheCaenComparisonExplainWhatIsMissing() =>
+        portal.WithPageAsync(nameof(DerivedIndicatorsAndTheCaenComparisonExplainWhatIsMissing), async page =>
+        {
+            await page.GotoAsync(portal.Address + $"/firma/{SearchFixtures.ExempluSoft}");
+            var financials = page.GetByRole(AriaRole.Region, new() { Name = "Financiar" });
+            var derived = financials.GetByRole(AriaRole.Table, new() { Name = "Indicatori calculați" });
+            // 2010: 120,000 profit on 1,000,000 turnover; 2012 has no 2011 statement to grow from.
+            await Assertions.Expect(derived.GetByRole(AriaRole.Row, new() { Name = "Marja netă" })).ToContainTextAsync("12,0%");
+            await Assertions.Expect(derived.GetByRole(AriaRole.Row, new() { Name = "Creșterea cifrei de afaceri" }))
+                .ToContainTextAsync("nicio situație depusă pentru anul anterior");
+
+            var comparison = financials.GetByRole(AriaRole.Table, new() { Name = "Comparație cu firmele din aceeași clasă CAEN, 2013" });
+            var equity = comparison.GetByRole(AriaRole.Row, new() { Name = "Rentabilitatea capitalurilor proprii" });
+            await Assertions.Expect(equity).ToContainTextAsync("20,0%");
+            await Assertions.Expect(equity).ToContainTextAsync("în sfertul de sus");
+            await Assertions.Expect(equity).ToContainTextAsync("40 firme, toate mărimile");
+            var margin = comparison.GetByRole(AriaRole.Row, new() { Name = "Marja netă" });
+            await Assertions.Expect(margin).ToContainTextAsync("cifra de afaceri necompletată");
+            await Assertions.Expect(margin).ToContainTextAsync("prea puține firme pentru o comparație");
+            await Assertions.Expect(financials).ToContainTextAsync("CAEN Rev.2 6201");
+        }, NoScript);
+
+    [Fact]
     public Task IndividualsWithoutCuiHideContactsAndUnknownCompaniesAreNotFound() =>
         portal.WithPageAsync(nameof(IndividualsWithoutCuiHideContactsAndUnknownCompaniesAreNotFound), async page =>
         {

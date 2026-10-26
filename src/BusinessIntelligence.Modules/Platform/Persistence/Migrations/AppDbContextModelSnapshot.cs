@@ -99,6 +99,79 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("statuses", "anaf");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Financials.FinancialBenchmark", b =>
+                {
+                    b.Property<short>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.Property<short>("CaenVersion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("caen_version");
+
+                    b.Property<string>("CaenCode")
+                        .HasColumnType("text")
+                        .HasColumnName("caen_code");
+
+                    b.Property<string>("SizeBand")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("size_band");
+
+                    b.Property<string>("Indicator")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("indicator");
+
+                    b.Property<DateTimeOffset>("BuiltAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("built_at");
+
+                    b.Property<string>("FormulaVersion")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("formula_version");
+
+                    b.Property<decimal?>("P10")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p10");
+
+                    b.Property<decimal?>("P25")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p25");
+
+                    b.Property<decimal?>("P50")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p50");
+
+                    b.Property<decimal?>("P75")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p75");
+
+                    b.Property<decimal?>("P90")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p90");
+
+                    b.Property<int>("Population")
+                        .HasColumnType("integer")
+                        .HasColumnName("population");
+
+                    b.Property<int>("Statements")
+                        .HasColumnType("integer")
+                        .HasColumnName("statements");
+
+                    b.HasKey("Year", "CaenVersion", "CaenCode", "SizeBand", "Indicator")
+                        .HasName("pk_benchmarks");
+
+                    b.ToTable("benchmarks", "financials");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Financials.FinancialStatement", b =>
                 {
                     b.Property<long>("Cui")

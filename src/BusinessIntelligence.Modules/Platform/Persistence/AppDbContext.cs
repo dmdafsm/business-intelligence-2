@@ -19,6 +19,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<RegistrationPeriod> RegistrationPeriods => Set<RegistrationPeriod>();
     public DbSet<HistorySnapshot> HistorySnapshots => Set<HistorySnapshot>();
     public DbSet<Financials.FinancialStatement> FinancialStatements => Set<Financials.FinancialStatement>();
+    public DbSet<Financials.FinancialBenchmark> FinancialBenchmarks => Set<Financials.FinancialBenchmark>();
     public DbSet<Fiscal.TaxpayerPeriod> TaxpayerPeriods => Set<Fiscal.TaxpayerPeriod>();
     public DbSet<Fiscal.FiscalRelease> FiscalReleases => Set<Fiscal.FiscalRelease>();
     public DbSet<Fiscal.TaxpayerKind> TaxpayerKinds => Set<Fiscal.TaxpayerKind>();
