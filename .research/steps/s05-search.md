@@ -16,5 +16,6 @@ Users find companies by name (fuzzy), CUI or registry number, and browse or filt
 ## Tasks
 
 - S05.1 Search index, search and grouping page — [note](../tasks/s05-1-search.md). Operation: [search guide](../../docs/engineering/search.md).
+- S05.2 Faster filters, legal form filter, Excel export, form layout — [note](../tasks/s05-2-search-filters.md).
 
-Open: CAEN Rev.2 ↔ Rev.3 bridging (needs the ONRC correspondence table).
+Open: CAEN Rev.2 ↔ Rev.3 bridging in the activity filter. The INS correspondence table is imported since S10.2, but it is used only for financial statements.
