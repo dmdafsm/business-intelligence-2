@@ -27,6 +27,29 @@ public sealed class IndexModel(CompanySearch search) : PageModel
     [BindProperty(SupportsGet = true, Name = "pagina")]
     public int? PageNumber { get; set; }
 
+    // Financial bounds are read as text: "1.000.000" or "1 000 000" keep their digits instead of failing to bind.
+    [BindProperty(SupportsGet = true, Name = "ca_min")]
+    public string? TurnoverMin { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "ca_max")]
+    public string? TurnoverMax { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "sal_min")]
+    public string? EmployeesMin { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "sal_max")]
+    public string? EmployeesMax { get; set; }
+
+    [BindProperty(SupportsGet = true, Name = "ordine")]
+    public string? Sort { get; set; }
+
+    /// <summary>Result orders by URL slug; the default order (relevance, or name when browsing) has no slug.</summary>
+    public static readonly IReadOnlyList<(string Slug, string Value, string Label)> Sorts =
+    [
+        ("ca", FinancialFilter.ByTurnover, "Cifra de afaceri, descrescător"),
+        ("salariati", FinancialFilter.ByEmployees, "Salariați, descrescător"),
+    ];
+
     public SearchResult Result { get; private set; } = new();
 
     /// <summary>True when the URL asks for results; the bare home page shows the search box and the top-level groups.</summary>
@@ -53,9 +76,17 @@ public sealed class IndexModel(CompanySearch search) : PageModel
             Uat = null;
         }
 
-        Searching = Query is not null || County is not null || Caen is not null || Lifecycle is not null || CaenVersion is not null;
+        TurnoverMin = Digits(TurnoverMin);
+        TurnoverMax = Digits(TurnoverMax);
+        EmployeesMin = Digits(EmployeesMin, 7);
+        EmployeesMax = Digits(EmployeesMax, 7);
+        var sort = Sorts.FirstOrDefault(item => item.Slug == Sort).Value;
+        Sort = sort is null ? null : Sort;
+        var financials = new FinancialFilter(Amount(TurnoverMin), Amount(TurnoverMax), (int?)Amount(EmployeesMin), (int?)Amount(EmployeesMax), sort);
+
+        Searching = Query is not null || County is not null || Caen is not null || Lifecycle is not null || CaenVersion is not null || !financials.IsEmpty;
         Result = await search.ExecuteAsync(
-            new SearchRequest(Query, County, Uat, Caen, Version, lifecycle, PageNumber ?? 1, IncludeHits: Searching), cancellationToken);
+            new SearchRequest(Query, County, Uat, Caen, Version, lifecycle, PageNumber ?? 1, IncludeHits: Searching, Financials: financials), cancellationToken);
         if (Result.Ready && Caen is not null && Result.CaenPath.Count == 0)
         {
             // An unknown code is dropped from the filters and named on the page, never silently matched against nothing.
@@ -63,6 +94,19 @@ public sealed class IndexModel(CompanySearch search) : PageModel
             Caen = null;
         }
     }
+
+    /// <summary>The digits of a bound, or null when it has none; at most 15 digits (employees: 7), so it fits the column.</summary>
+    private static string? Digits(string? value, int maxLength = 15)
+    {
+        var digits = new string((value ?? string.Empty).Where(char.IsAsciiDigit).ToArray()).TrimStart('0');
+        return value is null || !value.Any(char.IsAsciiDigit) ? null : digits.Length == 0 ? "0" : digits.Length > maxLength ? null : digits;
+    }
+
+    private static decimal? Amount(string? digits) => digits is null ? null : decimal.Parse(digits, System.Globalization.CultureInfo.InvariantCulture);
+
+    public bool HasFinancialFilter => TurnoverMin is not null || TurnoverMax is not null || EmployeesMin is not null || EmployeesMax is not null || Sort is not null;
+
+    public static string Lei(string digits) => decimal.Parse(digits, System.Globalization.CultureInfo.InvariantCulture).ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("ro-RO"));
 
     public string LifecycleLabel(string value) =>
         CompanySearch.LifecycleLabels.FirstOrDefault(item => item.Value == value).Label ?? value;
@@ -76,7 +120,9 @@ public sealed class IndexModel(CompanySearch search) : PageModel
     /// <summary>The current URL state with some values replaced; changing a filter goes back to the first page.</summary>
     public Dictionary<string, string> With(
         Change<string?> query = default, Change<short?> county = default, Change<int?> uat = default, Change<string?> caen = default,
-        Change<short?> version = default, Change<string?> lifecycle = default, int? page = null)
+        Change<short?> version = default, Change<string?> lifecycle = default, int? page = null,
+        Change<string?> turnoverMin = default, Change<string?> turnoverMax = default, Change<string?> employeesMin = default,
+        Change<string?> employeesMax = default, Change<string?> sort = default)
     {
         var values = new Dictionary<string, string?>
         {
@@ -87,6 +133,11 @@ public sealed class IndexModel(CompanySearch search) : PageModel
             ["rev"] = version.Or(CaenVersion) is { } chosen && chosen != CompanySearch.DefaultCaenVersion
                 ? chosen.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
             ["stare"] = lifecycle.Or(Lifecycle),
+            ["ca_min"] = turnoverMin.Or(TurnoverMin),
+            ["ca_max"] = turnoverMax.Or(TurnoverMax),
+            ["sal_min"] = employeesMin.Or(EmployeesMin),
+            ["sal_max"] = employeesMax.Or(EmployeesMax),
+            ["ordine"] = sort.Or(Sort),
             ["pagina"] = page is > 1 ? page.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : null,
         };
         return values.Where(item => item.Value is not null).ToDictionary(item => item.Key, item => item.Value!);

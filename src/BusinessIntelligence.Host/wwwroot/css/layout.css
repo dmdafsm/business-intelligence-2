@@ -189,6 +189,10 @@
 .facet__tabs .md-tab { flex: 1 1 0; padding: 0 var(--md-sys-spacing-2); }
 .facet__path { display: grid; gap: var(--md-sys-spacing-1); margin: 0; padding: 0; list-style: none; font: var(--md-sys-typescale-body-medium); }
 .facet__path li + li { padding-inline-start: var(--md-sys-spacing-3); border-inline-start: 2px solid var(--md-sys-color-outline-variant); }
+.facet__form { display: grid; gap: var(--md-sys-spacing-3); justify-items: start; }
+.facet__form .md-text-field { width: 100%; }
+.facet__range { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--md-sys-spacing-2); width: 100%; margin: 0; padding: 0; border: 0; min-width: 0; }
+.facet__range legend { padding: 0; margin-bottom: var(--md-sys-spacing-2); color: var(--md-sys-color-on-surface-variant); }
 .facet__path a { color: var(--md-sys-color-primary); }
 .facet__path [aria-current="true"] { font-weight: 500; }
 

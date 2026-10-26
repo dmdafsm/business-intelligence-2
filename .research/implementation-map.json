@@ -220,6 +220,60 @@
           "note": "tasks/s09-1-import-jobs.md"
         }
       ]
+    },
+    {
+      "id": "S10",
+      "title": "Financial indicators and benchmark",
+      "status": "completed",
+      "path": "steps/s10-indicators.md",
+      "depends_on": [
+        "S04",
+        "S06"
+      ],
+      "tasks": [
+        {
+          "id": "S10.1",
+          "title": "Indicators, benchmark table and profile section",
+          "status": "completed",
+          "note": "tasks/s10-1-indicators.md"
+        }
+      ]
+    },
+    {
+      "id": "S11",
+      "title": "Market statistics",
+      "status": "completed",
+      "path": "steps/s11-market.md",
+      "depends_on": [
+        "S02",
+        "S05"
+      ],
+      "tasks": [
+        {
+          "id": "S11.1",
+          "title": "Market statistics tables and page",
+          "status": "completed",
+          "note": "tasks/s11-1-market-statistics.md"
+        }
+      ]
+    },
+    {
+      "id": "S12",
+      "title": "Prospecting filters",
+      "status": "completed",
+      "path": "steps/s12-prospecting.md",
+      "depends_on": [
+        "S04",
+        "S05"
+      ],
+      "tasks": [
+        {
+          "id": "S12.1",
+          "title": "Turnover and employee filters and ordering in search",
+          "status": "completed",
+          "note": "tasks/s12-1-prospecting-filters.md"
+        }
+      ]
     }
   ]
 }

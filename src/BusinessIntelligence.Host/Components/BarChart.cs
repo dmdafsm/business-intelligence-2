@@ -2,8 +2,11 @@ using System.Globalization;
 
 namespace BusinessIntelligence.Host.Components;
 
-/// <summary>One year of a chart; a null value is a year without a statement or a blank cell, drawn as a gap, never as zero.</summary>
-public sealed record ChartPoint(short Year, decimal? Value, string Tooltip);
+/// <summary>
+/// One column of a chart, usually a year; a null value is a year without a statement or a blank cell, drawn as a gap, never
+/// as zero. <paramref name="Label"/> replaces the two-digit year under the axis (a month, for example).
+/// </summary>
+public sealed record ChartPoint(short Year, decimal? Value, string Tooltip, string? Label = null);
 
 /// <summary>
 /// A server-rendered column chart: one series, one axis, columns from a zero baseline (losses below it), recessive
@@ -43,7 +46,7 @@ public sealed class BarChart
         {
             var center = Left + slot * (index + 0.5);
             return new ChartColumn(point, center, column, point.Value is { } value ? Y(value) : Baseline, slot,
-                points.Count <= 10 || (points.Count - 1 - index) % 2 == 0);
+                point.Label is not null ? point.Label.Length > 0 : points.Count <= 10 || (points.Count - 1 - index) % 2 == 0);
         })];
         Ticks = [.. Enumerable.Range(0, (int)((Max - Min) / Step) + 1).Select(index => Min + Step * index).Select(value => (Y(value), Compact(value)))];
         Latest = Columns.LastOrDefault(item => item.Point.Value is not null);

@@ -99,6 +99,79 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("statuses", "anaf");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Financials.FinancialBenchmark", b =>
+                {
+                    b.Property<short>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.Property<short>("CaenVersion")
+                        .HasColumnType("smallint")
+                        .HasColumnName("caen_version");
+
+                    b.Property<string>("CaenCode")
+                        .HasColumnType("text")
+                        .HasColumnName("caen_code");
+
+                    b.Property<string>("SizeBand")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("size_band");
+
+                    b.Property<string>("Indicator")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("indicator");
+
+                    b.Property<DateTimeOffset>("BuiltAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("built_at");
+
+                    b.Property<string>("FormulaVersion")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("formula_version");
+
+                    b.Property<decimal?>("P10")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p10");
+
+                    b.Property<decimal?>("P25")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p25");
+
+                    b.Property<decimal?>("P50")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p50");
+
+                    b.Property<decimal?>("P75")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p75");
+
+                    b.Property<decimal?>("P90")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("p90");
+
+                    b.Property<int>("Population")
+                        .HasColumnType("integer")
+                        .HasColumnName("population");
+
+                    b.Property<int>("Statements")
+                        .HasColumnType("integer")
+                        .HasColumnName("statements");
+
+                    b.HasKey("Year", "CaenVersion", "CaenCode", "SizeBand", "Indicator")
+                        .HasName("pk_benchmarks");
+
+                    b.ToTable("benchmarks", "financials");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Financials.FinancialStatement", b =>
                 {
                     b.Property<long>("Cui")
@@ -801,6 +874,97 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasDatabaseName("ix_licences_holder_name_key");
 
                     b.ToTable("licences", "licences");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Market.LifecycleChange", b =>
+                {
+                    b.Property<DateOnly>("ObservedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("observed_on");
+
+                    b.Property<short>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<string>("FormCategory")
+                        .HasColumnType("text")
+                        .HasColumnName("form_category");
+
+                    b.Property<string>("FromLifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("from_lifecycle");
+
+                    b.Property<string>("ToLifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("to_lifecycle");
+
+                    b.Property<DateOnly>("PreviousSnapshot")
+                        .HasColumnType("date")
+                        .HasColumnName("previous_snapshot");
+
+                    b.Property<int>("Registrations")
+                        .HasColumnType("integer")
+                        .HasColumnName("registrations");
+
+                    b.HasKey("ObservedOn", "CountyNumber", "FormCategory", "FromLifecycle", "ToLifecycle")
+                        .HasName("pk_lifecycle_changes");
+
+                    b.ToTable("lifecycle_changes", "market");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Market.MarketBuild", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("BuiltAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("built_at");
+
+                    b.Property<DateOnly>("ReferenceDate")
+                        .HasColumnType("date")
+                        .HasColumnName("reference_date");
+
+                    b.Property<int>("RegistrySnapshotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("registry_snapshot_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_builds");
+
+                    b.ToTable("builds", "market");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Market.MonthlyRegistrations", b =>
+                {
+                    b.Property<DateOnly>("Month")
+                        .HasColumnType("date")
+                        .HasColumnName("month");
+
+                    b.Property<short>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<string>("FormCategory")
+                        .HasColumnType("text")
+                        .HasColumnName("form_category");
+
+                    b.Property<string>("Lifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("lifecycle");
+
+                    b.Property<int>("Companies")
+                        .HasColumnType("integer")
+                        .HasColumnName("companies");
+
+                    b.HasKey("Month", "CountyNumber", "FormCategory", "Lifecycle")
+                        .HasName("pk_registrations");
+
+                    b.ToTable("registrations", "market");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Procurement.ProcurementAward", b =>
@@ -1705,6 +1869,14 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("cui");
 
+                    b.Property<int?>("Employees")
+                        .HasColumnType("integer")
+                        .HasColumnName("employees");
+
+                    b.Property<short?>("FinancialYear")
+                        .HasColumnType("smallint")
+                        .HasColumnName("financial_year");
+
                     b.Property<DateOnly?>("FirstRegistrationDate")
                         .HasColumnType("date")
                         .HasColumnName("first_registration_date");
@@ -1731,10 +1903,20 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnName("name_key")
                         .UseCollation("C");
 
+                    b.Property<decimal?>("NetResult")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("net_result");
+
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("registration_number");
+
+                    b.Property<decimal?>("Turnover")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("turnover");
 
                     b.Property<int?>("UatCode")
                         .HasColumnType("integer")
@@ -1751,8 +1933,14 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.HasIndex("Cui")
                         .HasDatabaseName("ix_companies_cui");
 
+                    b.HasIndex("Employees")
+                        .HasDatabaseName("ix_companies_employees");
+
                     b.HasIndex("NameKey")
                         .HasDatabaseName("ix_companies_name_key");
+
+                    b.HasIndex("Turnover")
+                        .HasDatabaseName("ix_companies_turnover");
 
                     b.HasIndex("CountyNumber", "UatCode")
                         .HasDatabaseName("ix_companies_county_number_uat_code");

@@ -1,5 +1,6 @@
 using BusinessIntelligence.Modules.Financials;
 using BusinessIntelligence.Modules.Fiscal;
+using BusinessIntelligence.Modules.Market;
 using BusinessIntelligence.Modules.Platform.Persistence;
 using BusinessIntelligence.Modules.Registry;
 using BusinessIntelligence.Modules.Registry.Onrc;
@@ -126,6 +127,27 @@ public static class SearchFixtures
             Lifecycle = Lifecycle.Active,
             StatusCodes = [1048],
         });
+        // Two yearly snapshots: ZARZAVAT FRESH was active in the first and in insolvency in the second.
+        database.HistorySnapshots.AddRange(
+            new HistorySnapshot { SnapshotDate = new DateOnly(2024, 12, 18), ImportedAt = DateTimeOffset.UnixEpoch, ParserVersion = "test", Report = "{}" },
+            new HistorySnapshot { SnapshotDate = new DateOnly(2025, 12, 8), ImportedAt = DateTimeOffset.UnixEpoch, ParserVersion = "test", Report = "{}" });
+        foreach (var (from, to, lifecycle) in new[] { (new DateOnly(2024, 12, 18), new DateOnly(2024, 12, 18), Lifecycle.Active), (new DateOnly(2025, 12, 8), new DateOnly(2025, 12, 8), Lifecycle.Insolvency) })
+        {
+            database.RegistrationPeriods.Add(new RegistrationPeriod
+            {
+                RegistrationNumber = "J12/4/2011",
+                ValidFrom = from,
+                ValidTo = to,
+                Name = "ZARZAVAT FRESH SRL",
+                NameKey = "ZARZAVAT FRESH SRL",
+                Cui = Zarzavat,
+                CuiState = "Valid",
+                CountyNumber = Cluj,
+                Lifecycle = lifecycle,
+                StatusCodes = [],
+            });
+        }
+
         AddFiscal(database);
         database.Representatives.AddRange(
             new Representative
@@ -211,6 +233,7 @@ public static class SearchFixtures
         if (build)
         {
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
+            await new BuildMarketStatistics(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
         }
     }
 
@@ -278,6 +301,31 @@ public static class SearchFixtures
             Statement(2010, turnover: 1_000_000, netProfit: 120_000, netLoss: null, employees: 5),
             Statement(2012, turnover: 800_000, netProfit: 0, netLoss: 45_000, employees: 0),
             Statement(2013, turnover: null, netProfit: 10_000, netLoss: 0, employees: 3));
+
+        // 2013 benchmarks for 6201: return on equity has percentiles for all sizes; net margin has too few 1–9 companies.
+        database.FinancialBenchmarks.AddRange(
+            Benchmark("return_on_equity", FinancialIndicators.AllSizes, 40, [0.01m, 0.05m, 0.1m, 0.15m, 0.3m]),
+            Benchmark("return_on_equity", "1-9", 4, null),
+            Benchmark("net_margin", "1-9", 4, null),
+            Benchmark("net_margin", FinancialIndicators.AllSizes, 6, null));
+
+        static FinancialBenchmark Benchmark(string indicator, string band, int population, decimal[]? percentiles) => new()
+        {
+            Year = 2013,
+            CaenVersion = 2,
+            CaenCode = "6201",
+            SizeBand = band,
+            Indicator = indicator,
+            Statements = population + 2,
+            Population = population,
+            P10 = percentiles?[0],
+            P25 = percentiles?[1],
+            P50 = percentiles?[2],
+            P75 = percentiles?[3],
+            P90 = percentiles?[4],
+            FormulaVersion = FinancialIndicators.Version,
+            BuiltAt = DateTimeOffset.UnixEpoch,
+        };
 
         static FinancialStatement Statement(short year, decimal? turnover, decimal? netProfit, decimal? netLoss, int? employees) => new()
         {
@@ -414,6 +462,7 @@ public static class SearchFixtures
         Lifecycle = lifecycle,
         CaenVersion = caenVersion,
         RegistrationDate = new DateOnly(2010, 1, 1),
+        FirstRegistrationDate = new DateOnly(2010, 1, 1),
     };
 
     private static SirutaPlace Place(int code, string name, short county, int parent, short level) =>

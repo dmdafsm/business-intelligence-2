@@ -108,6 +108,11 @@
             if (result.UatName is not null) { active.Add((result.UatName, Model.With(uat: null))); }
             if (result.CaenPath.Count > 0) { active.Add(($"CAEN {result.CaenPath[^1].Code}", Model.With(caen: null))); }
             if (Model.Lifecycle is not null) { active.Add((IndexModel.LifecycleLabelFromSlug(Model.Lifecycle), Model.With(lifecycle: null))); }
+            if (Model.TurnoverMin is not null) { active.Add(($"CA ≥ {IndexModel.Lei(Model.TurnoverMin)} lei", Model.With(turnoverMin: null))); }
+            if (Model.TurnoverMax is not null) { active.Add(($"CA ≤ {IndexModel.Lei(Model.TurnoverMax)} lei", Model.With(turnoverMax: null))); }
+            if (Model.EmployeesMin is not null) { active.Add(($"≥ {IndexModel.Lei(Model.EmployeesMin)} salariați", Model.With(employeesMin: null))); }
+            if (Model.EmployeesMax is not null) { active.Add(($"≤ {IndexModel.Lei(Model.EmployeesMax)} salariați", Model.With(employeesMax: null))); }
+            if (Model.Sort is not null) { active.Add(($"Ordonate: {IndexModel.Sorts.First(item => item.Slug == Model.Sort).Label.ToLowerInvariant()}", Model.With(sort: null))); }
         }
         @if (active.Count > 0)
         {
@@ -148,6 +153,12 @@
                                     <span aria-hidden="true"> · </span><span>@string.Join(", ", new[] { hit.Place, hit.County }.Where(item => item is not null).Distinct())</span>
                                 }
                             </span>
+                            @if (Model.HasFinancialFilter && hit.FinancialYear is { } year)
+                            {
+                                <span class="md-list__supporting">
+                                    @year: cifra de afaceri @(hit.Turnover is { } turnover ? turnover.ToString("N0", ro) + " lei" : "necompletată")<span aria-hidden="true"> · </span>@(hit.Employees is { } employees ? (employees == 1 ? "1 salariat" : employees.ToString("N0", ro) + " salariați") : "salariați necompletat")
+                                </span>
+                            }
                         </span>
                         <span class="md-status md-status--@hit.Lifecycle.ToLowerInvariant()">@Model.LifecycleLabel(hit.Lifecycle)</span>
                         </a>
@@ -189,6 +200,42 @@
                 }
             </ul>
         </section>
+
+        @if (result.FinancialYear is { } financialYear)
+        {
+            <section class="facet" aria-labelledby="facet-financials">
+                <h2 id="facet-financials" class="facet__title">Date financiare @financialYear</h2>
+                <form class="facet__form" method="get">
+                    @foreach (var (key, value) in Model.With(turnoverMin: null, turnoverMax: null, employeesMin: null, employeesMax: null, sort: null))
+                    {
+                        <input type="hidden" name="@key" value="@value" />
+                    }
+                    <fieldset class="facet__range">
+                        <legend class="md-typescale-label-large">Cifra de afaceri (lei)</legend>
+                        <div class="md-text-field"><label class="md-text-field__label" for="ca_min">De la</label><input class="md-text-field__input" id="ca_min" name="ca_min" inputmode="numeric" value="@Model.TurnoverMin" /></div>
+                        <div class="md-text-field"><label class="md-text-field__label" for="ca_max">Până la</label><input class="md-text-field__input" id="ca_max" name="ca_max" inputmode="numeric" value="@Model.TurnoverMax" /></div>
+                    </fieldset>
+                    <fieldset class="facet__range">
+                        <legend class="md-typescale-label-large">Număr mediu de salariați</legend>
+                        <div class="md-text-field"><label class="md-text-field__label" for="sal_min">De la</label><input class="md-text-field__input" id="sal_min" name="sal_min" inputmode="numeric" value="@Model.EmployeesMin" /></div>
+                        <div class="md-text-field"><label class="md-text-field__label" for="sal_max">Până la</label><input class="md-text-field__input" id="sal_max" name="sal_max" inputmode="numeric" value="@Model.EmployeesMax" /></div>
+                    </fieldset>
+                    <div class="md-text-field">
+                        <label class="md-text-field__label" for="ordine">Ordine</label>
+                        <select class="md-text-field__input" id="ordine" name="ordine">
+                            <option value="">@(Model.Query is null ? "După denumire" : "După potrivire")</option>
+                            @foreach (var option in IndexModel.Sorts)
+                            {
+                                <option value="@option.Slug" selected="@(Model.Sort == option.Slug)">@option.Label</option>
+                            }
+                        </select>
+                        <span class="md-text-field__chevron"><md-icon name="arrow-drop-down" /></span>
+                    </div>
+                    <button class="md-button md-button--tonal" type="submit">Aplică</button>
+                </form>
+                <p class="md-typescale-body-small md-on-surface-variant">Din situațiile financiare MF pe @financialYear. Firmele care nu au depus pe @financialYear sau au câmpul necompletat nu apar când filtrezi după el.</p>
+            </section>
+        }
 
         <section class="facet" aria-labelledby="facet-place">
             <h2 id="facet-place" class="facet__title">@(Model.County is null ? "Județ" : "Localitate")</h2>

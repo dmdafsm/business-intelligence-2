@@ -16,7 +16,23 @@ public sealed record SearchRequest(
     short CaenVersion = CompanySearch.DefaultCaenVersion,
     string? Lifecycle = null,
     int Page = 1,
-    bool IncludeHits = true);
+    bool IncludeHits = true,
+    FinancialFilter? Financials = null);
+
+/// <summary>
+/// Ranges on the latest published financial year (bounds inclusive, any may be null) and an order of the results. A
+/// range leaves out companies without a statement for that year or with the value blank.
+/// </summary>
+public sealed record FinancialFilter(decimal? TurnoverMin = null, decimal? TurnoverMax = null, int? EmployeesMin = null, int? EmployeesMax = null,
+    string? Sort = null)
+{
+    public const string ByTurnover = "turnover";
+    public const string ByEmployees = "employees";
+
+    public bool HasRange => TurnoverMin is not null || TurnoverMax is not null || EmployeesMin is not null || EmployeesMax is not null;
+
+    public bool IsEmpty => !HasRange && Sort is null;
+}
 
 public sealed record SearchHit(
     string CompanyKey,
@@ -29,7 +45,10 @@ public sealed record SearchHit(
     string? Place,
     string? County,
     bool IdentifierMatch,
-    string? EarlierName);
+    string? EarlierName,
+    short? FinancialYear = null,
+    decimal? Turnover = null,
+    int? Employees = null);
 
 public sealed record FacetItem(string Value, string Label, long Count);
 
@@ -57,6 +76,9 @@ public sealed record SearchResult
     public IReadOnlyList<CaenNode> CaenPath { get; init; } = [];
     public string? CountyName { get; init; }
     public string? UatName { get; init; }
+
+    /// <summary>The financial year the turnover and employee filters use; null when no statements were imported.</summary>
+    public short? FinancialYear { get; init; }
 }
 
 /// <summary>
@@ -118,12 +140,14 @@ public sealed class CompanySearch(AppDbContext database)
         var token = caen is null ? null : $"{request.CaenVersion}:{caen}";
         var page = Math.Clamp(request.Page, 1, MaxPage);
 
-        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle);
+        var financials = request.Financials ?? new FinancialFilter();
+        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle, financials);
         var children = await CaenChildrenAsync(connection, request.CaenVersion, path.Count > 0 ? path[^1] : null, cancellationToken);
         List<HitRow> rows;
         long total;
         Dictionary<string, Dictionary<string, long>> facets;
-        if (hasQuery || request.Uat is not null)
+        // The stored counts cover county, lifecycle and CAEN only; a locality or a financial filter is counted live.
+        if (hasQuery || request.Uat is not null || !financials.IsEmpty)
         {
             (rows, total, facets) = await LiveAsync(connection, filter, hasQuery, page, request.CaenVersion, children.Keys, cancellationToken);
         }
@@ -158,19 +182,35 @@ public sealed class CompanySearch(AppDbContext database)
             CaenPath = path,
             CountyName = request.County is { } selected ? counties.GetValueOrDefault(selected) : null,
             UatName = request.Uat is { } uat ? uats.GetValueOrDefault(uat) : null,
+            FinancialYear = FinancialYearOf(build),
         };
 
         static int Parse(string value) => int.Parse(value, CultureInfo.InvariantCulture);
+    }
+
+    private static short? FinancialYearOf(SearchBuild build)
+    {
+        using var report = System.Text.Json.JsonDocument.Parse(build.Report);
+        return report.RootElement.TryGetProperty("financialYear", out var year) && year.TryGetInt16(out var value) ? value : null;
     }
 
     private static List<FacetItem> Facet(Dictionary<string, long>? counts, Func<string, string?> label) =>
         counts is null ? [] : [.. counts.Where(item => item.Value > 0).Select(item => new FacetItem(item.Key, label(item.Key) ?? item.Key, item.Value))];
 
     /// <summary>The WHERE clauses and parameters for one request, shared by the result list and the live counts.</summary>
-    private sealed class SqlFilter(SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle)
+    private sealed class SqlFilter(SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle, FinancialFilter financials)
     {
         public SearchQuery Query { get; } = query;
         public string? Lifecycle { get; } = lifecycle;
+        public FinancialFilter Financials { get; } = financials;
+
+        /// <summary>The order of a sorted result list, after the chosen measure: companies without it last, then by name.</summary>
+        public string? SortOrder => Financials.Sort switch
+        {
+            FinancialFilter.ByTurnover => "c.turnover DESC NULLS LAST, c.name_key, c.company_key",
+            FinancialFilter.ByEmployees => "c.employees DESC NULLS LAST, c.name_key, c.company_key",
+            _ => null,
+        };
 
         /// <summary>Clauses on <c>search.companies c</c>, without the lifecycle (counted as its own facet).</summary>
         public string Where()
@@ -179,6 +219,10 @@ public sealed class CompanySearch(AppDbContext database)
             if (county is not null) { clauses.Add("c.county_number = @county"); }
             if (uat is not null) { clauses.Add("c.uat_code = @uat"); }
             if (caenToken is not null) { clauses.Add("c.caen @> ARRAY[@caen]"); }
+            if (Financials.TurnoverMin is not null) { clauses.Add("c.turnover >= @turnoverMin"); }
+            if (Financials.TurnoverMax is not null) { clauses.Add("c.turnover <= @turnoverMax"); }
+            if (Financials.EmployeesMin is not null) { clauses.Add("c.employees >= @employeesMin"); }
+            if (Financials.EmployeesMax is not null) { clauses.Add("c.employees <= @employeesMax"); }
             return string.Join(" AND ", clauses);
         }
 
@@ -252,6 +296,10 @@ public sealed class CompanySearch(AppDbContext database)
             Add("lifecycle", Lifecycle);
             Add("cui", Query.Cui);
             Add("number", Query.RegistrationNumber);
+            Add("turnoverMin", Financials.TurnoverMin);
+            Add("turnoverMax", Financials.TurnoverMax);
+            Add("employeesMin", Financials.EmployeesMin);
+            Add("employeesMax", Financials.EmployeesMax);
             if (Query.NameKey is { } key)
             {
                 command.Parameters.AddWithValue("key", key);
@@ -269,7 +317,7 @@ public sealed class CompanySearch(AppDbContext database)
                 }
             }
 
-            void Add<T>(string name, T? value)
+            void Add(string name, object? value)
             {
                 if (value is not null)
                 {
@@ -280,10 +328,14 @@ public sealed class CompanySearch(AppDbContext database)
     }
 
     private sealed record HitRow(string CompanyKey, long? Cui, string RegistrationNumber, string? Name, string? LegalForm, string Lifecycle,
-        DateOnly? FirstRegistrationDate, short? CountyNumber, int? UatCode, int? LocalityCode, bool IdentifierMatch, string? EarlierName);
+        DateOnly? FirstRegistrationDate, short? CountyNumber, int? UatCode, int? LocalityCode, short? FinancialYear, decimal? Turnover, int? Employees,
+        bool IdentifierMatch, string? EarlierName);
 
     private const string HitColumns =
-        "d.company_key, d.cui, d.registration_number, d.name, d.legal_form, d.lifecycle, d.first_registration_date, d.county_number, d.uat_code, d.locality_code";
+        "d.company_key, d.cui, d.registration_number, d.name, d.legal_form, d.lifecycle, d.first_registration_date, d.county_number, d.uat_code, d.locality_code, "
+        + "d.financial_year, d.turnover, d.employees";
+
+    private const string MatchedColumns = "c.name_key, c.county_number, c.uat_code, c.lifecycle, c.caen, c.turnover, c.employees";
 
     /// <summary>
     /// With a name or identifier query, or a locality: the matching companies are collected once into a temporary table,
@@ -296,12 +348,12 @@ public sealed class CompanySearch(AppDbContext database)
         var source = hasQuery
             ? $"""
                 WITH {filter.Hits()}
-                SELECT h.company_key, h.tier, h.earlier, h.similarity, c.name_key, c.county_number, c.uat_code, c.lifecycle, c.caen
+                SELECT h.company_key, h.tier, h.earlier, h.similarity, {MatchedColumns}
                 FROM hits h JOIN search.companies c ON c.company_key = h.company_key
                 WHERE {filter.Where()}
                 """
             : $"""
-                SELECT c.company_key, 0 AS tier, NULL::text AS earlier, 0::real AS similarity, c.name_key, c.county_number, c.uat_code, c.lifecycle, c.caen
+                SELECT c.company_key, 0 AS tier, NULL::text AS earlier, 0::real AS similarity, {MatchedColumns}
                 FROM search.companies c
                 WHERE {filter.Where()}
                 """;
@@ -322,7 +374,7 @@ public sealed class CompanySearch(AppDbContext database)
             await using var similar = new NpgsqlCommand($"""
                 WITH {SqlFilter.SimilarHits()}
                 INSERT INTO matched
-                SELECT h.company_key, h.tier, h.earlier, h.similarity, c.name_key, c.county_number, c.uat_code, c.lifecycle, c.caen
+                SELECT h.company_key, h.tier, h.earlier, h.similarity, {MatchedColumns}
                 FROM hits h JOIN search.companies c ON c.company_key = h.company_key
                 WHERE {filter.Where()}
                 """, connection, transaction);
@@ -332,9 +384,9 @@ public sealed class CompanySearch(AppDbContext database)
 
         // Ranked results: identifiers, then name tiers, current names before earlier ones, active companies first;
         // approximate matches by closeness alone.
-        var order = hasQuery
+        var order = filter.SortOrder ?? (hasQuery
             ? "c.tier, c.earlier IS NOT NULL, CASE WHEN c.tier = 4 THEN -c.similarity ELSE 0 END, c.lifecycle <> 'Active', c.similarity DESC, c.name_key, c.company_key"
-            : "c.name_key, c.company_key";
+            : "c.name_key, c.company_key");
         var rows = new List<HitRow>();
         // The temporary table has no statistics; joining only the page keeps the planner from scanning every company.
         await using (var command = new NpgsqlCommand($"""
@@ -401,7 +453,9 @@ public sealed class CompanySearch(AppDbContext database)
             rows.Add(new HitRow(
                 reader.GetString(0), reader.IsDBNull(1) ? null : reader.GetInt64(1), reader.GetString(2), Text(reader, 3), Text(reader, 4), reader.GetString(5),
                 reader.IsDBNull(6) ? null : reader.GetFieldValue<DateOnly>(6), reader.IsDBNull(7) ? null : reader.GetInt16(7),
-                reader.IsDBNull(8) ? null : reader.GetInt32(8), reader.IsDBNull(9) ? null : reader.GetInt32(9), reader.GetBoolean(10), Text(reader, 11)));
+                reader.IsDBNull(8) ? null : reader.GetInt32(8), reader.IsDBNull(9) ? null : reader.GetInt32(9),
+                reader.IsDBNull(10) ? null : reader.GetInt16(10), reader.IsDBNull(11) ? null : reader.GetDecimal(11), reader.IsDBNull(12) ? null : reader.GetInt32(12),
+                reader.GetBoolean(13), Text(reader, 14)));
         }
     }
 
@@ -543,7 +597,7 @@ public sealed class CompanySearch(AppDbContext database)
             row.CompanyKey, row.Cui, row.RegistrationNumber, row.Name, row.LegalForm, row.Lifecycle, row.FirstRegistrationDate,
             (row.LocalityCode ?? row.UatCode) is { } place ? places.GetValueOrDefault(place) : null,
             row.CountyNumber is { } county ? counties.GetValueOrDefault(county) : null,
-            row.IdentifierMatch, row.EarlierName))];
+            row.IdentifierMatch, row.EarlierName, row.FinancialYear, row.Turnover, row.Employees))];
     }
 
     private static string? Text(NpgsqlDataReader reader, int ordinal) => reader.IsDBNull(ordinal) ? null : reader.GetString(ordinal);

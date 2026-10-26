@@ -1,3 +1,4 @@
+using BusinessIntelligence.Modules.Financials;
 using BusinessIntelligence.Modules.Registry.Onrc;
 using BusinessIntelligence.Modules.Search;
 using BusinessIntelligence.Tests.Infrastructure;
@@ -138,6 +139,45 @@ public sealed class CompanySearchTests(PostgresFixture postgres) : IClassFixture
         var unknown = await search.ExecuteAsync(new SearchRequest(Caen: "6201"), CancellationToken.None);
         Assert.Empty(unknown.CaenPath);
         Assert.Equal(national.Total, unknown.Total);
+    }
+
+    [Fact]
+    public async Task FinancialFiltersUseTheLatestYearAndNeverReadBlankAsZero()
+    {
+        await using var database = await postgres.CreateIsolatedContextAsync();
+        await SearchFixtures.SeedAsync(database, build: false);
+        // ALFA EXEMPLU reports 5,000 employees and no turnover in 2013: a source error kept out of filters and order.
+        database.FinancialStatements.Add(new FinancialStatement
+        {
+            Year = 2013,
+            Cui = SearchFixtures.AlfaExemplu,
+            Family = "BL",
+            SourceFileId = 103,
+            Employees = 5_000,
+        });
+        await database.SaveChangesAsync();
+        await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
+        var search = new CompanySearch(database);
+
+        // EXEMPLU SOFT filed 2013 with 3 employees and a blank turnover; 2010's turnover does not count for 2013.
+        var employees = await search.ExecuteAsync(new SearchRequest(Financials: new FinancialFilter(EmployeesMin: 1)), CancellationToken.None);
+        Assert.Equal((short?)2013, employees.FinancialYear);
+        var hit = Assert.Single(employees.Hits);
+        Assert.Equal((SearchFixtures.ExempluSoft, (short?)2013, (decimal?)null, (int?)3), (hit.Cui!.Value, hit.FinancialYear, hit.Turnover, hit.Employees));
+        Assert.Equal(1, employees.Total);
+
+        var turnover = await search.ExecuteAsync(new SearchRequest(Financials: new FinancialFilter(TurnoverMin: 0)), CancellationToken.None);
+        Assert.Equal(0, turnover.Total);
+        var range = await search.ExecuteAsync(new SearchRequest(Financials: new FinancialFilter(EmployeesMin: 4, EmployeesMax: 10)), CancellationToken.None);
+        Assert.Equal(0, range.Total);
+
+        // Ordered by employees, the known count leads and everything else follows by name; nothing is dropped.
+        var sorted = await search.ExecuteAsync(new SearchRequest(County: SearchFixtures.Cluj, Financials: new FinancialFilter(Sort: FinancialFilter.ByEmployees)), CancellationToken.None);
+        var all = await search.ExecuteAsync(new SearchRequest(County: SearchFixtures.Cluj), CancellationToken.None);
+        Assert.Equal(SearchFixtures.ExempluSoft, sorted.Hits[0].Cui);
+        Assert.Equal(all.Total, sorted.Total);
+        var bucharest = await search.ExecuteAsync(new SearchRequest(County: SearchFixtures.Bucuresti, Financials: new FinancialFilter(EmployeesMin: 1)), CancellationToken.None);
+        Assert.Equal(0, bucharest.Total);
     }
 
     [Fact]
