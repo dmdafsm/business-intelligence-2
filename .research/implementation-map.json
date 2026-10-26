@@ -242,6 +242,12 @@
           "title": "Indicators, benchmark table and profile section",
           "status": "completed",
           "note": "tasks/s10-1-indicators.md"
+        },
+        {
+          "id": "S10.2",
+          "title": "CAEN Rev.3 classes for 2025 from the INS correspondence table",
+          "status": "completed",
+          "note": "tasks/s10-2-caen-correspondence.md"
         }
       ]
     },

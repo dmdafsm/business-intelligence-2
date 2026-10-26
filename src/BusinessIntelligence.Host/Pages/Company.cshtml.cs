@@ -126,6 +126,16 @@ public sealed class CompanyModel(CompanyProfileQuery query) : PageModel
         _ => string.Empty,
     };
 
+    /// <summary>How a derived CAEN Rev.3 class was set, as a phrase that follows "stabilită".</summary>
+    public static string ClassMethodText(string? method) => method switch
+    {
+        StatementClasses.OnlyCandidate => "prin tabelul de corespondență INS: codul declarat duce la o singură clasă",
+        StatementClasses.Registry => "prin tabelul de corespondență INS și activitățile autorizate în registrul ONRC: singura variantă aflată printre ele",
+        StatementClasses.RegistryRev2 => "prin tabelul de corespondență INS: firma are încă activitățile în CAEN Rev.2 la registru, iar codul Rev.2 duce la o singură clasă",
+        StatementClasses.SameCode => "după cod: codul declarat este o clasă Rev.3 printre activitățile autorizate în registru și una dintre clasele în care se împarte codul Rev.2 cu același număr",
+        _ => "prin tabelul de corespondență INS",
+    };
+
     public static string SizeLabel(string band) =>
         band == FinancialIndicators.AllSizes ? "toate mărimile" : FinancialIndicators.SizeBands.FirstOrDefault(item => item.Key == band).Label ?? band;
 

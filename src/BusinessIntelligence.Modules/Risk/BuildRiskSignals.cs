@@ -70,13 +70,16 @@ public sealed class BuildRiskSignals(AppDbContext database, TimeProvider time)
 
         if (benchmarkYear is { } compared)
         {
-            // The same debt ratio as FinancialIndicators.DebtRatio, against the class's all-sizes P90 of that year.
+            // The same debt ratio as FinancialIndicators.DebtRatio, against the all-sizes P90 of the statement's comparison class
+            // that year (StatementClasses: published, or derived for 2025).
             await database.Database.ExecuteSqlRawAsync("""
                 INSERT INTO risk.signals (company_key, cui, signal, year, ratio, threshold, caen_code)
-                SELECT c.company_key, c.cui, {0}, s.year, round(s.liabilities / (s.fixed_assets + s.current_assets), 6), b.p90, s.caen_code
+                SELECT c.company_key, c.cui, {0}, s.year, round(s.liabilities / (s.fixed_assets + s.current_assets), 6), b.p90, b.caen_code
                 FROM risk_companies c
                 JOIN financials.statements s ON s.cui = c.cui AND s.year = {1}
-                JOIN financials.benchmarks b ON b.year = s.year AND b.caen_version = s.caen_version AND b.caen_code = s.caen_code
+                JOIN financials.benchmarks b ON b.year = s.year
+                    AND b.caen_version = coalesce(s.caen_version, s.class_version)
+                    AND b.caen_code = CASE WHEN s.caen_version IS NOT NULL THEN s.caen_code ELSE s.class_code END
                     AND b.size_band = {2} AND b.indicator = {3} AND b.p90 IS NOT NULL
                 WHERE s.fixed_assets + s.current_assets > 0 AND s.liabilities / (s.fixed_assets + s.current_assets) > b.p90
                 """, [RiskSignals.HighDebtRatio, compared, FinancialIndicators.AllSizes, FinancialIndicators.DebtRatio.Key], cancellationToken);

@@ -7,14 +7,19 @@ namespace BusinessIntelligence.Modules.Registry.Geography;
 
 /// <summary>
 /// Reads the first worksheet of a small, plain XLSX file (shared and inline strings, numbers) as rows of text.
-/// Enough for the SIRUTA workbook; it is not a general spreadsheet reader and rejects formulas.
+/// Enough for the SIRUTA workbook and the INS CAEN correspondence table; it is not a general spreadsheet reader and
+/// rejects formulas.
 /// </summary>
 public static class SimpleXlsx
 {
     private const long MaximumExpandedBytes = 64L * 1024 * 1024;
     private static readonly XNamespace Main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 
-    public static IReadOnlyList<string[]> ReadFirstSheet(byte[] content)
+    /// <param name="fillMergedCells">
+    /// Place rows at their sheet row numbers (blank rows kept, as empty arrays) and give every cell of a merged range the
+    /// value of its first cell, as the sheet shows it.
+    /// </param>
+    public static IReadOnlyList<string[]> ReadFirstSheet(byte[] content, bool fillMergedCells = false)
     {
         using var archive = new ZipArchive(new MemoryStream(content, false), ZipArchiveMode.Read);
         if (archive.Entries.Sum(entry => entry.Length) > MaximumExpandedBytes)
@@ -36,6 +41,14 @@ public static class SimpleXlsx
         var rows = new List<string[]>();
         foreach (var row in Elements(sheet, "row"))
         {
+            if (fillMergedCells && int.TryParse((string?)row.Attribute("r"), NumberStyles.None, CultureInfo.InvariantCulture, out var number))
+            {
+                while (rows.Count < number - 1)
+                {
+                    rows.Add([]);
+                }
+            }
+
             var values = new List<string>();
             foreach (var cell in row.Elements(Main + "c"))
             {
@@ -57,8 +70,53 @@ public static class SimpleXlsx
             rows.Add([.. values]);
         }
 
+        if (fillMergedCells)
+        {
+            foreach (var merge in Elements(sheet, "mergeCell"))
+            {
+                Fill(rows, (string?)merge.Attribute("ref") ?? string.Empty);
+            }
+        }
+
         return rows;
     }
+
+    /// <summary>Copies the first cell of a range such as "C350:C353" into the other cells of the range.</summary>
+    private static void Fill(List<string[]> rows, string range)
+    {
+        var parts = range.Split(':');
+        if (parts.Length != 2)
+        {
+            return;
+        }
+
+        var (firstColumn, firstRow) = (ColumnIndex(parts[0]), RowIndex(parts[0]));
+        var (lastColumn, lastRow) = (ColumnIndex(parts[1]), RowIndex(parts[1]));
+        if (firstRow < 0 || firstRow >= rows.Count)
+        {
+            return;
+        }
+
+        var value = firstColumn < rows[firstRow].Length ? rows[firstRow][firstColumn] : string.Empty;
+        for (var row = firstRow; row <= lastRow && row < rows.Count; row++)
+        {
+            if (rows[row].Length <= lastColumn)
+            {
+                var widened = new string[lastColumn + 1];
+                Array.Fill(widened, string.Empty);
+                rows[row].CopyTo(widened, 0);
+                rows[row] = widened;
+            }
+
+            for (var column = firstColumn; column <= lastColumn; column++)
+            {
+                rows[row][column] = value;
+            }
+        }
+    }
+
+    private static int RowIndex(string reference) =>
+        int.TryParse(new string([.. reference.SkipWhile(char.IsAsciiLetterUpper)]), NumberStyles.None, CultureInfo.InvariantCulture, out var row) ? row - 1 : -1;
 
     /// <summary>Streams the top-level repeated elements of a part without loading the whole part.</summary>
     private static IEnumerable<XElement> Elements(ZipArchiveEntry entry, string name)
