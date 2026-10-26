@@ -55,6 +55,7 @@ public sealed class AppShellTests(PortalFixture portal) : IClassFixture<PortalFi
             await Assertions.Expect(navigation).ToHaveCountAsync(1);
             await Assertions.Expect(navigation).ToHaveClassAsync("md-nav-rail");
             await Assertions.Expect(navigation.GetByRole(AriaRole.Link, new() { Name = "Căutare" })).ToHaveAttributeAsync("aria-current", "page");
+            await Assertions.Expect(navigation.GetByRole(AriaRole.Link, new() { Name = "Design" })).ToHaveCountAsync(0);
         }, Desktop);
 
     [Fact]
