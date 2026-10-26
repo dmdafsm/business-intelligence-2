@@ -15,33 +15,38 @@ public static class LegacyXls
 
     static LegacyXls() => Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-    public static IEnumerable<(int Row, string?[] Cells)> Read(string path, int columns)
+    /// <summary>Rows of the first sheet, or of every sheet with <paramref name="allSheets"/> (numbered continuously).</summary>
+    public static IEnumerable<(int Row, string?[] Cells)> Read(string path, int columns, bool allSheets = false)
     {
         using var stream = File.OpenRead(path);
         using var reader = ExcelReaderFactory.CreateReader(stream);
         var row = 0;
-        while (reader.Read())
+        do
         {
-            if (++row > MaximumRows)
+            while (reader.Read())
             {
-                throw new InvalidDataException($"More than {MaximumRows} rows.");
-            }
-
-            var cells = new string?[columns];
-            for (var index = 0; index < Math.Min(columns, reader.FieldCount); index++)
-            {
-                cells[index] = reader.GetValue(index) switch
+                if (++row > MaximumRows)
                 {
-                    null => null,
-                    DateTime date => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    double number => number.ToString("R", CultureInfo.InvariantCulture),
-                    IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
-                    var value => value.ToString(),
-                };
-            }
+                    throw new InvalidDataException($"More than {MaximumRows} rows.");
+                }
 
-            yield return (row, cells);
+                var cells = new string?[columns];
+                for (var index = 0; index < Math.Min(columns, reader.FieldCount); index++)
+                {
+                    cells[index] = reader.GetValue(index) switch
+                    {
+                        null => null,
+                        DateTime date => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                        double number => number.ToString("R", CultureInfo.InvariantCulture),
+                        IFormattable formattable => formattable.ToString(null, CultureInfo.InvariantCulture),
+                        var value => value.ToString(),
+                    };
+                }
+
+                yield return (row, cells);
+            }
         }
+        while (allSheets && reader.NextResult());
     }
 }
 

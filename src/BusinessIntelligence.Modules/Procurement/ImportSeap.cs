@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text.Json;
-using BusinessIntelligence.Modules.Platform.Files;
 using BusinessIntelligence.Modules.Platform.Persistence;
 using BusinessIntelligence.Modules.Registry;
 using BusinessIntelligence.Modules.Registry.Onrc;
@@ -20,7 +19,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
 {
     public const string ContractsKind = "seap-contracts";
     public const string DirectKind = "seap-direct";
-    public const string ParserVersion = "seap-xlsx-v1";
+    public const string ParserVersion = "seap-v2";
 
     public static readonly string[] ContractHeader =
     [
@@ -42,9 +41,9 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
 
     public async Task<ImportResult> ExecuteAsync(string path, CatalogFile file, CancellationToken cancellationToken)
     {
-        if (file.Kind is not (ContractsKind or DirectKind) || file.Year is null || file.Family is not ['Q', >= '1' and <= '4'])
+        if (file.Kind is not (ContractsKind or DirectKind) || file.Year is null || file.Family is null)
         {
-            throw new ArgumentException($"Catalog entry {file.Id} is not a quarterly SEAP export.", nameof(file));
+            throw new ArgumentException($"Catalog entry {file.Id} is not a SEAP export with a year and period.", nameof(file));
         }
 
         var existing = await database.SourceFiles.AsNoTracking()
@@ -61,8 +60,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
         }
 
         var contracts = file.Kind == ContractsKind;
-        var header = contracts ? ContractHeader : DirectHeader;
-        var quarter = (short)(file.Family![1] - '0');
+        var quarter = Quarter(file.Family);
         var counts = new Counts();
 
         database.Database.SetCommandTimeout(TimeSpan.FromHours(1));
@@ -77,48 +75,25 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
             "CREATE TEMP TABLE award_rows (LIKE procurement.awards INCLUDING DEFAULTS) ON COMMIT DROP", cancellationToken);
         await using (var writer = await connection.BeginBinaryImportAsync(Copy, cancellationToken))
         {
-            var headerSeen = false;
-            await foreach (var (row, cells) in StreamingXlsx.ReadAsync(path, header.Length, cancellationToken))
+            await foreach (var row in SeapRows.ReadAsync(path, contracts, counts.Format, cancellationToken))
             {
-                if (!headerSeen)
-                {
-                    var found = cells.Select(cell => cell?.Trim() ?? string.Empty).ToArray();
-                    if (!found.SequenceEqual(header, StringComparer.Ordinal))
-                    {
-                        throw new InvalidDataException($"{file.FileName}: unexpected header {string.Join(" | ", found)}");
-                    }
-
-                    headerSeen = true;
-                    continue;
-                }
-
-                // Contract exports repeat the header as machine labels on the second row.
-                if (contracts && cells[0] == "DENUMIRE_AC")
-                {
-                    continue;
-                }
-
-                if (cells.All(string.IsNullOrWhiteSpace))
-                {
-                    continue;
-                }
-
-                await WriteAsync(writer, source.Id, row, contracts, (short)file.Year, quarter, cells, counts, cancellationToken);
-            }
-
-            if (!headerSeen)
-            {
-                throw new InvalidDataException($"{file.FileName}: the sheet is empty.");
+                await WriteAsync(writer, source.Id, contracts, (short)file.Year, quarter, row, counts, cancellationToken);
             }
 
             await writer.CompleteAsync(cancellationToken);
         }
 
+        if (counts.Rows == 0)
+        {
+            throw new InvalidDataException($"{file.FileName}: no award rows were found.");
+        }
+
         // Rows of a contract export that share award notice, lot, contract number and authority are the winners of one contract.
         const string Contract = "PARTITION BY authority_cui, authority_name, reference, lot, contract_number";
         var winners = contracts ? $"count(*) OVER ({Contract})::smallint, row_number() OVER ({Contract} ORDER BY row_number) = 1" : "winners, true";
+        winners += ", coalesce(contract_date, published_on)";
         await ImportOnrcFirme.ExecuteAsync(connection, $"""
-            INSERT INTO procurement.awards ({Columns}, first_winner)
+            INSERT INTO procurement.awards ({Columns}, first_winner, awarded_on)
             SELECT {Columns.Replace("winners", winners, StringComparison.Ordinal)}
             FROM award_rows
             """, cancellationToken);
@@ -133,6 +108,10 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
         var report = new Dictionary<string, object>
         {
             ["rows"] = counts.Rows,
+            ["layout"] = counts.Format.Layout,
+            ["windows1250Lines"] = counts.Format.Windows1250Lines,
+            ["realignedRows"] = counts.Format.RealignedRows,
+            ["skippedRows"] = counts.Format.SkippedRows,
             ["winnerCuiStates"] = counts.WinnerStates,
             ["withheldWinners"] = counts.Withheld,
             ["missingValues"] = counts.MissingValues,
@@ -147,6 +126,9 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
         return new ImportResult(ImportOutcome.Published, source.Id, report);
     }
 
+    /// <summary>The quarter of a period code: Q1–Q4 (with an optional part suffix); 0 for a half-year (S1, S2) or a whole year (Y).</summary>
+    public static short Quarter(string family) => family is ['Q', >= '1' and <= '4', ..] ? (short)(family[1] - '0') : (short)0;
+
     private const string Columns = """
         source_file_id, row_number, kind, year, quarter, authority_name, authority_cui, reference, procedure,
             contract_type, cpv_code, cpv_name, title, lot, contract_number, published_on, contract_date, value_ron, eu_funded, programme,
@@ -155,38 +137,36 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
 
     private const string Copy = $"COPY award_rows ({Columns}) FROM STDIN (FORMAT BINARY)";
 
-    private static async Task WriteAsync(NpgsqlBinaryImporter writer, int source, int row, bool contracts, short year, short quarter,
-        string?[] cells, Counts counts, CancellationToken cancellationToken)
+    private static async Task WriteAsync(NpgsqlBinaryImporter writer, int source, bool contracts, short year, short quarter,
+        SeapRow row, Counts counts, CancellationToken cancellationToken)
     {
         counts.Rows++;
-        string? Cell(int index) => string.IsNullOrWhiteSpace(cells[index]) ? null : cells[index]!.Trim();
-
-        var (winnerState, winnerCui) = Identifier(Cell(contracts ? 20 : 13));
+        var (winnerState, winnerCui) = Identifier(row.WinnerCui);
         counts.WinnerStates[winnerState.ToString()] = counts.WinnerStates.GetValueOrDefault(winnerState.ToString()) + 1;
         // A personal numeric code identifies a person: neither it nor the winner's name is stored.
         var withheld = winnerState == CuiState.PersonalCode;
         counts.Withheld += withheld ? 1 : 0;
-        var value = Amount(Cell(contracts ? 18 : 11));
+        var value = Amount(row.Value);
         counts.MissingValues += value is null ? 1 : 0;
 
         await writer.StartRowAsync(cancellationToken);
         await writer.WriteAsync(source, NpgsqlDbType.Integer, cancellationToken);
-        await writer.WriteAsync(row, NpgsqlDbType.Integer, cancellationToken);
+        await writer.WriteAsync(row.Row, NpgsqlDbType.Integer, cancellationToken);
         await writer.WriteAsync(contracts ? "contract" : "direct", NpgsqlDbType.Text, cancellationToken);
         await writer.WriteAsync(year, NpgsqlDbType.Smallint, cancellationToken);
         await writer.WriteAsync(quarter, NpgsqlDbType.Smallint, cancellationToken);
-        await Text(Cell(0));
-        await Number(Identifier(Cell(1)).Cui);
-        await Text(Cell(contracts ? 13 : 2));
-        await Text(contracts ? Cell(3) : null);
-        await Text(Cell(contracts ? 8 : 7));
-        await Text(Cell(contracts ? 10 : 5));
-        await Text(Cell(contracts ? 11 : 6));
-        await Text(contracts ? null : Cell(4));
-        await Text(contracts ? Cell(12) : null);
-        await Text(contracts ? Cell(16) : null);
-        await Date(Cell(contracts ? 14 : 3));
-        await Date(Cell(contracts ? 15 : 10));
+        await Text(row.AuthorityName);
+        await Number(Identifier(row.AuthorityCui).Cui);
+        await Text(row.Reference);
+        await Text(row.Procedure);
+        await Text(row.ContractType);
+        await Text(row.CpvCode);
+        await Text(row.CpvName);
+        await Text(row.Title);
+        await Text(row.Lot);
+        await Text(row.ContractNumber);
+        await Date(row.Published);
+        await Date(row.ContractDate);
         if (value is { } amount)
         {
             await writer.WriteAsync(amount, NpgsqlDbType.Numeric, cancellationToken);
@@ -196,7 +176,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
             await writer.WriteNullAsync(cancellationToken);
         }
 
-        bool? eu = contracts ? null : Cell(8) switch { "Da" or "DA" => true, "Nu" or "NU" => false, _ => null };
+        bool? eu = row.EuFunded?.ToUpperInvariant() switch { "DA" => true, "NU" => false, _ => null };
         if (eu is { } flag)
         {
             await writer.WriteAsync(flag, NpgsqlDbType.Boolean, cancellationToken);
@@ -206,8 +186,8 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
             await writer.WriteNullAsync(cancellationToken);
         }
 
-        await Text(contracts ? null : Cell(9));
-        await Text(withheld ? null : Cell(contracts ? 19 : 12));
+        await Text(row.Programme);
+        await Text(withheld ? null : row.WinnerName);
         await Number(winnerCui);
         await writer.WriteAsync(winnerState.ToString(), NpgsqlDbType.Text, cancellationToken);
         await writer.WriteAsync((short)1, NpgsqlDbType.Smallint, cancellationToken);
@@ -228,8 +208,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
 
         async Task Date(string? text)
         {
-            var date = StreamingXlsx.SerialDate(text)
-                ?? (DateOnly.TryParseExact(text?.Split(' ')[0], ["dd.MM.yyyy", "yyyy-MM-dd", "dd/MM/yyyy"], CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed) ? parsed : null);
+            var date = SeapRows.Date(text, counts.Format);
             counts.UnreadableDates += text is not null && date is null ? 1 : 0;
             if (date is { } present)
             {
@@ -266,7 +245,10 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
     }
 
     public static decimal? Amount(string? text) =>
-        decimal.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? Math.Round(value, 2) : null;
+        decimal.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? Math.Round(value, 2)
+        // Older exports write "1.234,56".
+        : decimal.TryParse(text, NumberStyles.Number, CultureInfo.GetCultureInfo("ro-RO"), out var local) ? Math.Round(local, 2)
+        : null;
 
     private static async Task<long> ScalarAsync(NpgsqlConnection connection, string sql, int source, CancellationToken cancellationToken)
     {
@@ -277,6 +259,7 @@ public sealed class ImportSeap(AppDbContext database, TimeProvider time)
 
     private sealed class Counts
     {
+        public SeapRows.FileFormat Format { get; } = new();
         public int Rows { get; set; }
         public int Withheld { get; set; }
         public int MissingValues { get; set; }

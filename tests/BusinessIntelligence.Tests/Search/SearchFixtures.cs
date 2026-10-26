@@ -160,7 +160,7 @@ public static class SearchFixtures
         database.SourceFiles.Add(new SourceFile
         {
             Id = 200,
-            CatalogId = "test-seap",
+            CatalogId = "seap-direct-2025-q1",
             Kind = "seap-direct",
             Dataset = "Achiziții publice 2025",
             FileName = "achizitii-directe.xlsx",
@@ -190,6 +190,7 @@ public static class SearchFixtures
             CpvCode = "48000000-8",
             PublishedOn = new DateOnly(2025, 2, 3),
             ContractDate = new DateOnly(2025, 2, 10),
+            AwardedOn = new DateOnly(2025, 2, 10),
             ValueRon = 4999.5m,
             WinnerName = "EXEMPLU SOFT SRL",
             WinnerCui = ExempluSoft,
@@ -206,6 +207,7 @@ public static class SearchFixtures
         await database.Database.ExecuteSqlRawAsync(
             "SELECT setval(pg_get_serial_sequence('registry.source_files', 'id'), (SELECT max(id) FROM registry.source_files))");
         database.ChangeTracker.Clear();
+        await new BusinessIntelligence.Modules.Procurement.SummarizeProcurement(database).ExecuteAsync(CancellationToken.None);
         if (build)
         {
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);

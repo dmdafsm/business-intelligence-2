@@ -4,6 +4,7 @@ using System.Text.Json;
 using BusinessIntelligence.Modules.Funds;
 using BusinessIntelligence.Modules.Licences;
 using BusinessIntelligence.Modules.Procurement;
+using BusinessIntelligence.Modules.Registry;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessIntelligence.Host.Composition;
@@ -15,6 +16,7 @@ internal static class ProcurementCommands
         Commands:
           procurement import-all <raw-root>   import every pinned SEAP quarterly export (contracts, direct purchases)
           procurement status                  awards per kind, year and quarter
+          procurement summarize               rebuild the yearly totals per company (import-all does it too)
           funds import-all <raw-root>         import every pinned list of EU-funded projects (Ministry, AFIR)
           licences import-all <raw-root>      import every pinned regulator list (ANRSC, ANRM, CNAS)
         """;
@@ -27,7 +29,7 @@ internal static class ProcurementCommands
 
     public static async Task<int> ExecuteAsync(string[] arguments, CancellationToken cancellationToken)
     {
-        if (arguments is not (["procurement", "import-all", _] or ["procurement", "status"] or ["funds", "import-all", _] or ["licences", "import-all", _]))
+        if (arguments is not (["procurement", "import-all", _] or ["procurement", "status"] or ["procurement", "summarize"] or ["funds", "import-all", _] or ["licences", "import-all", _]))
         {
             await Console.Error.WriteLineAsync(Usage);
             return 2;
@@ -52,7 +54,15 @@ internal static class ProcurementCommands
                 return 0;
             }
 
+            if (arguments is ["procurement", "summarize"])
+            {
+                await using var summary = OperatorDatabase.Create(connection);
+                await WriteAsync(new { yearTotals = await new SummarizeProcurement(summary).ExecuteAsync(cancellationToken) }, cancellationToken);
+                return 0;
+            }
+
             var files = arguments[0] switch { "funds" => ImportFunds.Files(), "licences" => ImportLicences.Files(), _ => ImportSeap.Files() };
+            var published = false;
             foreach (var file in files)
             {
                 var path = Path.Combine(arguments[2], file.LocalPath ?? throw new InvalidOperationException($"{file.Id} has no local path."));
@@ -66,6 +76,16 @@ internal static class ProcurementCommands
                 };
                 await WriteAsync(new { catalogId = file.Id, outcome = result.Outcome.ToString(), seconds = Math.Round(watch.Elapsed.TotalSeconds, 1), report = result.Report },
                     cancellationToken);
+                published |= result.Outcome == ImportOutcome.Published;
+            }
+
+            // The totals take minutes on the full history: rebuilt when a file changed, or when they were never built.
+            await using var totalsDatabase = OperatorDatabase.Create(connection);
+            if (arguments[0] == "procurement" && (published || !await totalsDatabase.ProcurementYearTotals.AnyAsync(cancellationToken)))
+            {
+                var watch = Stopwatch.StartNew();
+                var totals = await new SummarizeProcurement(totalsDatabase).ExecuteAsync(cancellationToken);
+                await WriteAsync(new { yearTotals = totals, seconds = Math.Round(watch.Elapsed.TotalSeconds, 1) }, cancellationToken);
             }
 
             return 0;

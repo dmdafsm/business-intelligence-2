@@ -1,5 +1,7 @@
 """Run every import in order inside the Docker stack, then rebuild the search tables.
 
+The ANAF status harvest (`anaf harvest`, about 8 hours of web service calls) is not part of it; start it separately.
+
 Each step is idempotent: an imported file is skipped, so the script can be rerun after a failure. The raw files must be
 under .research/raw (see the import guides); the container sees them read-only at /data/raw.
 """
@@ -23,6 +25,10 @@ STEPS = [
     ["financials", "import-all", RAW],
     ["fiscal", "import-all", RAW],
     ["procurement", "import-all", RAW],
+    ["funds", "import-all", RAW],
+    ["licences", "import-all", RAW],
+    ["registry", "import", "boundaries-ancpi-unitate-administrativa-judet", f"{RAW}/boundaries/ancpi-2024/unitate_administrativa_judet.zip"],
+    ["registry", "import", "boundaries-ancpi-unitate-administrativa-uat", f"{RAW}/boundaries/ancpi-2024/unitate_administrativa_uat.zip"],
     ["search", "build"],
 ]
 

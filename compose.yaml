@@ -96,8 +96,8 @@ services:
     healthcheck:
       disable: true
     restart: "no"
-    # SEAP workbooks keep about a million distinct strings in memory while a sheet is read.
-    mem_limit: 2560m
+    # SEAP workbooks keep about a million distinct strings in memory while a sheet is read (2.5 GB peak on the history).
+    mem_limit: 3g
     cpus: 2
 
   verify:

@@ -104,8 +104,21 @@ internal static class RegistryCommands
             await new Modules.Registry.History.ImportRegistryHistory(database, TimeProvider.System).ClearAsync(cancellationToken);
         }
 
+        List<DateOnly> applied;
+        await using (var history = OperatorDatabase.Create(connection))
+        {
+            applied = await history.HistorySnapshots.AsNoTracking().Select(item => item.SnapshotDate).ToListAsync(cancellationToken);
+        }
+
         foreach (var snapshot in Modules.Registry.History.ImportRegistryHistory.AvailableSnapshots())
         {
+            // A rerun skips what is applied; a snapshot older than the history needs --rebuild, so it is reported, not refused.
+            if (applied.Count > 0 && snapshot <= applied.Max())
+            {
+                await WriteAsync(new { snapshot, outcome = applied.Contains(snapshot) ? "AlreadyImported" : "SkippedOlderThanHistory" }, cancellationToken);
+                continue;
+            }
+
             // A fresh context per snapshot keeps each transaction and change tracker separate.
             await using var database = OperatorDatabase.Create(connection);
             var watch = Stopwatch.StartNew();

@@ -25,6 +25,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Licences.Licence> RegulatorLicences => Set<Licences.Licence>();
     public DbSet<Funds.FundProject> FundProjects => Set<Funds.FundProject>();
     public DbSet<Anaf.AnafStatus> AnafStatuses => Set<Anaf.AnafStatus>();
+    public DbSet<Procurement.ProcurementYearTotal> ProcurementYearTotals => Set<Procurement.ProcurementYearTotal>();
     public DbSet<Procurement.ProcurementAward> ProcurementAwards => Set<Procurement.ProcurementAward>();
     public DbSet<Search.SearchCompany> SearchCompanies => Set<Search.SearchCompany>();
     public DbSet<Search.SearchName> SearchNames => Set<Search.SearchName>();
