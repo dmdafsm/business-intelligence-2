@@ -30,6 +30,24 @@ public sealed class SearchCompany
     /// containment test filters by section, division, group or class.
     /// </summary>
     public required string[] Caen { get; set; }
+
+    /// <summary>
+    /// The latest published financial year (the same for every company in a build) when the company filed that year;
+    /// null otherwise, so older statements never pass for current ones.
+    /// </summary>
+    public short? FinancialYear { get; set; }
+
+    /// <summary>Net turnover in lei as published that year; null when blank or not filed.</summary>
+    public decimal? Turnover { get; set; }
+
+    /// <summary>
+    /// Average employees as published, except counts the import flagged as unlikely and 1,000 or more without turnover:
+    /// those are left out (null) so they cannot top a list ordered by employees.
+    /// </summary>
+    public int? Employees { get; set; }
+
+    /// <summary>Profit positive, loss negative, as published that year.</summary>
+    public decimal? NetResult { get; set; }
 }
 
 /// <summary>A name a company is found by: its current name and the other names its registrations had in earlier snapshots.</summary>
@@ -90,6 +108,10 @@ public static class SearchPersistence
             entity.HasIndex(item => item.NameKey);
             entity.HasIndex(item => new { item.CountyNumber, item.UatCode });
             entity.HasIndex(item => item.Caen).HasMethod("gin");
+            entity.HasIndex(item => item.Turnover);
+            entity.HasIndex(item => item.Employees);
+            entity.Property(item => item.Turnover).HasPrecision(20, 0);
+            entity.Property(item => item.NetResult).HasPrecision(20, 0);
         });
         builder.Entity<SearchName>(entity =>
         {

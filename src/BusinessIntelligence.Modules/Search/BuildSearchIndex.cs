@@ -11,7 +11,8 @@ namespace BusinessIntelligence.Modules.Search;
 /// <summary>
 /// Rebuilds the search tables from the published registry snapshot in one transaction: pages keep reading the previous
 /// build until it commits. Reads <c>registry.companies</c>, <c>registrations</c>, <c>company_activities</c>,
-/// <c>caen</c> and <c>registration_periods</c>; writes only the <c>search</c> schema.
+/// <c>caen</c> and <c>registration_periods</c>, and the latest year of <c>financials.statements</c>; writes only the
+/// <c>search</c> schema.
 /// </summary>
 public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
 {
@@ -43,6 +44,11 @@ public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
         }
 
         report["companies"] = await Execute(connection, CompaniesSql, cancellationToken, ("snapshot", snapshot));
+        var financialYear = await Scalar(connection, "SELECT coalesce(max(financial_year), 0) FROM search.companies", cancellationToken);
+        if (financialYear > 0)
+        {
+            report["financialYear"] = financialYear;
+        }
         report["activitiesOutsideNomenclature"] = await Scalar(connection, """
             SELECT count(*) FROM registry.company_activities a
             WHERE a.snapshot_id = @snapshot AND NOT EXISTS (SELECT 1 FROM registry.caen e WHERE e.version = a.caen_version AND e.code = a.caen_code)
@@ -107,13 +113,19 @@ public sealed class BuildSearchIndex(AppDbContext database, TimeProvider time)
             GROUP BY a.company_key
         )
         INSERT INTO search.companies (company_key, cui, registration_number, name, name_key, legal_form, lifecycle,
-            first_registration_date, county_number, uat_code, locality_code, caen_version, caen)
+            first_registration_date, county_number, uat_code, locality_code, caen_version, caen,
+            financial_year, turnover, employees, net_result)
         SELECT c.company_key, c.cui, c.registration_number, c.name, s.name_key, c.legal_form, c.lifecycle,
             coalesce(c.first_registration_date, c.registration_date), c.county_number, c.uat_code, c.locality_code, c.caen_version,
-            coalesce(t.caen, '{}')
+            coalesce(t.caen, '{}'),
+            f.year, f.turnover,
+            -- Filters and ordering skip employee counts the import flagged, and 1,000+ employees without turnover (source errors).
+            CASE WHEN 'employees_unlikely' = ANY(f.quality_flags) OR (f.employees >= 1000 AND coalesce(f.turnover, 0) = 0) THEN NULL ELSE f.employees END,
+            CASE WHEN f.net_profit > 0 THEN f.net_profit WHEN f.net_loss > 0 THEN -f.net_loss ELSE coalesce(f.net_profit, f.net_loss) END
         FROM registry.companies c
         LEFT JOIN search_current s ON s.company_key = c.company_key
         LEFT JOIN tokens t ON t.company_key = c.company_key
+        LEFT JOIN financials.statements f ON f.cui = c.cui AND f.year = (SELECT max(year) FROM financials.statements)
         WHERE c.snapshot_id = @snapshot
         """;
 

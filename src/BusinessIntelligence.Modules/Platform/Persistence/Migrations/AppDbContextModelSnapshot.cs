@@ -1869,6 +1869,14 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("cui");
 
+                    b.Property<int?>("Employees")
+                        .HasColumnType("integer")
+                        .HasColumnName("employees");
+
+                    b.Property<short?>("FinancialYear")
+                        .HasColumnType("smallint")
+                        .HasColumnName("financial_year");
+
                     b.Property<DateOnly?>("FirstRegistrationDate")
                         .HasColumnType("date")
                         .HasColumnName("first_registration_date");
@@ -1895,10 +1903,20 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnName("name_key")
                         .UseCollation("C");
 
+                    b.Property<decimal?>("NetResult")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("net_result");
+
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("registration_number");
+
+                    b.Property<decimal?>("Turnover")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("turnover");
 
                     b.Property<int?>("UatCode")
                         .HasColumnType("integer")
@@ -1915,8 +1933,14 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.HasIndex("Cui")
                         .HasDatabaseName("ix_companies_cui");
 
+                    b.HasIndex("Employees")
+                        .HasDatabaseName("ix_companies_employees");
+
                     b.HasIndex("NameKey")
                         .HasDatabaseName("ix_companies_name_key");
+
+                    b.HasIndex("Turnover")
+                        .HasDatabaseName("ix_companies_turnover");
 
                     b.HasIndex("CountyNumber", "UatCode")
                         .HasDatabaseName("ix_companies_county_number_uat_code");
