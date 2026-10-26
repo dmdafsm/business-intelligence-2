@@ -36,6 +36,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Jobs.DiscoveredFile> DiscoveredFiles => Set<Jobs.DiscoveredFile>();
     public DbSet<Jobs.JobRun> JobRuns => Set<Jobs.JobRun>();
     public DbSet<Jobs.JobRunLine> JobRunLines => Set<Jobs.JobRunLine>();
+    public DbSet<Market.MonthlyRegistrations> MarketRegistrations => Set<Market.MonthlyRegistrations>();
+    public DbSet<Market.LifecycleChange> LifecycleChanges => Set<Market.LifecycleChange>();
+    public DbSet<Market.MarketBuild> MarketBuilds => Set<Market.MarketBuild>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +53,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         Funds.FundsPersistence.Configure(modelBuilder);
         Licences.LicencesPersistence.Configure(modelBuilder);
         Jobs.JobsPersistence.Configure(modelBuilder);
+        Market.MarketPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }

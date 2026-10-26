@@ -6,7 +6,7 @@ Draft, 2026-10-25. Spin-off of `business-intelligence`: the same stack (.NET 10,
 
 Search for a Romanian company and see everything public about it: general information, contact details, activity, status and, most importantly, its full financial history. Find companies by name, CUI or registry number, and browse or filter them by CAEN code, county and city.
 
-Not in the MVP: reports and statistics, filters on employees/revenue/profit, administration and scheduled updates, accounts and portfolios, exports, AI, risk. Data is imported once, in bulk, from command-line tools. The update module was added after the MVP as S09 ([import jobs](steps/s09-import-jobs.md)): scheduled discovery and import of new editions, with an operator page. Derived financial indicators with a CAEN benchmark on the profile were added as S10 ([indicators](steps/s10-indicators.md)).
+Not in the MVP: reports and statistics, filters on employees/revenue/profit, administration and scheduled updates, accounts and portfolios, exports, AI, risk. Data is imported once, in bulk, from command-line tools. The update module was added after the MVP as S09 ([import jobs](steps/s09-import-jobs.md)): scheduled discovery and import of new editions, with an operator page. Derived financial indicators with a CAEN benchmark on the profile were added as S10 ([indicators](steps/s10-indicators.md)), and a public statistics page as S11 ([market](steps/s11-market.md)).
 
 ## Data sources
 

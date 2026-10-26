@@ -1,5 +1,6 @@
 using BusinessIntelligence.Modules.Financials;
 using BusinessIntelligence.Modules.Fiscal;
+using BusinessIntelligence.Modules.Market;
 using BusinessIntelligence.Modules.Platform.Persistence;
 using BusinessIntelligence.Modules.Registry;
 using BusinessIntelligence.Modules.Registry.Onrc;
@@ -126,6 +127,27 @@ public static class SearchFixtures
             Lifecycle = Lifecycle.Active,
             StatusCodes = [1048],
         });
+        // Two yearly snapshots: ZARZAVAT FRESH was active in the first and in insolvency in the second.
+        database.HistorySnapshots.AddRange(
+            new HistorySnapshot { SnapshotDate = new DateOnly(2024, 12, 18), ImportedAt = DateTimeOffset.UnixEpoch, ParserVersion = "test", Report = "{}" },
+            new HistorySnapshot { SnapshotDate = new DateOnly(2025, 12, 8), ImportedAt = DateTimeOffset.UnixEpoch, ParserVersion = "test", Report = "{}" });
+        foreach (var (from, to, lifecycle) in new[] { (new DateOnly(2024, 12, 18), new DateOnly(2024, 12, 18), Lifecycle.Active), (new DateOnly(2025, 12, 8), new DateOnly(2025, 12, 8), Lifecycle.Insolvency) })
+        {
+            database.RegistrationPeriods.Add(new RegistrationPeriod
+            {
+                RegistrationNumber = "J12/4/2011",
+                ValidFrom = from,
+                ValidTo = to,
+                Name = "ZARZAVAT FRESH SRL",
+                NameKey = "ZARZAVAT FRESH SRL",
+                Cui = Zarzavat,
+                CuiState = "Valid",
+                CountyNumber = Cluj,
+                Lifecycle = lifecycle,
+                StatusCodes = [],
+            });
+        }
+
         AddFiscal(database);
         database.Representatives.AddRange(
             new Representative
@@ -211,6 +233,7 @@ public static class SearchFixtures
         if (build)
         {
             await new BuildSearchIndex(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
+            await new BuildMarketStatistics(database, TimeProvider.System).ExecuteAsync(CancellationToken.None);
         }
     }
 
@@ -439,6 +462,7 @@ public static class SearchFixtures
         Lifecycle = lifecycle,
         CaenVersion = caenVersion,
         RegistrationDate = new DateOnly(2010, 1, 1),
+        FirstRegistrationDate = new DateOnly(2010, 1, 1),
     };
 
     private static SirutaPlace Place(int code, string name, short county, int parent, short level) =>

@@ -9,5 +9,6 @@ public static class Navigation
     public static readonly IReadOnlyList<NavigationDestination> Destinations =
     [
         new("/Index", "Căutare", "search"),
+        new("/Statistics", "Statistici", "bar-chart"),
     ];
 }

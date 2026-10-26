@@ -876,6 +876,97 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                     b.ToTable("licences", "licences");
                 });
 
+            modelBuilder.Entity("BusinessIntelligence.Modules.Market.LifecycleChange", b =>
+                {
+                    b.Property<DateOnly>("ObservedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("observed_on");
+
+                    b.Property<short>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<string>("FormCategory")
+                        .HasColumnType("text")
+                        .HasColumnName("form_category");
+
+                    b.Property<string>("FromLifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("from_lifecycle");
+
+                    b.Property<string>("ToLifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("to_lifecycle");
+
+                    b.Property<DateOnly>("PreviousSnapshot")
+                        .HasColumnType("date")
+                        .HasColumnName("previous_snapshot");
+
+                    b.Property<int>("Registrations")
+                        .HasColumnType("integer")
+                        .HasColumnName("registrations");
+
+                    b.HasKey("ObservedOn", "CountyNumber", "FormCategory", "FromLifecycle", "ToLifecycle")
+                        .HasName("pk_lifecycle_changes");
+
+                    b.ToTable("lifecycle_changes", "market");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Market.MarketBuild", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("BuiltAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("built_at");
+
+                    b.Property<DateOnly>("ReferenceDate")
+                        .HasColumnType("date")
+                        .HasColumnName("reference_date");
+
+                    b.Property<int>("RegistrySnapshotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("registry_snapshot_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_builds");
+
+                    b.ToTable("builds", "market");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Market.MonthlyRegistrations", b =>
+                {
+                    b.Property<DateOnly>("Month")
+                        .HasColumnType("date")
+                        .HasColumnName("month");
+
+                    b.Property<short>("CountyNumber")
+                        .HasColumnType("smallint")
+                        .HasColumnName("county_number");
+
+                    b.Property<string>("FormCategory")
+                        .HasColumnType("text")
+                        .HasColumnName("form_category");
+
+                    b.Property<string>("Lifecycle")
+                        .HasColumnType("text")
+                        .HasColumnName("lifecycle");
+
+                    b.Property<int>("Companies")
+                        .HasColumnType("integer")
+                        .HasColumnName("companies");
+
+                    b.HasKey("Month", "CountyNumber", "FormCategory", "Lifecycle")
+                        .HasName("pk_registrations");
+
+                    b.ToTable("registrations", "market");
+                });
+
             modelBuilder.Entity("BusinessIntelligence.Modules.Procurement.ProcurementAward", b =>
                 {
                     b.Property<int>("SourceFileId")
