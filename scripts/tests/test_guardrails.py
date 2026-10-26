@@ -1,6 +1,5 @@
 """Regression tests for failure modes that could otherwise produce false confidence."""
 
-import copy
 from pathlib import Path
 import sys
 import tempfile
@@ -14,67 +13,12 @@ import verify
 
 
 class RepositoryContractTests(unittest.TestCase):
-    def setUp(self):
-        self.plan = checks.read_json(checks.ROOT / ".research/implementation-map.json")
-
-    def test_current_plan_is_valid(self):
-        self.assertEqual([], checks.check_map(self.plan, checks.ROOT))
-
     def test_duplicate_json_keys_fail(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "duplicate.json"
             path.write_text('{"id": 1, "id": 2}\n')
             with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
                 checks.read_json(path)
-
-    def test_scope_cannot_silently_change(self):
-        self.plan["version"] = "v2"
-        self.assertTrue(any("must remain mvp" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_empty_plan_fails(self):
-        self.plan["steps"] = []
-        self.assertTrue(any("no steps defined" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_unknown_dependency_fails(self):
-        self.plan["steps"][0]["depends_on"] = ["S99"]
-        self.assertTrue(any("unknown depends_on reference S99" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_dependency_cycle_fails(self):
-        self.plan["steps"][0]["depends_on"] = ["S02"]
-        self.plan["steps"][1]["depends_on"] = ["S01"]
-        self.assertTrue(any("dependency cycle" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_plan_cannot_escape_research(self):
-        self.plan["steps"][0]["path"] = "../README.md"
-        self.assertTrue(any("must stay under .research" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_duplicate_step_identifier_fails(self):
-        self.plan["steps"].append(copy.deepcopy(self.plan["steps"][0]))
-        self.assertTrue(any("duplicate ID" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_completed_step_requires_completed_tasks(self):
-        step = self.plan["steps"][-1]
-        step["status"] = "completed"
-        step["tasks"] = [{"id": step["id"] + ".1", "status": "planned"}]
-        self.assertTrue(any("unfinished tasks" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_completed_task_requires_existing_note(self):
-        step = self.plan["steps"][-1]
-        step["tasks"] = [{"id": step["id"] + ".1", "status": "completed", "note": "tasks/missing.md"}]
-        self.assertTrue(any("needs its note" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_task_note_cannot_escape_research(self):
-        step = self.plan["steps"][-1]
-        step["tasks"] = [{"id": step["id"] + ".1", "status": "completed", "note": "../README.md"}]
-        self.assertTrue(any("note must stay under .research" in error for error in checks.check_map(self.plan, checks.ROOT)))
-
-    def test_duplicate_tasks_and_unknown_status_are_rejected(self):
-        step = self.plan["steps"][-1]
-        task = {"id": step["id"] + ".1", "status": "almost_done"}
-        step["tasks"] = [task, copy.deepcopy(task)]
-        errors = checks.check_map(self.plan, checks.ROOT)
-        self.assertTrue(any("unknown implementation status" in error for error in errors))
-        self.assertTrue(any("duplicate task" in error for error in errors))
 
     def test_markdown_examples_and_external_links_are_not_local_links(self):
         content = '[guide](guide.md) [web](https://example.com) [anchor](#part)\n```text\n[x](missing.md)\n```\n'

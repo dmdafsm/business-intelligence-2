@@ -4,7 +4,7 @@ Loads the SEAP exports published by the Romanian Digitalization Authority (ADR) 
 
 ## Files and command
 
-All published files from 2007 to 2026 (contracts and direct purchases; data.gov.ro has no 2019 dataset) are pinned in the [source catalog](../../src/BusinessIntelligence.Modules/Registry/Sources/catalog.json) (kinds `seap-contracts`, `seap-direct`) with size, SHA-256, year, period family and `localPath` under `seap-2025/` and `seap-history/<year>/`. The period family is a quarter (`Q1`–`Q4`), a half year (`S1`, `S2`) or the whole year (`Y`); a period split into several files adds `-P<n>`. The download lists are [.research/seap-history-download-list.json](../../.research/seap-history-download-list.json) and [.research/seap-2024-q1-download-list.json](../../.research/seap-2024-q1-download-list.json).
+All published files from 2007 to 2026 (contracts and direct purchases; data.gov.ro has no 2019 dataset) are pinned in the [source catalog](../../src/BusinessIntelligence.Modules/Registry/Sources/catalog.json) (kinds `seap-contracts`, `seap-direct`) with size, SHA-256, year, period family and `localPath` under `seap-2025/` and `seap-history/<year>/`. The period family is a quarter (`Q1`–`Q4`), a half year (`S1`, `S2`) or the whole year (`Y`); a period split into several files adds `-P<n>`.
 
 ```sh
 dotnet src/BusinessIntelligence.Host/bin/Release/net10.0/BusinessIntelligence.Host.dll procurement import-all .research/raw

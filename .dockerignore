@@ -8,6 +8,4 @@
 **/appsettings.*.local.json
 **/*.pfx
 **/*.p12
-.research/raw
-.research/downloads
-.research/private
+.research

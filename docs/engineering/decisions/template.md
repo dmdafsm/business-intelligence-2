@@ -4,7 +4,7 @@ Status: proposed / accepted / superseded. Date: YYYY-MM-DD. Related tasks: Sxx.n
 
 ## Context
 
-Concrete problem, constraints and evidence. Link research saved under .research; distinguish observations from assumptions.
+Concrete problem, constraints and evidence. Summarize the research it relies on; distinguish observations from assumptions.
 
 ## Decision
 
