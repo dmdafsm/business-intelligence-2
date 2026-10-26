@@ -1,5 +1,5 @@
 @page "/admin/joburi/rulare/{id:long}"
-@model BusinessIntelligence.Host.Pages.Admin.RulareModel
+@model BusinessIntelligence.Host.Pages.Admin.RunModel
 @{
     ViewData["Title"] = $"Rularea {Model.Run.Id}";
 }
@@ -39,7 +39,7 @@
     </dl>
     @if (Model.Active)
     {
-        <form method="post" asp-page="/Admin/Joburi" asp-page-handler="Cancel" class="cluster">
+        <form method="post" asp-page="/Admin/Jobs" asp-page-handler="Cancel" class="cluster">
             <input type="hidden" name="run" value="@Model.Run.Id" />
             <button class="md-button md-button--outlined" type="submit" disabled="@Model.Run.CancelRequested">@(Model.Run.CancelRequested ? "Anulare cerută" : "Anulează")</button>
             <span class="md-typescale-body-small md-on-surface-variant">Pagina se reîncarcă la 10 secunde.</span>

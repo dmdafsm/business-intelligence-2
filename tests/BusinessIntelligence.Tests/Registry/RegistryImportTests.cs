@@ -16,9 +16,9 @@ public sealed class RegistryImportTests(PostgresFixture postgres) : IClassFixtur
     public async Task SnapshotIsMergedGroupedByCuiAndPublished()
     {
         await using var database = await SeededAsync();
-        var (path, file) = RegistryFixtures.WriteFirme(_files.FullName, "first", RegistryFixtures.FirstSnapshot);
+        var (path, file) = RegistryFixtures.WriteCompanies(_files.FullName, "first", RegistryFixtures.FirstSnapshot);
 
-        var result = await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
+        var result = await new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
 
         Assert.Equal(ImportOutcome.Published, result.Outcome);
         var registrations = await database.Registrations.AsNoTracking().ToDictionaryAsync(item => item.RegistrationNumber);
@@ -53,8 +53,8 @@ public sealed class RegistryImportTests(PostgresFixture postgres) : IClassFixtur
     public async Task IndividualsKeepNoPersonalCodeAndOnlyACoarseAddress()
     {
         await using var database = await SeededAsync();
-        var (path, file) = RegistryFixtures.WriteFirme(_files.FullName, "individuals", RegistryFixtures.FirstSnapshot);
-        await new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
+        var (path, file) = RegistryFixtures.WriteCompanies(_files.FullName, "individuals", RegistryFixtures.FirstSnapshot);
+        await new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None);
 
         var individual = await database.Registrations.AsNoTracking().SingleAsync(item => item.RegistrationNumber == "F12/5/2010");
         Assert.Equal(("individual", "PersonalCode"), (individual.FormCategory, individual.CuiState));
@@ -76,17 +76,17 @@ public sealed class RegistryImportTests(PostgresFixture postgres) : IClassFixtur
     public async Task ReimportIsANoOpAndANewSnapshotReplacesTheOld()
     {
         await using var database = await SeededAsync();
-        var import = new ImportOnrcFirme(database, TimeProvider.System);
-        var (firstPath, first) = RegistryFixtures.WriteFirme(_files.FullName, "a", RegistryFixtures.FirstSnapshot);
+        var import = new ImportOnrcCompanies(database, TimeProvider.System);
+        var (firstPath, first) = RegistryFixtures.WriteCompanies(_files.FullName, "a", RegistryFixtures.FirstSnapshot);
         var published = await import.ExecuteAsync(firstPath, first, CancellationToken.None);
 
         var again = await import.ExecuteAsync(firstPath, first, CancellationToken.None);
         Assert.Equal((ImportOutcome.AlreadyImported, published.SourceFileId), (again.Outcome, again.SourceFileId));
         Assert.Equal(5, await database.Registrations.CountAsync());
 
-        var (secondPath, second) = RegistryFixtures.WriteFirme(_files.FullName, "b", RegistryFixtures.SecondSnapshot);
+        var (secondPath, second) = RegistryFixtures.WriteCompanies(_files.FullName, "b", RegistryFixtures.SecondSnapshot);
         var replaced = await import.ExecuteAsync(secondPath, second, CancellationToken.None);
-        Assert.Equal(replaced.SourceFileId, (await database.PublishedDatasets.AsNoTracking().SingleAsync(item => item.Kind == ImportOnrcFirme.Kind)).SourceFileId);
+        Assert.Equal(replaced.SourceFileId, (await database.PublishedDatasets.AsNoTracking().SingleAsync(item => item.Kind == ImportOnrcCompanies.Kind)).SourceFileId);
         Assert.Equal([replaced.SourceFileId], await database.Registrations.Select(item => item.SnapshotId).Distinct().ToListAsync());
         Assert.Equal(2, await database.Companies.CountAsync());
     }
@@ -95,11 +95,11 @@ public sealed class RegistryImportTests(PostgresFixture postgres) : IClassFixtur
     public async Task TamperedFileChangesNothing()
     {
         await using var database = await SeededAsync();
-        var import = new ImportOnrcFirme(database, TimeProvider.System);
-        var (path, file) = RegistryFixtures.WriteFirme(_files.FullName, "good", RegistryFixtures.FirstSnapshot);
+        var import = new ImportOnrcCompanies(database, TimeProvider.System);
+        var (path, file) = RegistryFixtures.WriteCompanies(_files.FullName, "good", RegistryFixtures.FirstSnapshot);
         var published = await import.ExecuteAsync(path, file, CancellationToken.None);
 
-        var (otherPath, other) = RegistryFixtures.WriteFirme(_files.FullName, "tampered", RegistryFixtures.SecondSnapshot);
+        var (otherPath, other) = RegistryFixtures.WriteCompanies(_files.FullName, "tampered", RegistryFixtures.SecondSnapshot);
         var bytes = await File.ReadAllBytesAsync(otherPath);
         bytes[^3] = (byte)'X';
         await File.WriteAllBytesAsync(otherPath, bytes);
@@ -107,7 +107,7 @@ public sealed class RegistryImportTests(PostgresFixture postgres) : IClassFixtur
         await Assert.ThrowsAsync<InvalidDataException>(() => import.ExecuteAsync(otherPath, other, CancellationToken.None));
         database.ChangeTracker.Clear();
         Assert.Equal(published.SourceFileId, (await database.PublishedDatasets.AsNoTracking().SingleAsync()).SourceFileId);
-        Assert.Equal(1, await database.SourceFiles.CountAsync(item => item.Kind == ImportOnrcFirme.Kind));
+        Assert.Equal(1, await database.SourceFiles.CountAsync(item => item.Kind == ImportOnrcCompanies.Kind));
         Assert.Equal(5, await database.Registrations.CountAsync());
     }
 
@@ -115,8 +115,8 @@ public sealed class RegistryImportTests(PostgresFixture postgres) : IClassFixtur
     public async Task RegistryNeedsSirutaFirst()
     {
         await using var database = await postgres.CreateIsolatedContextAsync();
-        var (path, file) = RegistryFixtures.WriteFirme(_files.FullName, "no-siruta", RegistryFixtures.FirstSnapshot);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => new ImportOnrcFirme(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None));
+        var (path, file) = RegistryFixtures.WriteCompanies(_files.FullName, "no-siruta", RegistryFixtures.FirstSnapshot);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => new ImportOnrcCompanies(database, TimeProvider.System).ExecuteAsync(path, file, CancellationToken.None));
     }
 
     [Fact]
