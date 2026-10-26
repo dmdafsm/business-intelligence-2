@@ -1,7 +1,6 @@
-@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Environment
 @{
     var currentPage = ViewContext.RouteData.Values["page"] as string;
-    var destinations = Navigation.Destinations.Where(item => !item.DevelopmentOnly || Environment.IsDevelopment()).ToList();
+    var destinations = Navigation.Destinations;
 }
 <!DOCTYPE html>
 <html lang="ro">
