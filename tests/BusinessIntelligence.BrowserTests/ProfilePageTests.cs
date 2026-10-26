@@ -88,6 +88,22 @@ public sealed class ProfilePageTests(SearchPortalFixture portal) : IClassFixture
         {
             await page.GotoAsync(portal.Address + $"/firma/{SearchFixtures.ExempluSoft}");
             Assert.False(await page.EvaluateAsync<bool>("document.documentElement.scrollWidth > window.innerWidth"));
+
+            // An opened wide table scrolls inside its own region, never the page, and only sideways.
+            await page.EvaluateAsync("document.querySelectorAll('details').forEach(details => details.open = true)");
+            Assert.False(await page.EvaluateAsync<bool>("document.documentElement.scrollWidth > window.innerWidth"));
+            Assert.False(await page.EvaluateAsync<bool>(
+                "[...document.querySelectorAll('.md-table-wrapper')].some(w => getComputedStyle(w).overflowY !== 'hidden' || w.clientWidth > document.documentElement.clientWidth)"));
+
+            // Scrolled to the last year, the indicator names stay at the left edge of their table.
+            Assert.True(await page.EvaluateAsync<bool>("""
+                (() => {
+                    const wrapper = document.querySelector('.md-data-table--sticky-first').closest('.md-table-wrapper');
+                    const label = wrapper.querySelector('tbody th');
+                    wrapper.scrollLeft = wrapper.scrollWidth;
+                    return wrapper.scrollLeft > 0 && Math.abs(label.getBoundingClientRect().left - wrapper.getBoundingClientRect().left) < 2;
+                })()
+                """));
             await page.GetByRole(AriaRole.Link, new() { Name = "Financiar" }).ClickAsync();
             await Assertions.Expect(page.GetByRole(AriaRole.Heading, new() { Name = "Financiar" })).ToBeInViewportAsync();
         }, Phone);

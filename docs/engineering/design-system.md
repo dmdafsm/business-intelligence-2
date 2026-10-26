@@ -26,7 +26,7 @@ In Development, `/Design` shows every component, the color roles and the type sc
 - Charts are server-rendered SVG (`_BarChart` partial): one series, one axis, `--md-chart-positive`/`--md-chart-negative` (validated for each scheme), a table with every value next to them.
 - Every section that shows imported data ends with an `md-source` note: publisher, dataset, period and license.
 - A company's lifecycle is an `md-status` label: secondary container for active, tertiary container for states that need attention, neutral for struck off. Never `error`.
-- Wide tables scroll inside `md-table-wrapper`; the page never scrolls horizontally at 360px.
+- Wide tables scroll inside `md-table-wrapper`; the page never scrolls horizontally at 360px. When rows are named by their first column (an indicator per row, a year per column), add `md-data-table--sticky-first` so the names stay in view while the values scroll.
 - New components get a class `md-<name>`, use only tokens, and are added to `/Design`.
 
 ## Theme
