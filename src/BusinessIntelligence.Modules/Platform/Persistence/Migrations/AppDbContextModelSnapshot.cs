@@ -1668,6 +1668,10 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<string>("PersonKey")
+                        .HasColumnType("text")
+                        .HasColumnName("person_key");
+
                     b.Property<string>("PersonKind")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1684,6 +1688,9 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
 
                     b.HasKey("SnapshotId", "Source", "RowNumber")
                         .HasName("pk_representatives");
+
+                    b.HasIndex("SnapshotId", "PersonKey")
+                        .HasDatabaseName("ix_representatives_snapshot_id_person_key");
 
                     b.HasIndex("SnapshotId", "RegistrationNumber")
                         .HasDatabaseName("ix_representatives_snapshot_id_registration_number");
@@ -1816,6 +1823,97 @@ namespace BusinessIntelligence.Modules.Platform.Persistence.Migrations
                         .HasDatabaseName("ix_source_files_sha256_parser_version");
 
                     b.ToTable("source_files", "registry");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Risk.RiskBuild", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<short?>("BenchmarkYear")
+                        .HasColumnType("smallint")
+                        .HasColumnName("benchmark_year");
+
+                    b.Property<DateTimeOffset>("BuiltAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("built_at");
+
+                    b.Property<short?>("FinancialYear")
+                        .HasColumnType("smallint")
+                        .HasColumnName("financial_year");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_builds");
+
+                    b.ToTable("builds", "risk");
+                });
+
+            modelBuilder.Entity("BusinessIntelligence.Modules.Risk.RiskSignal", b =>
+                {
+                    b.Property<string>("CompanyKey")
+                        .HasColumnType("text")
+                        .HasColumnName("company_key");
+
+                    b.Property<string>("Signal")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("signal");
+
+                    b.Property<decimal?>("Amount")
+                        .HasPrecision(20)
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("CaenCode")
+                        .HasColumnType("text")
+                        .HasColumnName("caen_code");
+
+                    b.Property<DateOnly?>("CheckedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("checked_on");
+
+                    b.Property<long?>("Cui")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cui");
+
+                    b.Property<decimal?>("Ratio")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("ratio");
+
+                    b.Property<DateOnly?>("Since")
+                        .HasColumnType("date")
+                        .HasColumnName("since");
+
+                    b.Property<decimal?>("Threshold")
+                        .HasPrecision(24, 6)
+                        .HasColumnType("numeric(24,6)")
+                        .HasColumnName("threshold");
+
+                    b.Property<short?>("Year")
+                        .HasColumnType("smallint")
+                        .HasColumnName("year");
+
+                    b.HasKey("CompanyKey", "Signal")
+                        .HasName("pk_signals");
+
+                    b.HasIndex("Cui")
+                        .HasDatabaseName("ix_signals_cui");
+
+                    b.HasIndex("Signal", "CompanyKey")
+                        .HasDatabaseName("ix_signals_signal_company_key");
+
+                    b.ToTable("signals", "risk");
                 });
 
             modelBuilder.Entity("BusinessIntelligence.Modules.Search.SearchBuild", b =>

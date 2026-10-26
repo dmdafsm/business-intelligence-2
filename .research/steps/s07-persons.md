@@ -15,9 +15,11 @@ A company profile shows who runs the company (administrators, legal representati
 
 - Every published column is stored; pages show natural persons with name, role and birth year only ([ADR 0001](../../docs/engineering/decisions/0001-representatives-personal-data.md)).
 - The profile says which roles are shown and that shareholders are not open data.
+- Other companies of a representative are linked only by identical name, birth date and place of birth (firms: name), with a warning ([ADR 0004](../../docs/engineering/decisions/0004-linking-representatives.md)).
 
 ## Tasks
 
 - S07.1 Import ONRC representatives and show them on the profile — [note](../tasks/s07-1-representatives.md).
+- S07.2 Link representatives across companies on the profile — [note](../tasks/s07-2-person-links.md).
 
 Open: shareholders and beneficial owners (needs a paid-access decision); history of representatives (only the current snapshot is published).

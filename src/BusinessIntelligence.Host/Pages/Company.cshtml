@@ -28,6 +28,7 @@
 
 <nav class="md-tabs profile-nav" aria-label="Secțiuni">
     <a class="md-tab" href="#prezentare">Prezentare</a>
+    @if (profile.RiskBuild is not null) { <a class="md-tab" href="#semnale">Semnale</a> }
     <a class="md-tab" href="#contact">Contact</a>
     @if (profile.Anaf is not null) { <a class="md-tab" href="#anaf">ANAF</a> }
     <a class="md-tab" href="#persoane">Persoane</a>
@@ -108,6 +109,38 @@
     </section>
 }
 
+@if (profile.RiskBuild is { } riskBuild)
+{
+    <section id="semnale" class="md-card md-card--outlined profile-section" aria-labelledby="semnale-title">
+        <h2 id="semnale-title" class="md-card__title">Semnale de atenție</h2>
+        @if (company.Cui is null || company.Lifecycle == BusinessIntelligence.Modules.Registry.Onrc.Lifecycle.StruckOff)
+        {
+            <p class="md-typescale-body-medium md-missing">Nu se calculează semnale pentru firmele radiate sau fără CUI valid.</p>
+        }
+        else if (profile.Signals.Count == 0)
+        {
+            <p class="md-typescale-body-medium">Niciun semnal din datele verificate.</p>
+        }
+        else
+        {
+            <ul class="md-list signal-list">
+                @foreach (var signal in profile.Signals.OrderBy(item => BusinessIntelligence.Modules.Risk.RiskSignals.All.ToList().FindIndex(definition => definition.Key == item.Signal)))
+                {
+                    var definition = BusinessIntelligence.Modules.Risk.RiskSignals.Get(signal.Signal);
+                    <li class="md-list__item md-list__item--dense">
+                        <md-icon name="info" />
+                        <span class="md-list__text">
+                            <span class="md-list__headline">@definition.Name</span>
+                            <span class="md-list__supporting">@CompanyModel.SignalDetail(signal) Sursa: @definition.Source.</span>
+                        </span>
+                    </li>
+                }
+            </ul>
+        }
+        <p class="md-typescale-body-small md-on-surface-variant">Semnalele sunt fapte din datele publice, nu un rating: lipsa lor nu înseamnă lipsa riscului. Starea ANAF este cea din ultimul răspuns al serviciului web; datele financiare sunt cele publicate de MF pentru @(riskBuild.FinancialYear?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "—"). Stările din registru (insolvență, dizolvare) apar în Prezentare. Reguli @riskBuild.Version.</p>
+    </section>
+}
+
 <section id="contact" class="md-card md-card--outlined profile-section" aria-labelledby="contact-title">
     <h2 id="contact-title" class="md-card__title">Contact</h2>
     <dl class="md-facts">
@@ -139,7 +172,7 @@
         <div class="md-table-wrapper">
             <table class="md-data-table">
                 <caption class="md-visually-hidden">Administratori și reprezentanți</caption>
-                <thead><tr><th scope="col">Nume</th><th scope="col">Calitate</th><th scope="col">Născut(ă) / sediu</th>@if (severalRegistrations) {<th scope="col">Nr. înregistrare</th>}</tr></thead>
+                <thead><tr><th scope="col">Nume</th><th scope="col">Calitate</th><th scope="col">Născut(ă) / sediu</th>@if (severalRegistrations) {<th scope="col">Nr. înregistrare</th>}<th scope="col">Alte firme</th></tr></thead>
                 <tbody>
                     @foreach (var person in profile.People)
                     {
@@ -153,13 +186,35 @@
                                 _ => "—",
                             })</td>
                             @if (severalRegistrations) {<td>@person.RegistrationNumber</td>}
+                            <td>
+                                @if (person.OtherCount == 0)
+                                {
+                                    <span class="md-on-surface-variant">—</span>
+                                }
+                                else
+                                {
+                                    <details class="person-links">
+                                        <summary>@(person.OtherCount == 1 ? "1 firmă" : $"{person.OtherCount.ToString("N0", ro)} firme")</summary>
+                                        <ul>
+                                            @foreach (var other in person.Others)
+                                            {
+                                                <li><a href="@(other.Cui is { } otherCui ? Url.Page("/Company", new { cui = otherCui }) : Url.Page("/Company", new { nr = other.RegistrationNumber }))">@(other.Name ?? other.RegistrationNumber)</a>@if (other.Lifecycle is { } state && state != BusinessIntelligence.Modules.Registry.Onrc.Lifecycle.Active) {<span class="md-on-surface-variant"> · @Model.Lifecycle(state).ToLowerInvariant()</span>}@if (!string.IsNullOrEmpty(other.Role)) {<span class="md-on-surface-variant"> · @other.Role</span>}</li>
+                                            }
+                                        </ul>
+                                        @if (person.OtherCount > person.Others.Count)
+                                        {
+                                            <p class="md-typescale-body-small md-on-surface-variant">și încă @((person.OtherCount - person.Others.Count).ToString("N0", ro)); sunt afișate întâi cele active.</p>
+                                        }
+                                    </details>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
     }
-    <p class="md-typescale-body-small md-on-surface-variant">Pentru persoanele fizice se afișează doar numele, calitatea și anul nașterii. Aceeași persoană poate apărea la mai multe firme, iar nume identice pot aparține unor persoane diferite. Asociații și beneficiarii reali nu sunt publicați de ONRC ca date deschise.</p>
+    <p class="md-typescale-body-small md-on-surface-variant">Pentru persoanele fizice se afișează doar numele, calitatea și anul nașterii. „Alte firme” leagă înregistrările unde registrul are același nume, aceeași dată și același loc de naștere (pentru firme: aceeași denumire). Registrul nu are un identificator personal, deci legătura poate uni persoane diferite cu aceleași date sau poate omite aceeași persoană scrisă altfel. Asociații și beneficiarii reali nu sunt publicați de ONRC ca date deschise.</p>
     <partial name="_SourceNote" model="peopleSource" />
 </section>
 

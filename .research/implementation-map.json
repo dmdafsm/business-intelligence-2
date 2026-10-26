@@ -154,6 +154,12 @@
           "title": "Import ONRC representatives and show them on the profile",
           "status": "completed",
           "note": "tasks/s07-1-representatives.md"
+        },
+        {
+          "id": "S07.2",
+          "title": "Link representatives across companies on the profile",
+          "status": "completed",
+          "note": "tasks/s07-2-person-links.md"
         }
       ]
     },
@@ -272,6 +278,44 @@
           "title": "Turnover and employee filters and ordering in search",
           "status": "completed",
           "note": "tasks/s12-1-prospecting-filters.md"
+        }
+      ]
+    },
+    {
+      "id": "S13",
+      "title": "Risk signals",
+      "status": "completed",
+      "path": "steps/s13-risk-signals.md",
+      "depends_on": [
+        "S04",
+        "S08",
+        "S10"
+      ],
+      "tasks": [
+        {
+          "id": "S13.1",
+          "title": "Signals table, profile section and search filter",
+          "status": "completed",
+          "note": "tasks/s13-1-risk-signals.md"
+        }
+      ]
+    },
+    {
+      "id": "S14",
+      "title": "CSV export of search results",
+      "status": "completed",
+      "path": "steps/s14-export.md",
+      "depends_on": [
+        "S05",
+        "S12",
+        "S13"
+      ],
+      "tasks": [
+        {
+          "id": "S14.1",
+          "title": "CSV export from the search page",
+          "status": "completed",
+          "note": "tasks/s14-1-csv-export.md"
         }
       ]
     }

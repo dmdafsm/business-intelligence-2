@@ -39,6 +39,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Market.MonthlyRegistrations> MarketRegistrations => Set<Market.MonthlyRegistrations>();
     public DbSet<Market.LifecycleChange> LifecycleChanges => Set<Market.LifecycleChange>();
     public DbSet<Market.MarketBuild> MarketBuilds => Set<Market.MarketBuild>();
+    public DbSet<Risk.RiskSignal> RiskSignals => Set<Risk.RiskSignal>();
+    public DbSet<Risk.RiskBuild> RiskBuilds => Set<Risk.RiskBuild>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,6 +56,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         Licences.LicencesPersistence.Configure(modelBuilder);
         Jobs.JobsPersistence.Configure(modelBuilder);
         Market.MarketPersistence.Configure(modelBuilder);
+        Risk.RiskPersistence.Configure(modelBuilder);
         SnakeCaseNames.Apply(modelBuilder);
     }
 }

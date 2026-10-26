@@ -17,7 +17,9 @@ public sealed record SearchRequest(
     string? Lifecycle = null,
     int Page = 1,
     bool IncludeHits = true,
-    FinancialFilter? Financials = null);
+    FinancialFilter? Financials = null,
+    string? Signal = null,
+    int? Limit = null);
 
 /// <summary>
 /// Ranges on the latest published financial year (bounds inclusive, any may be null) and an order of the results. A
@@ -48,7 +50,8 @@ public sealed record SearchHit(
     string? EarlierName,
     short? FinancialYear = null,
     decimal? Turnover = null,
-    int? Employees = null);
+    int? Employees = null,
+    decimal? NetResult = null);
 
 public sealed record FacetItem(string Value, string Label, long Count);
 
@@ -92,10 +95,16 @@ public sealed class CompanySearch(AppDbContext database)
     public const short DefaultCaenVersion = 3;
     public const int PageSize = 20;
 
+    /// <summary>The most rows one CSV export holds: the first ones in the page's order.</summary>
+    public const int MaxExport = 10_000;
+
     /// <summary>Deeper pages are not served; the page asks for a narrower search instead.</summary>
     public const int MaxPage = 250;
 
     public static readonly IReadOnlyList<short> CaenVersions = [3, 2];
+
+    /// <summary>The <see cref="SearchRequest.Signal"/> for companies that were checked and have no warning signal.</summary>
+    public const string NoSignal = "none";
 
     /// <summary>pg_trgm word similarity for the approximate tier: one or two wrong letters in a word still match.</summary>
     public const double SimilarityThreshold = 0.5;
@@ -139,21 +148,23 @@ public sealed class CompanySearch(AppDbContext database)
         var caen = path.Count > 0 ? path[^1].Code : null;
         var token = caen is null ? null : $"{request.CaenVersion}:{caen}";
         var page = Math.Clamp(request.Page, 1, MaxPage);
+        var size = request.Limit is { } limit ? Math.Clamp(limit, 1, MaxExport) : PageSize;
 
         var financials = request.Financials ?? new FinancialFilter();
-        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle, financials);
+        var signal = request.Signal is { } chosen && (chosen == NoSignal || Risk.RiskSignals.All.Any(item => item.Key == chosen)) ? chosen : null;
+        var filter = new SqlFilter(query, request.County, request.Uat, token, request.Lifecycle, financials, signal);
         var children = await CaenChildrenAsync(connection, request.CaenVersion, path.Count > 0 ? path[^1] : null, cancellationToken);
         List<HitRow> rows;
         long total;
         Dictionary<string, Dictionary<string, long>> facets;
         // The stored counts cover county, lifecycle and CAEN only; a locality or a financial filter is counted live.
-        if (hasQuery || request.Uat is not null || !financials.IsEmpty)
+        if (hasQuery || request.Uat is not null || !financials.IsEmpty || signal is not null)
         {
-            (rows, total, facets) = await LiveAsync(connection, filter, hasQuery, page, request.CaenVersion, children.Keys, cancellationToken);
+            (rows, total, facets) = await LiveAsync(connection, filter, hasQuery, page, size, request.CaenVersion, children.Keys, cancellationToken);
         }
         else
         {
-            rows = request.IncludeHits ? await BrowseAsync(connection, filter, page, cancellationToken) : [];
+            rows = request.IncludeHits ? await BrowseAsync(connection, filter, page, size, cancellationToken) : [];
             total = await CountAsync(connection, request.County ?? 0, request.Lifecycle ?? string.Empty, token ?? string.Empty, cancellationToken);
             facets = await StoredFacetsAsync(connection, request.County, request.Lifecycle, token, request.CaenVersion, children.Keys, cancellationToken);
         }
@@ -188,6 +199,20 @@ public sealed class CompanySearch(AppDbContext database)
         static int Parse(string value) => int.Parse(value, CultureInfo.InvariantCulture);
     }
 
+    /// <summary>
+    /// The first <see cref="MaxExport"/> results of a request in the page's order, with each company's warning signals
+    /// (keys of <see cref="Risk.RiskSignals"/>).
+    /// </summary>
+    public async Task<(SearchResult Result, IReadOnlyDictionary<string, string[]> Signals)> ExportAsync(SearchRequest request, CancellationToken cancellationToken)
+    {
+        var result = await ExecuteAsync(request with { Page = 1, IncludeHits = true, Limit = MaxExport }, cancellationToken);
+        var keys = result.Hits.Select(hit => hit.CompanyKey).ToArray();
+        var signals = keys.Length == 0 ? [] : (await database.RiskSignals.AsNoTracking().Where(item => keys.Contains(item.CompanyKey))
+                .Select(item => new { item.CompanyKey, item.Signal }).ToListAsync(cancellationToken))
+            .GroupBy(item => item.CompanyKey).ToDictionary(group => group.Key, group => group.Select(item => item.Signal).Order(StringComparer.Ordinal).ToArray());
+        return (result, signals);
+    }
+
     private static short? FinancialYearOf(SearchBuild build)
     {
         using var report = System.Text.Json.JsonDocument.Parse(build.Report);
@@ -198,7 +223,7 @@ public sealed class CompanySearch(AppDbContext database)
         counts is null ? [] : [.. counts.Where(item => item.Value > 0).Select(item => new FacetItem(item.Key, label(item.Key) ?? item.Key, item.Value))];
 
     /// <summary>The WHERE clauses and parameters for one request, shared by the result list and the live counts.</summary>
-    private sealed class SqlFilter(SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle, FinancialFilter financials)
+    private sealed class SqlFilter(SearchQuery query, short? county, int? uat, string? caenToken, string? lifecycle, FinancialFilter financials, string? signal)
     {
         public SearchQuery Query { get; } = query;
         public string? Lifecycle { get; } = lifecycle;
@@ -223,6 +248,15 @@ public sealed class CompanySearch(AppDbContext database)
             if (Financials.TurnoverMax is not null) { clauses.Add("c.turnover <= @turnoverMax"); }
             if (Financials.EmployeesMin is not null) { clauses.Add("c.employees >= @employeesMin"); }
             if (Financials.EmployeesMax is not null) { clauses.Add("c.employees <= @employeesMax"); }
+            // "No signal" covers only companies the signals are built for: with a CUI and not struck off.
+            if (signal == NoSignal)
+            {
+                clauses.Add("c.cui IS NOT NULL AND c.lifecycle <> 'StruckOff' AND NOT EXISTS (SELECT 1 FROM risk.signals r WHERE r.company_key = c.company_key)");
+            }
+            else if (signal is not null)
+            {
+                clauses.Add("EXISTS (SELECT 1 FROM risk.signals r WHERE r.company_key = c.company_key AND r.signal = @signal)");
+            }
             return string.Join(" AND ", clauses);
         }
 
@@ -300,6 +334,7 @@ public sealed class CompanySearch(AppDbContext database)
             Add("turnoverMax", Financials.TurnoverMax);
             Add("employeesMin", Financials.EmployeesMin);
             Add("employeesMax", Financials.EmployeesMax);
+            Add("signal", signal == NoSignal ? null : signal);
             if (Query.NameKey is { } key)
             {
                 command.Parameters.AddWithValue("key", key);
@@ -329,11 +364,11 @@ public sealed class CompanySearch(AppDbContext database)
 
     private sealed record HitRow(string CompanyKey, long? Cui, string RegistrationNumber, string? Name, string? LegalForm, string Lifecycle,
         DateOnly? FirstRegistrationDate, short? CountyNumber, int? UatCode, int? LocalityCode, short? FinancialYear, decimal? Turnover, int? Employees,
-        bool IdentifierMatch, string? EarlierName);
+        decimal? NetResult, bool IdentifierMatch, string? EarlierName);
 
     private const string HitColumns =
         "d.company_key, d.cui, d.registration_number, d.name, d.legal_form, d.lifecycle, d.first_registration_date, d.county_number, d.uat_code, d.locality_code, "
-        + "d.financial_year, d.turnover, d.employees";
+        + "d.financial_year, d.turnover, d.employees, d.net_result";
 
     private const string MatchedColumns = "c.name_key, c.county_number, c.uat_code, c.lifecycle, c.caen, c.turnover, c.employees";
 
@@ -342,7 +377,7 @@ public sealed class CompanySearch(AppDbContext database)
     /// then the page, the total and every count read it.
     /// </summary>
     private static async Task<(List<HitRow> Rows, long Total, Dictionary<string, Dictionary<string, long>> Facets)> LiveAsync(
-        NpgsqlConnection connection, SqlFilter filter, bool hasQuery, int page, short caenVersion, IEnumerable<string> children, CancellationToken cancellationToken)
+        NpgsqlConnection connection, SqlFilter filter, bool hasQuery, int page, int size, short caenVersion, IEnumerable<string> children, CancellationToken cancellationToken)
     {
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         var source = hasQuery
@@ -397,8 +432,8 @@ public sealed class CompanySearch(AppDbContext database)
             """, connection, transaction))
         {
             filter.Bind(command);
-            command.Parameters.AddWithValue("limit", PageSize);
-            command.Parameters.AddWithValue("offset", (page - 1) * PageSize);
+            command.Parameters.AddWithValue("limit", size);
+            command.Parameters.AddWithValue("offset", (page - 1) * size);
             await ReadHitsAsync(command, rows, cancellationToken);
         }
 
@@ -428,7 +463,7 @@ public sealed class CompanySearch(AppDbContext database)
     }
 
     /// <summary>Browsing by county, CAEN and lifecycle: the page in name order; the total comes from <c>search.counts</c>.</summary>
-    private static async Task<List<HitRow>> BrowseAsync(NpgsqlConnection connection, SqlFilter filter, int page, CancellationToken cancellationToken)
+    private static async Task<List<HitRow>> BrowseAsync(NpgsqlConnection connection, SqlFilter filter, int page, int size, CancellationToken cancellationToken)
     {
         await using var command = new NpgsqlCommand($"""
             SELECT {HitColumns}, false, NULL::text
@@ -438,8 +473,8 @@ public sealed class CompanySearch(AppDbContext database)
             LIMIT @limit OFFSET @offset
             """, connection);
         filter.Bind(command);
-        command.Parameters.AddWithValue("limit", PageSize);
-        command.Parameters.AddWithValue("offset", (page - 1) * PageSize);
+        command.Parameters.AddWithValue("limit", size);
+        command.Parameters.AddWithValue("offset", (page - 1) * size);
         var rows = new List<HitRow>();
         await ReadHitsAsync(command, rows, cancellationToken);
         return rows;
@@ -455,7 +490,7 @@ public sealed class CompanySearch(AppDbContext database)
                 reader.IsDBNull(6) ? null : reader.GetFieldValue<DateOnly>(6), reader.IsDBNull(7) ? null : reader.GetInt16(7),
                 reader.IsDBNull(8) ? null : reader.GetInt32(8), reader.IsDBNull(9) ? null : reader.GetInt32(9),
                 reader.IsDBNull(10) ? null : reader.GetInt16(10), reader.IsDBNull(11) ? null : reader.GetDecimal(11), reader.IsDBNull(12) ? null : reader.GetInt32(12),
-                reader.GetBoolean(13), Text(reader, 14)));
+                reader.IsDBNull(13) ? null : reader.GetDecimal(13), reader.GetBoolean(14), Text(reader, 15)));
         }
     }
 
@@ -597,7 +632,7 @@ public sealed class CompanySearch(AppDbContext database)
             row.CompanyKey, row.Cui, row.RegistrationNumber, row.Name, row.LegalForm, row.Lifecycle, row.FirstRegistrationDate,
             (row.LocalityCode ?? row.UatCode) is { } place ? places.GetValueOrDefault(place) : null,
             row.CountyNumber is { } county ? counties.GetValueOrDefault(county) : null,
-            row.IdentifierMatch, row.EarlierName, row.FinancialYear, row.Turnover, row.Employees))];
+            row.IdentifierMatch, row.EarlierName, row.FinancialYear, row.Turnover, row.Employees, row.NetResult))];
     }
 
     private static string? Text(NpgsqlDataReader reader, int ordinal) => reader.IsDBNull(ordinal) ? null : reader.GetString(ordinal);

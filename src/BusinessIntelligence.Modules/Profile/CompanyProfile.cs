@@ -19,7 +19,18 @@ public sealed record ActivityEntry(short Version, string Code, string? Name);
 /// A representative as pages may show it (ADR 0001): name, role, birth year for natural persons, and the place only for
 /// firms acting as representatives. Full birth dates, places of birth and the rest stay in the database.
 /// </summary>
-public sealed record PersonEntry(string RegistrationNumber, string? Name, string? Role, string Kind, int? BirthYear, string? Place);
+public sealed record PersonEntry(string RegistrationNumber, string? Name, string? Role, string Kind, int? BirthYear, string? Place)
+{
+    /// <summary>
+    /// Other registrations with a representative of the same name, birth date and place of birth (a firm: the same name)
+    /// in the same snapshot (ADR 0004); the first <see cref="CompanyProfileQuery.LinkedShown"/> of <see cref="OtherCount"/>.
+    /// </summary>
+    public IReadOnlyList<LinkedRegistration> Others { get; init; } = [];
+    public int OtherCount { get; init; }
+}
+
+/// <summary>A registration linked to a representative, with its current name, CUI and state, and the role held there.</summary>
+public sealed record LinkedRegistration(string RegistrationNumber, string? Name, long? Cui, string? Lifecycle, string? Role);
 
 /// <summary>Public procurement in one year, as winner or as contracting authority. Contract values are counted once per contract.</summary>
 /// <summary>Values are null when none of the year's rows has one; the <c>WithoutValue</c> counts are rows with a blank value.</summary>
@@ -72,6 +83,10 @@ public sealed record CompanyProfile
     public required IReadOnlyList<TaxpayerPeriod> FiscalHistory { get; init; }
     public required IReadOnlyList<FinancialYear> Financials { get; init; }
     public FinancialComparison? Comparison { get; init; }
+
+    /// <summary>The company's warning signals from the latest build; <see cref="RiskBuild"/> is null when signals were never built.</summary>
+    public IReadOnlyList<Risk.RiskSignal> Signals { get; init; } = [];
+    public Risk.RiskBuild? RiskBuild { get; init; }
     /// <summary>SIRUTA names of the UATs and localities shown, by code.</summary>
     public required IReadOnlyDictionary<int, string> Places { get; init; }
 
@@ -131,14 +146,23 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             .SelectMany(pair => pair.entries.DefaultIfEmpty(), (pair, entry) => new ActivityEntry(pair.item.CaenVersion, pair.item.CaenCode, entry != null ? entry.Name : null))
             .ToListAsync(cancellationToken);
 
-        var people = await database.Representatives.AsNoTracking()
+        var representatives = await database.Representatives.AsNoTracking()
             .Where(item => item.SnapshotId == snapshot && numbers.Contains(item.RegistrationNumber))
-            .Select(item => new PersonEntry(item.RegistrationNumber, item.Name, item.Role, item.PersonKind,
-                // Birth years outside 1900 and the snapshot year are source errors and are not shown.
-                item.PersonKind == "natural" && item.BirthDate != null && item.BirthDate.Value.Year >= 1900 && item.BirthDate.Value.Year <= firme.ReferenceDate.Year
-                    ? item.BirthDate.Value.Year : null,
-                item.PersonKind == "legal" ? string.Join(", ", new[] { item.Locality, item.County, item.Country }.Where(part => part != null)) : null))
+            .Select(item => new
+            {
+                Entry = new PersonEntry(item.RegistrationNumber, item.Name, item.Role, item.PersonKind,
+                    // Birth years outside 1900 and the snapshot year are source errors and are not shown.
+                    item.PersonKind == "natural" && item.BirthDate != null && item.BirthDate.Value.Year >= 1900 && item.BirthDate.Value.Year <= firme.ReferenceDate.Year
+                        ? item.BirthDate.Value.Year : null,
+                    item.PersonKind == "legal" ? string.Join(", ", new[] { item.Locality, item.County, item.Country }.Where(part => part != null)) : null),
+                item.PersonKey,
+            })
             .ToListAsync(cancellationToken);
+        // The key holds the full birth date and place: it is used here and never leaves this query.
+        var links = await LinksAsync(snapshot, numbers, representatives.Select(item => item.PersonKey).OfType<string>().Distinct().ToList(), cancellationToken);
+        var people = representatives.Select(item => item.PersonKey is { } key && links.TryGetValue(key, out var linked)
+            ? item.Entry with { Others = [.. linked.Take(LinkedShown)], OtherCount = linked.Count }
+            : item.Entry).ToList();
 
         // Earlier registry numbers of the same CUI (a company moved or renumbered) appear in the history by CUI.
         var history = await database.RegistrationPeriods.AsNoTracking()
@@ -162,6 +186,8 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             FiscalHistory = fiscal,
             Financials = financials,
             Comparison = await ComparisonAsync(financials, cancellationToken),
+            Signals = await database.RiskSignals.AsNoTracking().Where(item => item.CompanyKey == company.CompanyKey).ToListAsync(cancellationToken),
+            RiskBuild = await database.RiskBuilds.AsNoTracking().OrderByDescending(item => item.Id).FirstOrDefaultAsync(cancellationToken),
             Places = await PlacesAsync([company.UatCode, company.LocalityCode, .. history.SelectMany(item => new int?[] { item.UatCode, item.LocalityCode })], cancellationToken),
             Counties = await database.Siruta.AsNoTracking().Where(item => item.Level == 1)
                 .ToDictionaryAsync(item => item.CountyNumber, item => Search.PlaceNames.Display(item.Name, true), cancellationToken),
@@ -259,6 +285,40 @@ public sealed class CompanyProfileQuery(AppDbContext database)
             return new BenchmarkRow(indicator, FinancialIndicators.Calculate(indicator, statement, previous), own ?? all);
         }).ToList();
         return new FinancialComparison(year.Year, version, statement.CaenCode!, year.CaenName, band, rows);
+    }
+
+    /// <summary>Linked registrations listed per representative; the rest are counted.</summary>
+    public const int LinkedShown = 20;
+
+    /// <summary>
+    /// Other registrations of the snapshot whose representatives have one of <paramref name="keys"/>, by key: active ones
+    /// first, then by name. A registration of this company is never its own link.
+    /// </summary>
+    private async Task<Dictionary<string, List<LinkedRegistration>>> LinksAsync(int snapshot, IReadOnlyList<string> numbers, List<string> keys, CancellationToken cancellationToken)
+    {
+        if (keys.Count == 0)
+        {
+            return [];
+        }
+
+        var rows = await (
+                from representative in database.Representatives.AsNoTracking()
+                where representative.SnapshotId == snapshot && representative.PersonKey != null && keys.Contains(representative.PersonKey)
+                    && !numbers.Contains(representative.RegistrationNumber)
+                join registration in database.Registrations.AsNoTracking()
+                    on new { representative.SnapshotId, representative.RegistrationNumber } equals new { registration.SnapshotId, registration.RegistrationNumber }
+                join company in database.Companies.AsNoTracking().Where(item => item.SnapshotId == snapshot)
+                    on registration.RegistrationNumber equals company.RegistrationNumber into companies
+                from company in companies.DefaultIfEmpty()
+                select new { Key = representative.PersonKey!, registration.RegistrationNumber, registration.Name, registration.Cui, Lifecycle = company != null ? company.Lifecycle : null, representative.Role })
+            .ToListAsync(cancellationToken);
+        var names = StringComparer.Create(Culture, true);
+        return rows.GroupBy(row => row.Key).ToDictionary(group => group.Key, group => group
+            .GroupBy(row => row.RegistrationNumber)
+            .Select(same => new LinkedRegistration(same.Key, same.First().Name, same.First().Cui, same.First().Lifecycle,
+                string.Join(", ", same.Select(row => row.Role).OfType<string>().Distinct())))
+            .OrderBy(item => item.Lifecycle != Lifecycle.Active).ThenBy(item => item.Name, names)
+            .ToList());
     }
 
     /// <summary>Recent awards shown on the page; the yearly totals cover everything imported.</summary>
